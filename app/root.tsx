@@ -11,6 +11,8 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "./theme";
+import { queryClient } from "./utils/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -35,11 +37,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <ChakraProvider theme={theme}>
-          {children}
-          <ScrollRestoration />
-          <Scripts />
-        </ChakraProvider>
+        <QueryClientProvider client={queryClient}>
+          <ChakraProvider theme={theme}>
+            {children}
+            <ScrollRestoration />
+            <Scripts />
+          </ChakraProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );
