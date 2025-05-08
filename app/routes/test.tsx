@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   Image,
+  Link,
   ListItem,
   Spacer,
   Tag,
@@ -182,6 +183,22 @@ const Page = () => {
                 attention to detail.
               </ListItem>
             </UnorderedList>
+          </Box>
+
+          <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
+            <Heading size="sm" color="gray.600" mb={4}>
+              🔥 Hot Tip
+            </Heading>
+            <Text fontSize="sm" color="gray.500">
+              Use this url to get company logos:
+              <br />
+              <Link
+                href="https://app.tryspecter.com/logo?domain=google.com"
+                color="brand.500"
+              >
+                https://app.tryspecter.com/logo?domain=google.com
+              </Link>
+            </Text>
           </Box>
         </VStack>
       </Container>
