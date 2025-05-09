@@ -75,7 +75,7 @@ const Page = () => {
           <Text fontSize="sm" color="gray.500">
             Your task is to create a new route and page that lists companies
             retrieved from the database via an API endpoint that you will build
-            using Prisma. You’ll then add filtering and sorting functionality as
+            using Prisma. You'll then add filtering and sorting functionality as
             described below.
           </Text>
 
@@ -102,34 +102,51 @@ const Page = () => {
 
           <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
             <Heading size="sm" color="gray.600" mb={4}>
-              🔍 Step 2 – Add Filtering
+              🔍 Step 2 – Design an Intuitive Filter Experience
             </Heading>
             <Text fontSize="sm" color="gray.500" mb={4}>
-              Implement the following filters on the frontend:
+              Our current filtering system creates too much friction for users. We need a more intuitive and user-friendly approach that makes filtering feel natural and effortless. Think about how users naturally search and filter in modern applications - they often start with a simple search and then refine their results.
+            </Text>
+            <Text fontSize="sm" color="gray.500" mb={4}>
+              For this prototype, focus on creating a seamless filtering experience that feels natural to use. Consider implementing a unified search experience where users can:
             </Text>
             <UnorderedList fontSize="sm" color="gray.500">
               <ListItem>
-                Search by name – A text input that filters the list of companies
-                by name.
+                Start with a smart search that understands company names, domains, and other attributes
               </ListItem>
               <ListItem>
-                Filter by domain – A dropdown/select input that filters by the
-                company's domain (e.g. example.com).
+                Easily refine results through intuitive UI patterns (like chips, tags, or quick filters)
               </ListItem>
               <ListItem>
-                Filter by rank – A numeric filter that allows:
-                <UnorderedList pl={5} mt={2}>
-                  <ListItem>
-                    A dropdown to select a condition: less than / equal to /
-                    greater than.
-                  </ListItem>
-                  <ListItem>An input for the rank value.</ListItem>
-                  <ListItem>
-                    Filtering of the results based on the chosen condition.
-                  </ListItem>
-                </UnorderedList>
+                See their active filters clearly and be able to modify or remove them effortlessly
               </ListItem>
             </UnorderedList>
+            <Text fontSize="sm" color="gray.500" mt={4} mb={4}>
+              The following filters should be available, but think creatively about how to make them accessible without overwhelming the user:
+            </Text>
+            <UnorderedList fontSize="sm" color="gray.500">
+              <ListItem>
+                Company name and domain search
+              </ListItem>
+              <ListItem>
+                Rank (numeric comparison)
+              </ListItem>
+              <ListItem>
+                Growth stage (seed, growing, late, exit, early)
+              </ListItem>
+              <ListItem>
+                Customer focus (b2b, b2c, b2b_b2c, b2c_b2b)
+              </ListItem>
+              <ListItem>
+                Last funding amount (USD)
+              </ListItem>
+              <ListItem>
+                Last funding type (Angel, Convertible Note, etc.)
+              </ListItem>
+            </UnorderedList>
+            <Text fontSize="sm" color="gray.500" mt={4}>
+              Remember: The goal is not to implement every possible filter combination, but to create an intuitive and delightful filtering experience that users will actually want to use.
+            </Text>
           </Box>
 
           <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
@@ -152,7 +169,7 @@ const Page = () => {
                 and visual clarity.
               </ListItem>
               <ListItem>
-                Use Chakra UI, but don’t be afraid to customize or extend
+                Use Chakra UI, but don't be afraid to customize or extend
                 components to match your vision.
               </ListItem>
               <ListItem>

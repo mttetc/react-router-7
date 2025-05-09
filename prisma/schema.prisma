@@ -14,10 +14,14 @@ datasource db {
 }
 
 model Company {
-  id          String   @id @default(uuid())
-  name        String
-  domain      String
-  rank        Int
-  description String
-  createdAt   DateTime @default(now())
+  id                  String   @id @default(uuid())
+  name                String
+  domain              String
+  rank                Int
+  description         String
+  createdAt           DateTime? @default(now())
+  growth_stage        String?
+  last_funding_type   String?
+  last_funding_amount BigInt?
+  customer_focus      String?
 }
