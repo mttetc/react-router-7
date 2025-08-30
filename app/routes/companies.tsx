@@ -148,17 +148,15 @@ export default function CompanyFeed() {
             {/* Company Grid */}
             <CompanyGrid companies={data?.data || []} isLoading={isLoading} />
 
-            {/* Pagination */}
-            {data && (
-              <Box mt={8}>
-                <Pagination
-                  currentPage={data.page}
-                  totalPages={data.totalPages}
-                  onPageChange={goToPage}
-                  isLoading={isLoading}
-                />
-              </Box>
-            )}
+            {/* Pagination - Always visible */}
+            <Box mt={8}>
+              <Pagination
+                currentPage={data?.page || 1}
+                totalPages={data?.totalPages || 1}
+                onPageChange={goToPage}
+                isLoading={isLoading}
+              />
+            </Box>
           </Box>
         </Grid>
       </Container>

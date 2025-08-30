@@ -43,7 +43,7 @@ export const Pagination = ({
     return pages;
   };
 
-  if (totalPages <= 1) return null;
+  // Always show pagination, even with 1 page for consistency
 
   return (
     <HStack
@@ -86,8 +86,8 @@ export const Pagination = ({
         onClick={() => onPageChange(currentPage + 1)}
       />
 
-      <Text fontSize="sm" color="gray.500" ml={4}>
-        Page {currentPage} of {totalPages}
+      <Text fontSize="xs" color="gray.500" ml={3}>
+        {totalPages > 1 ? `${currentPage} of ${totalPages}` : `Page ${currentPage}`}
       </Text>
     </HStack>
   );

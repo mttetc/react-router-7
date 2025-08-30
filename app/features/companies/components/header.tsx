@@ -32,10 +32,19 @@ export const Header = () => {
       zIndex="sticky"
       shadow="sm"
     >
-      <Container maxW="8xl" py={6}>
-        <Flex align="center" mb={4}>
-          <Box>
-            <Breadcrumb fontSize="sm" color="gray.500">
+      <Container maxW="8xl" py={3}>
+        <Flex align="center" justify="space-between">
+          <HStack spacing={3}>
+            <Heading size="md" bgGradient="linear(to-r, blue.400, purple.500)" bgClip="text">
+              🏢 Companies
+            </Heading>
+            <Badge colorScheme="blue" borderRadius="full" px={2} py={1} fontSize="xs">
+              5K+
+            </Badge>
+          </HStack>
+          
+          <HStack spacing={2}>
+            <Breadcrumb fontSize="xs" color="gray.500">
               <BreadcrumbItem>
                 <BreadcrumbLink href="/">Home</BreadcrumbLink>
               </BreadcrumbItem>
@@ -43,32 +52,17 @@ export const Header = () => {
                 <BreadcrumbLink>Companies</BreadcrumbLink>
               </BreadcrumbItem>
             </Breadcrumb>
-          </Box>
-          <Spacer />
-          <Tooltip label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`} hasArrow>
-            <IconButton
-              aria-label="Toggle color mode"
-              icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-              onClick={toggleColorMode}
-              variant="ghost"
-              size="sm"
-            />
-          </Tooltip>
+            <Tooltip label={`Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`} hasArrow>
+              <IconButton
+                aria-label="Toggle color mode"
+                icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+                onClick={toggleColorMode}
+                variant="ghost"
+                size="xs"
+              />
+            </Tooltip>
+          </HStack>
         </Flex>
-        
-        <HStack spacing={4} align="center" mb={2}>
-          <Heading size="xl" bgGradient="linear(to-r, blue.400, purple.500)" bgClip="text">
-            🏢 Company Feed
-          </Heading>
-          <Badge colorScheme="blue" borderRadius="full" px={3} py={1}>
-            5,000+ Companies
-          </Badge>
-        </HStack>
-        
-        <Text color="gray.600" fontSize="md" maxW="2xl">
-          Discover and filter through our curated database of innovative companies. 
-          Find your next investment opportunity or business partner with advanced filtering and search capabilities.
-        </Text>
       </Container>
     </Box>
   );

@@ -51,7 +51,7 @@ export const FilterSidebar = ({
       borderColor={borderColor}
       h="fit-content"
       position="sticky"
-      top="120px"
+      top="80px"
       shadow="lg"
     >
       <CardHeader pb={2}>
