@@ -5,42 +5,55 @@ import {
   useLoaderData,
   useNavigation,
   useSubmit,
-} from 'react-router'
-import { useDebounce } from 'rooks'
+} from "react-router";
+import { useDebounce } from "rooks";
 import {
   queryOptions,
   useIsFetching,
   useSuspenseQuery,
-} from '@tanstack/react-query'
-import { getCompanies } from '../utils/companies.server'
-import type { QueryClient } from '@tanstack/react-query'
-import type { LoaderFunctionArgs } from 'react-router'
+} from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
+import type { LoaderFunctionArgs } from "react-router";
+import type { Company, PaginatedResult } from "../utils/companies.types";
 
 const companyListQuery = (q?: string) =>
   queryOptions({
-    queryKey: ['companies', 'list', q ?? 'all'],
-    queryFn: () => getCompanies({ page: 1, limit: 12, search: q }),
-  })
+    queryKey: ["companies", "list", q ?? "all"],
+    queryFn: async (): Promise<PaginatedResult<Company>> => {
+      // This will be populated by the loader data
+      throw new Error("This should not be called on the client");
+    },
+  });
 
 export const loader =
   (queryClient: QueryClient) =>
   async ({ request }: LoaderFunctionArgs) => {
-    const url = new URL(request.url)
-    const q = url.searchParams.get('q') ?? ''
-    await queryClient.ensureQueryData(companyListQuery(q))
-    return { q }
-  }
+    const url = new URL(request.url);
+    const q = url.searchParams.get("q") ?? "";
+    
+    // Import server function only in loader
+    const { getCompanies } = await import("../utils/companies.server");
+    const companies = await getCompanies({ page: 1, limit: 12, search: q });
+    
+    // Prefill the query cache with the data
+    queryClient.setQueryData(["companies", "list", q ?? "all"], companies);
+    
+    return { q, companies };
+  };
 
 export default function Root() {
-  const { q } = useLoaderData() as Awaited<
+  const { q, companies } = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof loader>>
-  >
-  const { data: companies } = useSuspenseQuery(companyListQuery(q))
-  const searching = useIsFetching({ queryKey: ['companies', 'list'] }) > 0
-  const navigation = useNavigation()
-  const submit = useSubmit()
+  >;
+  const { data: companiesData } = useSuspenseQuery({
+    ...companyListQuery(q),
+    initialData: companies,
+  });
+  const searching = useIsFetching({ queryKey: ["companies", "list"] }) > 0;
+  const navigation = useNavigation();
+  const submit = useSubmit();
 
-  const debouncedSubmit = useDebounce(submit, 500)
+  const debouncedSubmit = useDebounce(submit, 500);
 
   return (
     <>
@@ -57,9 +70,9 @@ export default function Root() {
               key={q}
               autoFocus
               defaultValue={q}
-              className={searching ? 'loading' : ''}
+              className={searching ? "loading" : ""}
               onChange={(event) => {
-                debouncedSubmit(event.currentTarget.form)
+                debouncedSubmit(event.currentTarget.form);
               }}
             />
             <div id="search-spinner" aria-hidden hidden={!searching} />
@@ -70,23 +83,21 @@ export default function Root() {
           </Link>
         </div>
         <nav>
-          {companies.data.length ? (
+          {companiesData.data.length ? (
             <ul>
-              {companies.data.map((company) => (
+              {companiesData.data.map((company) => (
                 <li key={company.id}>
                   <NavLink
                     to={`companies/${company.id}`}
-                    className={({ isActive, isPending }: { isActive: boolean; isPending: boolean }) =>
-                      isActive ? 'active' : isPending ? 'pending' : ''
-                    }
+                    className={({
+                      isActive,
+                      isPending,
+                    }: {
+                      isActive: boolean;
+                      isPending: boolean;
+                    }) => (isActive ? "active" : isPending ? "pending" : "")}
                   >
-                    {company.name ? (
-                      <>
-                        {company.name}
-                      </>
-                    ) : (
-                      <i>No Name</i>
-                    )}{' '}
+                    {company.name ? <>{company.name}</> : <i>No Name</i>}{" "}
                     {company.rank && <span>#{company.rank}</span>}
                   </NavLink>
                 </li>
@@ -101,10 +112,10 @@ export default function Root() {
       </div>
       <div
         id="detail"
-        className={navigation.state === 'loading' ? 'loading' : ''}
+        className={navigation.state === "loading" ? "loading" : ""}
       >
         <Outlet />
       </div>
     </>
-  )
+  );
 }
