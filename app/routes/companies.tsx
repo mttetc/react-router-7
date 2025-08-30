@@ -34,10 +34,15 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { SearchIcon, ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { useState, useMemo } from "react";
+import {
+  SearchIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@chakra-ui/icons";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useIsFetching } from "@tanstack/react-query";
 import { useDebounce } from "rooks";
+import { useNavigate, useSearchParams } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import type { Company, PaginatedResult } from "../utils/companies.types";
 
@@ -72,16 +77,19 @@ const fetchCompanies = async (
   pagination: PaginationState
 ): Promise<PaginatedResult<Company>> => {
   const params = new URLSearchParams();
-  
+
   if (filters.search) params.set("q", filters.search);
   if (filters.growthStage) params.set("growth_stage", filters.growthStage);
-  if (filters.customerFocus) params.set("customer_focus", filters.customerFocus);
+  if (filters.customerFocus)
+    params.set("customer_focus", filters.customerFocus);
   if (filters.fundingType) params.set("last_funding_type", filters.fundingType);
   if (filters.minRank) params.set("min_rank", filters.minRank.toString());
   if (filters.maxRank) params.set("max_rank", filters.maxRank.toString());
-  if (filters.minFunding) params.set("min_funding", filters.minFunding.toString());
-  if (filters.maxFunding) params.set("max_funding", filters.maxFunding.toString());
-  
+  if (filters.minFunding)
+    params.set("min_funding", filters.minFunding.toString());
+  if (filters.maxFunding)
+    params.set("max_funding", filters.maxFunding.toString());
+
   params.set("page", pagination.page.toString());
   params.set("limit", pagination.limit.toString());
 
@@ -93,10 +101,58 @@ const fetchCompanies = async (
 };
 
 // ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+const parseFiltersFromURL = (searchParams: URLSearchParams): FilterState => {
+  return {
+    search: searchParams.get("search") || "",
+    growthStage: searchParams.get("growthStage") || "",
+    customerFocus: searchParams.get("customerFocus") || "",
+    fundingType: searchParams.get("fundingType") || "",
+    minRank: searchParams.get("minRank") ? parseInt(searchParams.get("minRank")!) : null,
+    maxRank: searchParams.get("maxRank") ? parseInt(searchParams.get("maxRank")!) : null,
+    minFunding: searchParams.get("minFunding") ? parseInt(searchParams.get("minFunding")!) : null,
+    maxFunding: searchParams.get("maxFunding") ? parseInt(searchParams.get("maxFunding")!) : null,
+    sortBy: (searchParams.get("sortBy") as "name" | "rank" | "funding") || "",
+    sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "asc",
+  };
+};
+
+const parsePaginationFromURL = (searchParams: URLSearchParams): PaginationState => {
+  return {
+    page: searchParams.get("page") ? parseInt(searchParams.get("page")!) : 1,
+    limit: searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 12,
+  };
+};
+
+const buildURLParams = (filters: FilterState, pagination: PaginationState): URLSearchParams => {
+  const params = new URLSearchParams();
+  
+  if (filters.search) params.set("search", filters.search);
+  if (filters.growthStage) params.set("growthStage", filters.growthStage);
+  if (filters.customerFocus) params.set("customerFocus", filters.customerFocus);
+  if (filters.fundingType) params.set("fundingType", filters.fundingType);
+  if (filters.minRank) params.set("minRank", filters.minRank.toString());
+  if (filters.maxRank) params.set("maxRank", filters.maxRank.toString());
+  if (filters.minFunding) params.set("minFunding", filters.minFunding.toString());
+  if (filters.maxFunding) params.set("maxFunding", filters.maxFunding.toString());
+  if (filters.sortBy && filters.sortBy !== "") params.set("sortBy", filters.sortBy);
+  if (filters.sortOrder !== "asc") params.set("sortOrder", filters.sortOrder);
+  if (pagination.page !== 1) params.set("page", pagination.page.toString());
+  if (pagination.limit !== 12) params.set("limit", pagination.limit.toString());
+  
+  return params;
+};
+
+// ============================================================================
 // CUSTOM HOOKS
 // ============================================================================
 
-const useCompaniesData = (filters: FilterState, pagination: PaginationState) => {
+const useCompaniesData = (
+  filters: FilterState,
+  pagination: PaginationState
+) => {
   return useQuery({
     queryKey: ["companies", "feed", filters, pagination],
     queryFn: () => fetchCompanies(filters, pagination),
@@ -143,12 +199,23 @@ interface FilterSidebarProps {
   activeFilterCount: number;
 }
 
-const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: FilterSidebarProps) => {
+const FilterSidebar = ({
+  filters,
+  onFilterChange,
+  onReset,
+  activeFilterCount,
+}: FilterSidebarProps) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
   return (
-    <Card bg={bgColor} borderColor={borderColor} h="fit-content" position="sticky" top="120px">
+    <Card
+      bg={bgColor}
+      borderColor={borderColor}
+      h="fit-content"
+      position="sticky"
+      top="120px"
+    >
       <CardBody>
         <VStack spacing={6} align="stretch">
           <HStack justify="space-between">
@@ -195,12 +262,16 @@ const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: 
               </Text>
               <VStack spacing={3} align="stretch">
                 <Box>
-                  <Text fontSize="sm" mb={2}>Growth Stage</Text>
+                  <Text fontSize="sm" mb={2}>
+                    Growth Stage
+                  </Text>
                   <Select
                     placeholder="All stages"
                     size="sm"
                     value={filters.growthStage}
-                    onChange={(e) => onFilterChange({ growthStage: e.target.value })}
+                    onChange={(e) =>
+                      onFilterChange({ growthStage: e.target.value })
+                    }
                   >
                     <option value="early">Early</option>
                     <option value="seed">Seed</option>
@@ -211,12 +282,16 @@ const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: 
                 </Box>
 
                 <Box>
-                  <Text fontSize="sm" mb={2}>Customer Focus</Text>
+                  <Text fontSize="sm" mb={2}>
+                    Customer Focus
+                  </Text>
                   <Select
                     placeholder="All types"
                     size="sm"
                     value={filters.customerFocus}
-                    onChange={(e) => onFilterChange({ customerFocus: e.target.value })}
+                    onChange={(e) =>
+                      onFilterChange({ customerFocus: e.target.value })
+                    }
                   >
                     <option value="b2b">B2B</option>
                     <option value="b2c">B2C</option>
@@ -226,12 +301,16 @@ const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: 
                 </Box>
 
                 <Box>
-                  <Text fontSize="sm" mb={2}>Funding Type</Text>
+                  <Text fontSize="sm" mb={2}>
+                    Funding Type
+                  </Text>
                   <Select
                     placeholder="All funding"
                     size="sm"
                     value={filters.fundingType}
-                    onChange={(e) => onFilterChange({ fundingType: e.target.value })}
+                    onChange={(e) =>
+                      onFilterChange({ fundingType: e.target.value })
+                    }
                   >
                     <option value="Seed">Seed</option>
                     <option value="Series A">Series A</option>
@@ -255,12 +334,16 @@ const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: 
               </Text>
               <VStack spacing={3} align="stretch">
                 <Box>
-                  <Text fontSize="sm" mb={2}>Rank Range</Text>
+                  <Text fontSize="sm" mb={2}>
+                    Rank Range
+                  </Text>
                   <HStack>
                     <NumberInput
                       size="sm"
                       value={filters.minRank || ""}
-                      onChange={(_, val) => onFilterChange({ minRank: isNaN(val) ? null : val })}
+                      onChange={(_, val) =>
+                        onFilterChange({ minRank: isNaN(val) ? null : val })
+                      }
                     >
                       <NumberInputField placeholder="Min" />
                       <NumberInputStepper>
@@ -272,7 +355,9 @@ const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: 
                     <NumberInput
                       size="sm"
                       value={filters.maxRank || ""}
-                      onChange={(_, val) => onFilterChange({ maxRank: isNaN(val) ? null : val })}
+                      onChange={(_, val) =>
+                        onFilterChange({ maxRank: isNaN(val) ? null : val })
+                      }
                     >
                       <NumberInputField placeholder="Max" />
                       <NumberInputStepper>
@@ -284,12 +369,16 @@ const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: 
                 </Box>
 
                 <Box>
-                  <Text fontSize="sm" mb={2}>Funding Amount (USD)</Text>
+                  <Text fontSize="sm" mb={2}>
+                    Funding Amount (USD)
+                  </Text>
                   <HStack>
                     <NumberInput
                       size="sm"
                       value={filters.minFunding || ""}
-                      onChange={(_, val) => onFilterChange({ minFunding: isNaN(val) ? null : val })}
+                      onChange={(_, val) =>
+                        onFilterChange({ minFunding: isNaN(val) ? null : val })
+                      }
                     >
                       <NumberInputField placeholder="Min $" />
                     </NumberInput>
@@ -297,7 +386,9 @@ const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: 
                     <NumberInput
                       size="sm"
                       value={filters.maxFunding || ""}
-                      onChange={(_, val) => onFilterChange({ maxFunding: isNaN(val) ? null : val })}
+                      onChange={(_, val) =>
+                        onFilterChange({ maxFunding: isNaN(val) ? null : val })
+                      }
                     >
                       <NumberInputField placeholder="Max $" />
                     </NumberInput>
@@ -327,7 +418,11 @@ const FilterSidebar = ({ filters, onFilterChange, onReset, activeFilterCount }: 
                 <Select
                   size="sm"
                   value={filters.sortOrder}
-                  onChange={(e) => onFilterChange({ sortOrder: e.target.value as "asc" | "desc" })}
+                  onChange={(e) =>
+                    onFilterChange({
+                      sortOrder: e.target.value as "asc" | "desc",
+                    })
+                  }
                 >
                   <option value="asc">Ascending</option>
                   <option value="desc">Descending</option>
@@ -349,14 +444,37 @@ interface ActiveFiltersProps {
 const ActiveFilters = ({ filters, onRemoveFilter }: ActiveFiltersProps) => {
   const activeFilters = useMemo(() => {
     const active = [];
-    if (filters.search) active.push({ key: 'search', label: `Search: "${filters.search}"` });
-    if (filters.growthStage) active.push({ key: 'growthStage', label: `Stage: ${filters.growthStage}` });
-    if (filters.customerFocus) active.push({ key: 'customerFocus', label: `Focus: ${filters.customerFocus}` });
-    if (filters.fundingType) active.push({ key: 'fundingType', label: `Funding: ${filters.fundingType}` });
-    if (filters.minRank) active.push({ key: 'minRank', label: `Min Rank: ${filters.minRank}` });
-    if (filters.maxRank) active.push({ key: 'maxRank', label: `Max Rank: ${filters.maxRank}` });
-    if (filters.minFunding) active.push({ key: 'minFunding', label: `Min Funding: $${filters.minFunding.toLocaleString()}` });
-    if (filters.maxFunding) active.push({ key: 'maxFunding', label: `Max Funding: $${filters.maxFunding.toLocaleString()}` });
+    if (filters.search)
+      active.push({ key: "search", label: `Search: "${filters.search}"` });
+    if (filters.growthStage)
+      active.push({
+        key: "growthStage",
+        label: `Stage: ${filters.growthStage}`,
+      });
+    if (filters.customerFocus)
+      active.push({
+        key: "customerFocus",
+        label: `Focus: ${filters.customerFocus}`,
+      });
+    if (filters.fundingType)
+      active.push({
+        key: "fundingType",
+        label: `Funding: ${filters.fundingType}`,
+      });
+    if (filters.minRank)
+      active.push({ key: "minRank", label: `Min Rank: ${filters.minRank}` });
+    if (filters.maxRank)
+      active.push({ key: "maxRank", label: `Max Rank: ${filters.maxRank}` });
+    if (filters.minFunding)
+      active.push({
+        key: "minFunding",
+        label: `Min Funding: $${filters.minFunding.toLocaleString()}`,
+      });
+    if (filters.maxFunding)
+      active.push({
+        key: "maxFunding",
+        label: `Max Funding: $${filters.maxFunding.toLocaleString()}`,
+      });
     return active;
   }, [filters]);
 
@@ -372,7 +490,9 @@ const ActiveFilters = ({ filters, onRemoveFilter }: ActiveFiltersProps) => {
           <WrapItem key={key}>
             <Tag size="md" colorScheme="blue" borderRadius="full">
               <TagLabel>{label}</TagLabel>
-              <TagCloseButton onClick={() => onRemoveFilter(key as keyof FilterState)} />
+              <TagCloseButton
+                onClick={() => onRemoveFilter(key as keyof FilterState)}
+              />
             </Tag>
           </WrapItem>
         ))}
@@ -445,25 +565,33 @@ const CompanyCard = ({ company }: CompanyCardProps) => {
 
           <Grid templateColumns="1fr 1fr" gap={2} w="full">
             <VStack align="start" spacing={1}>
-              <Text fontSize="xs" color="gray.500">Stage</Text>
+              <Text fontSize="xs" color="gray.500">
+                Stage
+              </Text>
               <Badge size="sm" colorScheme="green">
                 {company.growth_stage || "Unknown"}
               </Badge>
             </VStack>
             <VStack align="start" spacing={1}>
-              <Text fontSize="xs" color="gray.500">Focus</Text>
+              <Text fontSize="xs" color="gray.500">
+                Focus
+              </Text>
               <Badge size="sm" colorScheme="purple">
                 {company.customer_focus?.toUpperCase() || "N/A"}
               </Badge>
             </VStack>
             <VStack align="start" spacing={1}>
-              <Text fontSize="xs" color="gray.500">Funding</Text>
+              <Text fontSize="xs" color="gray.500">
+                Funding
+              </Text>
               <Text fontSize="xs" fontWeight="medium">
                 {formatFunding(company.last_funding_amount)}
               </Text>
             </VStack>
             <VStack align="start" spacing={1}>
-              <Text fontSize="xs" color="gray.500">Type</Text>
+              <Text fontSize="xs" color="gray.500">
+                Type
+              </Text>
               <Text fontSize="xs" fontWeight="medium" noOfLines={1}>
                 {company.last_funding_type || "N/A"}
               </Text>
@@ -533,7 +661,12 @@ interface PaginationProps {
   isLoading: boolean;
 }
 
-const Pagination = ({ currentPage, totalPages, onPageChange, isLoading }: PaginationProps) => {
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  isLoading,
+}: PaginationProps) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
@@ -542,7 +675,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, isLoading }: Pagina
   const getPageNumbers = () => {
     const pages = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -550,12 +683,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange, isLoading }: Pagina
     } else {
       const start = Math.max(1, currentPage - 2);
       const end = Math.min(totalPages, start + maxVisible - 1);
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   };
 
@@ -615,33 +748,36 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function CompanyFeed() {
   const bgColor = useColorModeValue("gray.50", "gray.900");
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // State management
-  const [filters, setFilters] = useState<FilterState>({
-    search: "",
-    growthStage: "",
-    customerFocus: "",
-    fundingType: "",
-    minRank: null,
-    maxRank: null,
-    minFunding: null,
-    maxFunding: null,
-    sortBy: "",
-    sortOrder: "asc",
-  });
+  // Initialize state from URL params
+  const [filters, setFilters] = useState<FilterState>(() => 
+    parseFiltersFromURL(searchParams)
+  );
 
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    limit: 12,
-  });
+  const [pagination, setPagination] = useState<PaginationState>(() => 
+    parsePaginationFromURL(searchParams)
+  );
 
   // Data fetching with TanStack Query
   const { data, isLoading, error } = useCompaniesData(filters, pagination);
 
+  // Sync URL with state changes
+  useEffect(() => {
+    const params = buildURLParams(filters, pagination);
+    const newSearch = params.toString();
+    const currentSearch = searchParams.toString();
+    
+    if (newSearch !== currentSearch) {
+      navigate(`?${newSearch}`, { replace: true });
+    }
+  }, [filters, pagination, navigate, searchParams]);
+
   // Filter management with debouncing for search
   const updateFilters = (newFilters: Partial<FilterState>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page
+    setFilters((prev) => ({ ...prev, ...newFilters }));
+    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
   };
 
   const debouncedUpdateFilters = useDebounce(updateFilters, 300);
@@ -663,7 +799,12 @@ export default function CompanyFeed() {
   };
 
   const removeFilter = (key: keyof FilterState) => {
-    if (key === 'minRank' || key === 'maxRank' || key === 'minFunding' || key === 'maxFunding') {
+    if (
+      key === "minRank" ||
+      key === "maxRank" ||
+      key === "minFunding" ||
+      key === "maxFunding"
+    ) {
       updateFilters({ [key]: null });
     } else {
       updateFilters({ [key]: "" });
@@ -671,13 +812,13 @@ export default function CompanyFeed() {
   };
 
   const goToPage = (page: number) => {
-    setPagination(prev => ({ ...prev, page }));
+    setPagination((prev) => ({ ...prev, page }));
   };
 
   // Count active filters
   const activeFilterCount = useMemo(() => {
     return Object.entries(filters).filter(([key, value]) => {
-      if (key === 'sortBy' || key === 'sortOrder') return false;
+      if (key === "sortBy" || key === "sortOrder") return false;
       return value !== "" && value !== null;
     }).length;
   }, [filters]);
@@ -685,7 +826,7 @@ export default function CompanyFeed() {
   return (
     <Box minH="100vh" bg={bgColor}>
       <Header />
-      
+
       <Container maxW="8xl" py={8}>
         <Grid templateColumns="320px 1fr" gap={8}>
           {/* Left Sidebar - Filters */}
@@ -717,10 +858,7 @@ export default function CompanyFeed() {
               </HStack>
 
               {/* Company Grid */}
-              <CompanyGrid
-                companies={data?.data || []}
-                isLoading={isLoading}
-              />
+              <CompanyGrid companies={data?.data || []} isLoading={isLoading} />
 
               {/* Pagination */}
               {data && (
