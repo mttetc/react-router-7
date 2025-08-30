@@ -13,13 +13,21 @@ import {
   SkeletonText,
   Card,
   CardBody,
+  Flex,
+  HStack,
+  Select,
+  ButtonGroup,
+  Button,
 } from "@chakra-ui/react";
 import type { Company } from "../../../utils/companies.types";
 import { CompanyCard } from "./company-card";
+import type { FilterState } from "../../../services/companies.service";
 
 interface CompanyGridProps {
   companies: Company[];
   isLoading: boolean;
+  filters: FilterState;
+  onFilterChange: (newFilters: Partial<FilterState>) => void;
 }
 
 const LoadingSkeleton = () => {
@@ -44,12 +52,59 @@ const LoadingSkeleton = () => {
   );
 };
 
-export const CompanyGrid = ({ companies, isLoading }: CompanyGridProps) => {
+export const CompanyGrid = ({ companies, isLoading, filters, onFilterChange }: CompanyGridProps) => {
   const emptyBgColor = useColorModeValue("gray.50", "gray.800");
 
   if (isLoading) {
     return (
       <Box>
+        {/* Header with count and sorting - also shown during loading */}
+        <Flex justify="space-between" align="center" mb={4}>
+          <Text fontSize="sm" color="gray.500">
+            Loading companies...
+          </Text>
+          
+          <HStack spacing={3}>
+            <Text fontSize="xs" color="gray.500">
+              Sort by:
+            </Text>
+            <Select
+              size="sm"
+              value={filters.sortBy}
+              onChange={(e) => onFilterChange({ sortBy: e.target.value })}
+              w="120px"
+              focusBorderColor="blue.400"
+              isDisabled={isLoading}
+            >
+              <option value="">Default</option>
+              <option value="name">Name</option>
+              <option value="rank">Rank</option>
+              <option value="funding">Funding</option>
+            </Select>
+            
+            <ButtonGroup size="sm" isAttached>
+              <Button
+                variant={filters.sortOrder === "asc" ? "solid" : "outline"}
+                colorScheme="blue"
+                onClick={() => onFilterChange({ sortOrder: "asc" })}
+                px={2}
+                isDisabled={isLoading}
+              >
+                ↑
+              </Button>
+              <Button
+                variant={filters.sortOrder === "desc" ? "solid" : "outline"}
+                colorScheme="blue"
+                onClick={() => onFilterChange({ sortOrder: "desc" })}
+                px={2}
+                isDisabled={isLoading}
+              >
+                ↓
+              </Button>
+            </ButtonGroup>
+          </HStack>
+        </Flex>
+        
         <SimpleGrid
           columns={{
             base: 1,
@@ -100,9 +155,50 @@ export const CompanyGrid = ({ companies, isLoading }: CompanyGridProps) => {
 
   return (
     <Box>
-      <Text fontSize="sm" color="gray.500" mb={4}>
-        Showing {companies.length} companies
-      </Text>
+      {/* Header with count and sorting */}
+      <Flex justify="space-between" align="center" mb={4}>
+        <Text fontSize="sm" color="gray.500">
+          Showing {companies.length} companies
+        </Text>
+        
+        <HStack spacing={3}>
+          <Text fontSize="xs" color="gray.500">
+            Sort by:
+          </Text>
+          <Select
+            size="sm"
+            value={filters.sortBy}
+            onChange={(e) => onFilterChange({ sortBy: e.target.value })}
+            w="120px"
+            focusBorderColor="blue.400"
+          >
+            <option value="">Default</option>
+            <option value="name">Name</option>
+            <option value="rank">Rank</option>
+            <option value="funding">Funding</option>
+          </Select>
+          
+          <ButtonGroup size="sm" isAttached>
+            <Button
+              variant={filters.sortOrder === "asc" ? "solid" : "outline"}
+              colorScheme="blue"
+              onClick={() => onFilterChange({ sortOrder: "asc" })}
+              px={2}
+            >
+              ↑
+            </Button>
+            <Button
+              variant={filters.sortOrder === "desc" ? "solid" : "outline"}
+              colorScheme="blue"
+              onClick={() => onFilterChange({ sortOrder: "desc" })}
+              px={2}
+            >
+              ↓
+            </Button>
+          </ButtonGroup>
+        </HStack>
+      </Flex>
+      
       <SimpleGrid
         columns={{
           base: 1,

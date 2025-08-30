@@ -261,57 +261,7 @@ export const FilterSidebar = ({
             </Stack>
           </Box>
 
-          <Divider />
 
-          {/* Sorting */}
-          <Box>
-            <Text fontSize="sm" mb={4} fontWeight="semibold" color="gray.600">
-              🔄 Sorting
-            </Text>
-            <Stack spacing={3}>
-              <FormControl>
-                <FormLabel fontSize="xs" color="gray.500">
-                  Sort By
-                </FormLabel>
-                <Select
-                  placeholder="Choose sorting..."
-                  size="sm"
-                  value={filters.sortBy}
-                  onChange={(e) => onFilterChange({ sortBy: e.target.value })}
-                  focusBorderColor="blue.400"
-                  borderRadius="md"
-                >
-                  <option value="name">📝 Name</option>
-                  <option value="rank">🏆 Rank</option>
-                  <option value="funding">💰 Funding</option>
-                </Select>
-              </FormControl>
-              
-              <FormControl>
-                <FormLabel fontSize="xs" color="gray.500">
-                  Order
-                </FormLabel>
-                <ButtonGroup size="sm" isAttached w="full">
-                  <Button
-                    flex={1}
-                    variant={filters.sortOrder === "asc" ? "solid" : "outline"}
-                    colorScheme="blue"
-                    onClick={() => onFilterChange({ sortOrder: "asc" })}
-                  >
-                    ⬆️ Asc
-                  </Button>
-                  <Button
-                    flex={1}
-                    variant={filters.sortOrder === "desc" ? "solid" : "outline"}
-                    colorScheme="blue"
-                    onClick={() => onFilterChange({ sortOrder: "desc" })}
-                  >
-                    ⬇️ Desc
-                  </Button>
-                </ButtonGroup>
-              </FormControl>
-            </Stack>
-          </Box>
         </Stack>
       </CardBody>
     </Card>

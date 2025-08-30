@@ -146,7 +146,12 @@ export default function CompanyFeed() {
             <ActiveFilters filters={filters} onRemoveFilter={removeFilter} />
 
             {/* Company Grid */}
-            <CompanyGrid companies={data?.data || []} isLoading={isLoading} />
+            <CompanyGrid 
+              companies={data?.data || []} 
+              isLoading={isLoading}
+              filters={filters}
+              onFilterChange={updateFilters}
+            />
 
             {/* Pagination - Always visible */}
             <Box mt={8}>
