@@ -20,8 +20,16 @@ const companyListQuery = (q?: string) =>
   queryOptions({
     queryKey: ["companies", "list", q ?? "all"],
     queryFn: async (): Promise<PaginatedResult<Company>> => {
-      // This will be populated by the loader data
-      throw new Error("This should not be called on the client");
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      params.set("page", "1");
+      params.set("limit", "12");
+      
+      const response = await fetch(`/api/companies?${params}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch companies");
+      }
+      return response.json();
     },
   });
 
@@ -31,23 +39,28 @@ export const loader =
     const url = new URL(request.url);
     const q = url.searchParams.get("q") ?? "";
     
-    // Import server function only in loader
+    // Get companies data on the server side
     const { getCompanies } = await import("../utils/companies.server");
     const companies = await getCompanies({ page: 1, limit: 12, search: q });
     
-    // Prefill the query cache with the data
+    // Prefill the query cache
     queryClient.setQueryData(["companies", "list", q ?? "all"], companies);
     
     return { q, companies };
   };
 
 export default function Root() {
-  const { q, companies } = useLoaderData() as Awaited<
+  const loaderData = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof loader>>
-  >;
-  const { data: companiesData } = useSuspenseQuery({
+  > | undefined;
+  const q = loaderData?.q ?? "";
+  const initialCompanies = loaderData?.companies;
+  
+  // Use React Query for all data fetching, but with initial data from loader
+  const { data: companies } = useSuspenseQuery({
     ...companyListQuery(q),
-    initialData: companies,
+    initialData: initialCompanies,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
   const searching = useIsFetching({ queryKey: ["companies", "list"] }) > 0;
   const navigation = useNavigation();
@@ -83,9 +96,9 @@ export default function Root() {
           </Link>
         </div>
         <nav>
-          {companiesData.data.length ? (
+          {companies.data.length ? (
             <ul>
-              {companiesData.data.map((company) => (
+              {companies.data.map((company) => (
                 <li key={company.id}>
                   <NavLink
                     to={`companies/${company.id}`}
