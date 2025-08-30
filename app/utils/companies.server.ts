@@ -94,7 +94,7 @@ export async function getCompanies(
 
   // Build orderBy clause
   let orderBy: any = { rank: "asc" }; // Default sorting
-  
+
   if (sortBy) {
     switch (sortBy) {
       case "name":

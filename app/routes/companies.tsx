@@ -20,7 +20,7 @@ import {
   Header,
   FilterSidebar,
   ActiveFilters,
-  CompanyGrid,
+  CompanyTable,
   Pagination,
 } from "../features/companies/components";
 
@@ -145,8 +145,15 @@ export default function CompanyFeed() {
             {/* Active Filters */}
             <ActiveFilters filters={filters} onRemoveFilter={removeFilter} />
 
-            {/* Company Grid */}
-            <CompanyGrid 
+            {/* Table Header */}
+            <Box mb={4}>
+              <Text fontSize="sm" color="gray.500">
+                {isLoading ? "Loading companies..." : `Showing ${data?.data?.length || 0} companies`}
+              </Text>
+            </Box>
+
+            {/* Company Table */}
+            <CompanyTable 
               companies={data?.data || []} 
               isLoading={isLoading}
               filters={filters}
