@@ -158,11 +158,19 @@ const COLUMNS: TableColumn[] = [
   {
     key: "description",
     label: "Description",
-    width: "300px",
+    width: "250px",
     render: (company) => (
-      <Text fontSize="sm" color="gray.600" noOfLines={2}>
-        {company.description}
-      </Text>
+      <Tooltip label={company.description} hasArrow placement="top">
+        <Text 
+          fontSize="sm" 
+          color="gray.600" 
+          noOfLines={1}
+          isTruncated
+          cursor="help"
+        >
+          {company.description}
+        </Text>
+      </Tooltip>
     ),
   },
   {
@@ -184,7 +192,10 @@ const COLUMNS: TableColumn[] = [
     label: "Focus",
     width: "100px",
     render: (company, { getFocusColor }) => (
-      <Badge colorScheme={getFocusColor(company.customer_focus)} borderRadius="full">
+      <Badge
+        colorScheme={getFocusColor(company.customer_focus)}
+        borderRadius="full"
+      >
         {company.customer_focus?.toUpperCase() || "N/A"}
       </Badge>
     ),
