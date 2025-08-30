@@ -41,6 +41,10 @@ export class CompaniesService {
     if (filters.maxRank) params.set("max_rank", filters.maxRank.toString());
     if (filters.minFunding) params.set("min_funding", filters.minFunding.toString());
     if (filters.maxFunding) params.set("max_funding", filters.maxFunding.toString());
+    
+    // Add sorting parameters
+    if (filters.sortBy) params.set("sortBy", filters.sortBy);
+    if (filters.sortOrder) params.set("sortOrder", filters.sortOrder);
 
     params.set("page", pagination.page.toString());
     params.set("limit", pagination.limit.toString());

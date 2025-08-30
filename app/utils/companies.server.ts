@@ -22,6 +22,8 @@ export interface CompanyFilters {
   max_rank?: number;
   min_funding?: number;
   max_funding?: number;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 export interface PaginatedResult<T> {
@@ -49,6 +51,8 @@ export async function getCompanies(
     max_rank,
     min_funding,
     max_funding,
+    sortBy,
+    sortOrder = "asc",
   } = params;
 
   const skip = (page - 1) * limit;
@@ -88,13 +92,32 @@ export async function getCompanies(
     if (max_funding !== undefined) where.last_funding_amount.lte = max_funding;
   }
 
+  // Build orderBy clause
+  let orderBy: any = { rank: "asc" }; // Default sorting
+  
+  if (sortBy) {
+    switch (sortBy) {
+      case "name":
+        orderBy = { name: sortOrder };
+        break;
+      case "rank":
+        orderBy = { rank: sortOrder };
+        break;
+      case "funding":
+        orderBy = { last_funding_amount: sortOrder };
+        break;
+      default:
+        orderBy = { rank: "asc" };
+    }
+  }
+
   // Execute queries in parallel
   const [rawCompanies, total] = await Promise.all([
     prisma.company.findMany({
       where,
       skip,
       take: limit,
-      orderBy: { rank: "asc" },
+      orderBy,
     }),
     prisma.company.count({ where }),
   ]);

@@ -24,6 +24,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const max_funding = url.searchParams.get("max_funding")
     ? parseInt(url.searchParams.get("max_funding")!, 10)
     : undefined;
+  const sortBy = url.searchParams.get("sortBy") ?? undefined;
+  const sortOrder = url.searchParams.get("sortOrder") ?? undefined;
 
   try {
     const companies = await getCompanies({
@@ -37,6 +39,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       max_rank,
       min_funding,
       max_funding,
+      sortBy,
+      sortOrder,
     });
 
     return Response.json(companies);
