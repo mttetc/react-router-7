@@ -109,7 +109,7 @@ const COLUMNS: TableColumn[] = [
     render: (company, { handleCopyDomain }) => (
       <HStack spacing={3}>
         <Avatar
-          src={`https://specter.api.com/logo/${company.domain}`}
+          src={`https://app.tryspecter.com/logo?domain=${company.domain}`}
           name={company.name}
           size="sm"
           bg="gray.100"
@@ -161,9 +161,9 @@ const COLUMNS: TableColumn[] = [
     width: "250px",
     render: (company) => (
       <Tooltip label={company.description} hasArrow placement="top">
-        <Text 
-          fontSize="sm" 
-          color="gray.600" 
+        <Text
+          fontSize="sm"
+          color="gray.600"
           noOfLines={1}
           isTruncated
           cursor="help"
