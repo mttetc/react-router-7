@@ -2,521 +2,225 @@ import {
   Box,
   Container,
   Flex,
-  Grid,
-  GridItem,
   Heading,
-  VStack,
-  HStack,
+  Image,
+  Link,
+  ListItem,
+  Spacer,
+  Tag,
   Text,
-  Input,
-  Select,
-  Button,
-  Card,
-  CardBody,
-  Badge,
-  IconButton,
-  useColorModeValue,
-  Divider,
-  Spinner,
-  Center,
+  UnorderedList,
+  VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import type { LoaderFunctionArgs } from "react-router";
-import type { Company, PaginatedResult } from "../utils/companies.types";
+import { motion } from "framer-motion";
 
-// ============================================================================
-// TYPES & INTERFACES
-// ============================================================================
-
-interface FilterState {
-  search: string;
-  growthStage: string;
-  customerFocus: string;
-  fundingType: string;
-}
-
-interface PaginationState {
-  page: number;
-  limit: number;
-}
-
-// ============================================================================
-// API FUNCTIONS
-// ============================================================================
-
-const fetchCompanies = async (
-  filters: FilterState,
-  pagination: PaginationState
-): Promise<PaginatedResult<Company>> => {
-  const params = new URLSearchParams();
-  
-  if (filters.search) params.set("q", filters.search);
-  if (filters.growthStage) params.set("growth_stage", filters.growthStage);
-  if (filters.customerFocus) params.set("customer_focus", filters.customerFocus);
-  if (filters.fundingType) params.set("last_funding_type", filters.fundingType);
-  
-  params.set("page", pagination.page.toString());
-  params.set("limit", pagination.limit.toString());
-
-  const response = await fetch(`/api/companies?${params}`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch companies");
-  }
-  return response.json();
-};
-
-// ============================================================================
-// CUSTOM HOOKS
-// ============================================================================
-
-const useCompaniesData = (filters: FilterState, pagination: PaginationState) => {
-  return useQuery({
-    queryKey: ["companies", "test", filters, pagination],
-    queryFn: () => fetchCompanies(filters, pagination),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-};
-
-const useFilters = (initialFilters: FilterState) => {
-  const [filters, setFilters] = useState<FilterState>(initialFilters);
-
-  const updateFilter = (key: keyof FilterState, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
-  const resetFilters = () => {
-    setFilters({
-      search: "",
-      growthStage: "",
-      customerFocus: "",
-      fundingType: "",
-    });
-  };
-
-  return { filters, updateFilter, resetFilters };
-};
-
-const usePagination = (initialPage = 1, initialLimit = 12) => {
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: initialPage,
-    limit: initialLimit,
-  });
-
-  const goToPage = (page: number) => {
-    setPagination(prev => ({ ...prev, page }));
-  };
-
-  const changeLimit = (limit: number) => {
-    setPagination({ page: 1, limit });
-  };
-
-  return { pagination, goToPage, changeLimit };
-};
-
-// ============================================================================
-// COMPONENTS
-// ============================================================================
-
-const Header = () => {
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-
+const Page = () => {
   return (
     <Box
-      bg={bgColor}
-      borderBottom="1px"
-      borderColor={borderColor}
-      shadow="sm"
-      position="sticky"
-      top={0}
-      zIndex={10}
-    >
-      <Container maxW="8xl" py={4}>
-        <Heading size="lg" color="brand.500">
-          Company Explorer
-        </Heading>
-        <Text color="gray.600" mt={1}>
-          Discover and explore innovative companies
-        </Text>
-      </Container>
-    </Box>
-  );
-};
-
-interface FilterSidebarProps {
-  filters: FilterState;
-  onFilterChange: (key: keyof FilterState, value: string) => void;
-  onReset: () => void;
-}
-
-const FilterSidebar = ({ filters, onFilterChange, onReset }: FilterSidebarProps) => {
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-
-  return (
-    <Card bg={bgColor} borderColor={borderColor} h="fit-content" position="sticky" top="100px">
-      <CardBody>
-        <VStack spacing={6} align="stretch">
-          <HStack justify="space-between">
-            <Heading size="md">Filters</Heading>
-            <Button size="sm" variant="ghost" onClick={onReset}>
-              Reset
-            </Button>
-          </HStack>
-
-          <VStack spacing={4} align="stretch">
-            <Box>
-              <Text fontWeight="medium" mb={2}>
-                Search
-              </Text>
-              <Input
-                placeholder="Search companies..."
-                value={filters.search}
-                onChange={(e) => onFilterChange("search", e.target.value)}
-              />
-            </Box>
-
-            <Box>
-              <Text fontWeight="medium" mb={2}>
-                Growth Stage
-              </Text>
-              <Select
-                placeholder="All stages"
-                value={filters.growthStage}
-                onChange={(e) => onFilterChange("growthStage", e.target.value)}
-              >
-                <option value="early">Early</option>
-                <option value="seed">Seed</option>
-                <option value="series-a">Series A</option>
-                <option value="series-b">Series B</option>
-                <option value="growth">Growth</option>
-              </Select>
-            </Box>
-
-            <Box>
-              <Text fontWeight="medium" mb={2}>
-                Customer Focus
-              </Text>
-              <Select
-                placeholder="All types"
-                value={filters.customerFocus}
-                onChange={(e) => onFilterChange("customerFocus", e.target.value)}
-              >
-                <option value="b2b">B2B</option>
-                <option value="b2c">B2C</option>
-                <option value="b2c_b2b">B2B & B2C</option>
-              </Select>
-            </Box>
-
-            <Box>
-              <Text fontWeight="medium" mb={2}>
-                Funding Type
-              </Text>
-              <Select
-                placeholder="All funding types"
-                value={filters.fundingType}
-                onChange={(e) => onFilterChange("fundingType", e.target.value)}
-              >
-                <option value="Seed">Seed</option>
-                <option value="Series A">Series A</option>
-                <option value="Series B">Series B</option>
-                <option value="Series C">Series C</option>
-                <option value="Pre Seed">Pre Seed</option>
-                <option value="Undisclosed">Undisclosed</option>
-              </Select>
-            </Box>
-          </VStack>
-        </VStack>
-      </CardBody>
-    </Card>
-  );
-};
-
-interface CompanyCardProps {
-  company: Company;
-}
-
-const CompanyCard = ({ company }: CompanyCardProps) => {
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-
-  const formatFunding = (amount: number | null) => {
-    if (!amount) return "N/A";
-    if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M`;
-    if (amount >= 1000) return `$${(amount / 1000).toFixed(0)}K`;
-    return `$${amount}`;
-  };
-
-  return (
-    <Card
-      bg={bgColor}
-      borderColor={borderColor}
-      _hover={{ shadow: "md", transform: "translateY(-2px)" }}
-      transition="all 0.2s"
-      cursor="pointer"
-    >
-      <CardBody>
-        <VStack align="start" spacing={3}>
-          <HStack justify="space-between" w="full">
-            <Heading size="sm" noOfLines={1}>
-              {company.name}
-            </Heading>
-            <Badge colorScheme="blue" fontSize="xs">
-              #{company.rank}
-            </Badge>
-          </HStack>
-
-          <Text fontSize="sm" color="gray.600" noOfLines={1}>
-            {company.domain}
-          </Text>
-
-          <Text fontSize="sm" noOfLines={3} minH="60px">
-            {company.description}
-          </Text>
-
-          <Divider />
-
-          <VStack spacing={2} align="start" w="full">
-            <HStack justify="space-between" w="full">
-              <Text fontSize="xs" color="gray.500">
-                Stage:
-              </Text>
-              <Badge size="sm" colorScheme="green">
-                {company.growth_stage || "Unknown"}
-              </Badge>
-            </HStack>
-
-            <HStack justify="space-between" w="full">
-              <Text fontSize="xs" color="gray.500">
-                Focus:
-              </Text>
-              <Badge size="sm" colorScheme="purple">
-                {company.customer_focus?.toUpperCase() || "N/A"}
-              </Badge>
-            </HStack>
-
-            <HStack justify="space-between" w="full">
-              <Text fontSize="xs" color="gray.500">
-                Funding:
-              </Text>
-              <Text fontSize="xs" fontWeight="medium">
-                {formatFunding(company.last_funding_amount)}
-              </Text>
-            </HStack>
-          </VStack>
-        </VStack>
-      </CardBody>
-    </Card>
-  );
-};
-
-interface CompanyGridProps {
-  companies: Company[];
-  isLoading: boolean;
-}
-
-const CompanyGrid = ({ companies, isLoading }: CompanyGridProps) => {
-  if (isLoading) {
-    return (
-      <Center h="400px">
-        <VStack spacing={4}>
-          <Spinner size="xl" color="brand.500" />
-          <Text color="gray.500">Loading companies...</Text>
-        </VStack>
-      </Center>
-    );
-  }
-
-  if (companies.length === 0) {
-    return (
-      <Center h="400px">
-        <VStack spacing={4}>
-          <Text fontSize="lg" color="gray.500">
-            No companies found
-          </Text>
-          <Text fontSize="sm" color="gray.400">
-            Try adjusting your filters
-          </Text>
-        </VStack>
-      </Center>
-    );
-  }
-
-  return (
-    <Grid
-      templateColumns={{
-        base: "1fr",
-        md: "repeat(2, 1fr)",
-        lg: "repeat(3, 1fr)",
-        xl: "repeat(4, 1fr)",
+      bgImage="url(bg.png)"
+      bgSize="cover"
+      bgPosition="center"
+      pos="relative"
+      zIndex={0}
+      _before={{
+        content: '""',
+        pos: "absolute",
+        inset: 0,
+        bgGradient: "linear(to-b, rgba(255, 255, 255, 0.6), white)",
+        zIndex: -1,
       }}
-      gap={6}
     >
-      {companies.map((company) => (
-        <GridItem key={company.id}>
-          <CompanyCard company={company} />
-        </GridItem>
-      ))}
-    </Grid>
-  );
-};
+      <Image src="/specter.svg" alt="Specter" h={8} mx="auto" my={12} />
 
-interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  isLoading: boolean;
-}
+      <Container
+        as={motion.div}
+        initial={{ opacity: 0, y: 12, filter: "blur(12px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        maxW="600px"
+        mb={24}
+        bgColor="rgba(255, 255, 255, 0.8)"
+        backdropFilter="blur(12px)"
+        rounded="2xl"
+        borderWidth={1}
+        borderColor="gray.100"
+        p={10}
+        shadow="xl"
+      >
+        <VStack align="start" spacing={5}>
+          <Box>
+            <Tag
+              size="md"
+              rounded="full"
+              bgColor="gray.50"
+              borderColor="gray.100"
+              borderWidth={1}
+              mb={1}
+            >
+              Frontend Test
+            </Tag>
+            <Heading as="h1" fontWeight="semibold">
+              Company Feed with Filters
+            </Heading>
+          </Box>
 
-const Pagination = ({ currentPage, totalPages, onPageChange, isLoading }: PaginationProps) => {
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisible = 5;
-    
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      const start = Math.max(1, currentPage - 2);
-      const end = Math.min(totalPages, start + maxVisible - 1);
-      
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-    }
-    
-    return pages;
-  };
-
-  if (totalPages <= 1) return null;
-
-  return (
-    <Card bg={bgColor} borderColor={borderColor}>
-      <CardBody>
-        <HStack justify="space-between" align="center">
-          <Text fontSize="sm" color="gray.600">
-            Page {currentPage} of {totalPages}
+          <Text fontSize="sm" color="gray.500">
+            Welcome! This test is designed to evaluate your ability to work with
+            a modern full-stack setup and your approach to building clean,
+            interactive interfaces. The project is already configured with React
+            Router v7, Chakra UI v2, React Query, and Prisma. A remote database
+            connection is already set up — you do not need to configure or seed
+            a local database.
           </Text>
 
-          <HStack spacing={2}>
-            <IconButton
-              aria-label="Previous page"
-              icon={<ChevronLeftIcon />}
-              size="sm"
-              variant="outline"
-              isDisabled={currentPage === 1 || isLoading}
-              onClick={() => onPageChange(currentPage - 1)}
-            />
+          <Text fontSize="sm" color="gray.500">
+            Your task is to create a new route and page that lists companies
+            retrieved from the database via an API endpoint that you will build
+            using Prisma. You'll then add filtering and sorting functionality as
+            described below.
+          </Text>
 
-            {getPageNumbers().map((page) => (
-              <Button
-                key={page}
-                size="sm"
-                variant={page === currentPage ? "solid" : "outline"}
-                colorScheme={page === currentPage ? "brand" : "gray"}
-                isDisabled={isLoading}
-                onClick={() => onPageChange(page)}
+          <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
+            <Heading size="sm" mb={4}>
+              ✅ Step 1 – Create an Endpoint and Set Up the Page
+            </Heading>
+
+            <UnorderedList fontSize="sm" color="gray.500">
+              <ListItem>
+                Create a new API route (e.g. /api/companies) that uses Prisma to
+                fetch company data from the remote database.
+              </ListItem>
+              <ListItem>
+                Then, create a new frontend route and page (e.g. /companies)
+                that uses React Query to fetch from this API.
+              </ListItem>
+              <ListItem>
+                Display the list of companies using Chakra UI in a clean,
+                user-friendly way.
+              </ListItem>
+            </UnorderedList>
+          </Box>
+
+          <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
+            <Heading size="sm" color="gray.600" mb={4}>
+              🔍 Step 2 – Design an Intuitive Filter Experience
+            </Heading>
+            <Text fontSize="sm" color="gray.500" mb={4}>
+              Our current filtering system creates too much friction for users. We need a more intuitive and user-friendly approach that makes filtering feel natural and effortless. Think about how users naturally search and filter in modern applications - they often start with a simple search and then refine their results.
+            </Text>
+            <Text fontSize="sm" color="gray.500" mb={4}>
+              For this prototype, focus on creating a seamless filtering experience that feels natural to use. Consider implementing a unified search experience where users can:
+            </Text>
+            <UnorderedList fontSize="sm" color="gray.500">
+              <ListItem>
+                Start with a smart search that understands company names, domains, and other attributes
+              </ListItem>
+              <ListItem>
+                Easily refine results through intuitive UI patterns (like chips, tags, or quick filters)
+              </ListItem>
+              <ListItem>
+                See their active filters clearly and be able to modify or remove them effortlessly
+              </ListItem>
+            </UnorderedList>
+            <Text fontSize="sm" color="gray.500" mt={4} mb={4}>
+              The following filters should be available, but think creatively about how to make them accessible without overwhelming the user:
+            </Text>
+            <UnorderedList fontSize="sm" color="gray.500">
+              <ListItem>
+                Company name and domain search
+              </ListItem>
+              <ListItem>
+                Rank (numeric comparison)
+              </ListItem>
+              <ListItem>
+                Growth stage (seed, growing, late, exit, early)
+              </ListItem>
+              <ListItem>
+                Customer focus (b2b, b2c, b2b_b2c, b2c_b2b)
+              </ListItem>
+              <ListItem>
+                Last funding amount (USD)
+              </ListItem>
+              <ListItem>
+                Last funding type (Angel, Convertible Note, etc.)
+              </ListItem>
+            </UnorderedList>
+            <Text fontSize="sm" color="gray.500" mt={4}>
+              Remember: The goal is not to implement every possible filter combination, but to create an intuitive and delightful filtering experience that users will actually want to use.
+            </Text>
+          </Box>
+
+          <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
+            <Heading size="sm" color="gray.600" mb={4}>
+              ↕️ Step 3 – Sorting (Optional but encouraged)
+            </Heading>
+            <Text fontSize="sm" color="gray.500">
+              Add simple sorting, e.g. by name or rank, in ascending or
+              descending order.
+            </Text>
+          </Box>
+
+          <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
+            <Heading size="sm" color="gray.600" mb={4}>
+              🎨 Be Creative
+            </Heading>
+            <UnorderedList fontSize="sm" color="gray.500">
+              <ListItem>
+                You're encouraged to design the page with care — aim for good UX
+                and visual clarity.
+              </ListItem>
+              <ListItem>
+                Use Chakra UI, but don't be afraid to customize or extend
+                components to match your vision.
+              </ListItem>
+              <ListItem>
+                Showcase your creativity and thoughtfulness in how the UI feels
+                to use.
+              </ListItem>
+            </UnorderedList>
+          </Box>
+
+          <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
+            <Heading size="sm" color="gray.600" mb={4}>
+              🧠 Final Notes
+            </Heading>
+            <UnorderedList fontSize="sm" color="gray.500">
+              <ListItem>
+                Comment your code or add notes to explain your decisions and
+                reasoning.
+              </ListItem>
+              <ListItem>
+                Think aloud: how would you approach this differently in a
+                production environment?
+              </ListItem>
+              <ListItem>
+                What might you improve, modularize, or optimize for scalability?
+              </ListItem>
+              <ListItem>
+                Feel free to include any enhancements or touches that show your
+                attention to detail.
+              </ListItem>
+            </UnorderedList>
+          </Box>
+
+          <Box p={8} borderWidth={1} borderColor="gray.100" borderRadius="lg">
+            <Heading size="sm" color="gray.600" mb={4}>
+              🔥 Hot Tip
+            </Heading>
+            <Text fontSize="sm" color="gray.500">
+              Use this url to get company logos:
+              <br />
+              <Link
+                href="https://app.tryspecter.com/logo?domain=google.com"
+                color="brand.500"
               >
-                {page}
-              </Button>
-            ))}
-
-            <IconButton
-              aria-label="Next page"
-              icon={<ChevronRightIcon />}
-              size="sm"
-              variant="outline"
-              isDisabled={currentPage === totalPages || isLoading}
-              onClick={() => onPageChange(currentPage + 1)}
-            />
-          </HStack>
-        </HStack>
-      </CardBody>
-    </Card>
-  );
-};
-
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-  const q = url.searchParams.get("q") ?? "";
-  return { q };
-}
-
-export default function TestPage() {
-  const bgColor = useColorModeValue("gray.50", "gray.900");
-
-  // Custom hooks for state management
-  const { filters, updateFilter, resetFilters } = useFilters({
-    search: "",
-    growthStage: "",
-    customerFocus: "",
-    fundingType: "",
-  });
-
-  const { pagination, goToPage } = usePagination(1, 12);
-
-  // Data fetching with TanStack Query
-  const { data, isLoading, error } = useCompaniesData(filters, pagination);
-
-  return (
-    <Box minH="100vh" bg={bgColor}>
-      <Header />
-      
-      <Container maxW="8xl" py={8}>
-        <Grid templateColumns="300px 1fr" gap={8}>
-          {/* Left Sidebar - Filters */}
-          <GridItem>
-            <FilterSidebar
-              filters={filters}
-              onFilterChange={updateFilter}
-              onReset={resetFilters}
-            />
-          </GridItem>
-
-          {/* Right Content - Grid + Pagination */}
-          <GridItem>
-            <VStack spacing={6} align="stretch">
-              {/* Results Summary */}
-              <HStack justify="space-between" align="center">
-                <Text color="gray.600">
-                  {data ? `${data.total} companies found` : "Loading..."}
-                </Text>
-                {error && (
-                  <Text color="red.500" fontSize="sm">
-                    Error loading companies
-                  </Text>
-                )}
-              </HStack>
-
-              {/* Company Grid */}
-              <CompanyGrid
-                companies={data?.data || []}
-                isLoading={isLoading}
-              />
-
-              {/* Pagination */}
-              {data && (
-                <Pagination
-                  currentPage={data.page}
-                  totalPages={data.totalPages}
-                  onPageChange={goToPage}
-                  isLoading={isLoading}
-                />
-              )}
-            </VStack>
-          </GridItem>
-        </Grid>
+                https://app.tryspecter.com/logo?domain=google.com
+              </Link>
+            </Text>
+          </Box>
+        </VStack>
       </Container>
     </Box>
   );
-}
+};
+
+export default Page;
