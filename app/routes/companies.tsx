@@ -24,7 +24,7 @@ const companyListQuery = (q?: string) =>
       if (q) params.set("q", q);
       params.set("page", "1");
       params.set("limit", "12");
-      
+
       const response = await fetch(`/api/companies?${params}`);
       if (!response.ok) {
         throw new Error("Failed to fetch companies");
@@ -33,35 +33,26 @@ const companyListQuery = (q?: string) =>
     },
   });
 
-export const loader =
-  (queryClient: QueryClient) =>
-  async ({ request }: LoaderFunctionArgs) => {
-    const url = new URL(request.url);
-    const q = url.searchParams.get("q") ?? "";
-    
-    // Get companies data on the server side
-    const { getCompanies } = await import("../utils/companies.server");
-    const companies = await getCompanies({ page: 1, limit: 12, search: q });
-    
-    // Prefill the query cache
-    queryClient.setQueryData(["companies", "list", q ?? "all"], companies);
-    
-    return { q, companies };
-  };
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const q = url.searchParams.get("q") ?? "";
+
+  // Get companies data on the server side
+  const { getCompanies } = await import("../utils/companies.server");
+  const companies = await getCompanies({ page: 1, limit: 12, search: q });
+
+  return { q, companies };
+}
 
 export default function Root() {
-  const loaderData = useLoaderData() as Awaited<
-    ReturnType<ReturnType<typeof loader>>
-  > | undefined;
+  const loaderData = useLoaderData() as
+    | Awaited<ReturnType<typeof loader>>
+    | undefined;
   const q = loaderData?.q ?? "";
   const initialCompanies = loaderData?.companies;
-  
-  // Use React Query for all data fetching, but with initial data from loader
-  const { data: companies } = useSuspenseQuery({
-    ...companyListQuery(q),
-    initialData: initialCompanies,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+
+  // Use initial data from loader, only use React Query on client for new searches
+  const companies = initialCompanies || { data: [], total: 0, page: 1, limit: 12, totalPages: 0 };
   const searching = useIsFetching({ queryKey: ["companies", "list"] }) > 0;
   const navigation = useNavigation();
   const submit = useSubmit();

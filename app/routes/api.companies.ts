@@ -8,17 +8,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const limit = parseInt(url.searchParams.get("limit") ?? "12", 10);
 
   try {
-    const companies = await getCompanies({ 
-      page, 
-      limit, 
-      search: q 
+    const companies = await getCompanies({
+      page,
+      limit,
+      search: q,
     });
-    
+
     return Response.json(companies);
   } catch (error) {
     console.error("Error fetching companies:", error);
     return Response.json(
-      { error: "Failed to fetch companies" }, 
+      { error: "Failed to fetch companies" },
       { status: 500 }
     );
   }
