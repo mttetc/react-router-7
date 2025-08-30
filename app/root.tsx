@@ -9,8 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { ChakraProvider } from "@chakra-ui/react";
-import { theme } from "./theme";
+import { Provider } from "./components/ui/provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -27,12 +26,16 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+// Use ChakraProvider with default theme for now
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
+            // With SSR, we usually want to set some default staleTime
+            // above 0 to avoid refetching immediately on the client
             staleTime: 1000 * 60 * 5, // 5 minutes
             gcTime: 1000 * 60 * 30, // 30 minutes
           },
@@ -50,11 +53,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <QueryClientProvider client={queryClient}>
-          <ChakraProvider theme={theme}>
+          <Provider>
             {children}
             <ScrollRestoration />
             <Scripts />
-          </ChakraProvider>
+          </Provider>
         </QueryClientProvider>
       </body>
     </html>

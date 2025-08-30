@@ -1,33 +1,22 @@
+import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
   Avatar,
   Badge,
-  Text,
-  Link as ChakraLink,
-  HStack,
-  VStack,
-  IconButton,
-  Tooltip,
-  useColorModeValue,
-  Skeleton,
   Box,
+  Link as ChakraLink,
   Flex,
+  HStack,
+  Skeleton,
+  Table,
+  Text,
+  VStack,
+  Presence,
+  For,
 } from "@chakra-ui/react";
-import {
-  ExternalLinkIcon,
-  CopyIcon,
-  TriangleUpIcon,
-  TriangleDownIcon,
-} from "@chakra-ui/icons";
-import { useClipboard, useToast } from "@chakra-ui/react";
-import type { Company } from "../../../utils/companies.types";
+import { Tooltip } from "../../../components/ui/tooltip";
+import { useColorModeValue } from "../../../components/ui/color-mode";
 import type { FilterState } from "../../../services/companies.service";
+import type { Company } from "../../../utils/companies.types";
 import { formatFunding } from "../utils/filter-utils";
 
 // Column configuration
@@ -41,9 +30,9 @@ interface TableColumn {
 }
 
 interface CellHelpers {
-  handleCopyDomain: () => void;
   getStageColor: (stage: string | null) => string;
   getFocusColor: (focus: string | null) => string;
+  formatDate: (date: Date | null | string) => string;
 }
 
 interface CompanyTableProps {
@@ -95,7 +84,7 @@ const COLUMNS: TableColumn[] = [
     sortKey: "rank",
     width: "80px",
     render: (company) => (
-      <Badge colorScheme="yellow" borderRadius="full" px={2}>
+      <Badge colorPalette="yellow" borderRadius="full" px={2}>
         #{company.rank}
       </Badge>
     ),
@@ -106,51 +95,28 @@ const COLUMNS: TableColumn[] = [
     sortable: true,
     sortKey: "name",
     width: "300px",
-    render: (company, { handleCopyDomain }) => (
-      <HStack spacing={3}>
-        <Avatar
-          src={`https://app.tryspecter.com/logo?domain=${company.domain}`}
-          name={company.name}
-          size="sm"
-          bg="gray.100"
-          color="gray.600"
-        />
-        <VStack align="start" spacing={0}>
-          <Text fontWeight="semibold" fontSize="sm" noOfLines={1}>
+    render: (company) => (
+      <HStack gap={3}>
+        <Avatar.Root size="sm" bg="gray.100" color="gray.600">
+          <Avatar.Image
+            src={`https://app.tryspecter.com/logo?domain=${company.domain}`}
+          />
+          <Avatar.Fallback>{company.name.charAt(0)}</Avatar.Fallback>
+        </Avatar.Root>
+        <VStack align="start" gap={0}>
+          <Text fontWeight="semibold" fontSize="sm" lineClamp={1}>
             {company.name}
           </Text>
-          <HStack spacing={1}>
-            <ChakraLink
-              href={`https://${company.domain}`}
-              isExternal
-              fontSize="xs"
-              color="blue.500"
-              _hover={{ textDecoration: "underline" }}
-            >
-              {company.domain}
-            </ChakraLink>
-            <Tooltip label="Copy domain" hasArrow>
-              <IconButton
-                aria-label="Copy domain"
-                icon={<CopyIcon />}
-                size="xs"
-                variant="ghost"
-                onClick={handleCopyDomain}
-              />
-            </Tooltip>
-            <Tooltip label="Visit website" hasArrow>
-              <IconButton
-                as={ChakraLink}
-                href={`https://${company.domain}`}
-                isExternal
-                aria-label="Visit website"
-                icon={<ExternalLinkIcon />}
-                size="xs"
-                variant="ghost"
-                colorScheme="blue"
-              />
-            </Tooltip>
-          </HStack>
+          <ChakraLink
+            href={`https://${company.domain}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            fontSize="xs"
+            color="blue.500"
+            _hover={{ textDecoration: "underline" }}
+          >
+            {company.domain}
+          </ChakraLink>
         </VStack>
       </HStack>
     ),
@@ -160,21 +126,19 @@ const COLUMNS: TableColumn[] = [
     label: "Description",
     width: "250px",
     render: (company) => (
-      <Tooltip label={company.description} hasArrow placement="top">
-        <Text
-          fontSize="sm"
-          color="gray.600"
-          noOfLines={1}
-          isTruncated
-          cursor="help"
-          maxWidth="230px"
-          overflow="hidden"
-          whiteSpace="nowrap"
-          textOverflow="ellipsis"
-        >
-          {company.description}
-        </Text>
-      </Tooltip>
+      <Text
+        fontSize="sm"
+        color="gray.600"
+        lineClamp={1}
+        cursor="help"
+        maxWidth="230px"
+        overflow="hidden"
+        whiteSpace="nowrap"
+        textOverflow="ellipsis"
+        title={company.description}
+      >
+        {company.description}
+      </Text>
     ),
   },
   {
@@ -183,7 +147,7 @@ const COLUMNS: TableColumn[] = [
     width: "120px",
     render: (company, { getStageColor }) => (
       <Badge
-        colorScheme={getStageColor(company.growth_stage)}
+        colorPalette={getStageColor(company.growth_stage)}
         borderRadius="full"
         textTransform="capitalize"
       >
@@ -197,7 +161,7 @@ const COLUMNS: TableColumn[] = [
     width: "100px",
     render: (company, { getFocusColor }) => (
       <Badge
-        colorScheme={getFocusColor(company.customer_focus)}
+        colorPalette={getFocusColor(company.customer_focus)}
         borderRadius="full"
       >
         {company.customer_focus?.toUpperCase() || "N/A"}
@@ -221,84 +185,64 @@ const COLUMNS: TableColumn[] = [
     label: "Type",
     width: "150px",
     render: (company) => (
-      <Text fontSize="sm" noOfLines={1}>
+      <Text fontSize="sm" lineClamp={1}>
         {company.last_funding_type || "N/A"}
       </Text>
     ),
   },
   {
-    key: "actions",
-    label: "Actions",
-    width: "100px",
-    render: (company, { handleCopyDomain }) => (
-      <HStack spacing={1}>
-        <Tooltip label="Copy domain" hasArrow>
-          <IconButton
-            aria-label="Copy domain"
-            icon={<CopyIcon />}
-            size="sm"
-            variant="ghost"
-            onClick={handleCopyDomain}
-          />
-        </Tooltip>
-        <Tooltip label="Visit website" hasArrow>
-          <IconButton
-            as={ChakraLink}
-            href={`https://${company.domain}`}
-            isExternal
-            aria-label="Visit website"
-            icon={<ExternalLinkIcon />}
-            size="sm"
-            variant="ghost"
-            colorScheme="blue"
-          />
-        </Tooltip>
-      </HStack>
+    key: "createdAt",
+    label: "Added",
+    width: "120px",
+    render: (company, helpers) => (
+      <Text fontSize="sm" color="gray.600">
+        {helpers.formatDate(company.createdAt)}
+      </Text>
     ),
   },
 ];
 
 const LoadingRow = () => (
-  <Tr>
-    {COLUMNS.map((column) => (
-      <Td key={column.key} width={column.width}>
-        <Skeleton height="20px" />
-      </Td>
-    ))}
-  </Tr>
+  <Table.Row>
+    <For each={COLUMNS}>
+      {(column) => (
+        <Table.Cell key={column.key} width={column.width}>
+          <Skeleton height="20px" />
+        </Table.Cell>
+      )}
+    </For>
+  </Table.Row>
 );
 
 const CompanyRow = ({ company }: { company: Company }) => {
-  const { onCopy } = useClipboard(company.domain);
-  const toast = useToast();
   const hoverBg = useColorModeValue("gray.50", "gray.700");
 
-  const handleCopyDomain = () => {
-    onCopy();
-    toast({
-      title: "Domain copied!",
-      description: `${company.domain} copied to clipboard`,
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-      size: "sm",
+  const formatDate = (date: Date | null | string) => {
+    if (!date) return "N/A";
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    return dateObj.toLocaleDateString(navigator.language || "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const helpers: CellHelpers = {
-    handleCopyDomain,
     getStageColor,
     getFocusColor,
+    formatDate,
   };
 
   return (
-    <Tr _hover={{ bg: hoverBg }}>
-      {COLUMNS.map((column) => (
-        <Td key={column.key} width={column.width}>
-          {column.render(company, helpers)}
-        </Td>
-      ))}
-    </Tr>
+    <Table.Row _hover={{ bg: hoverBg }}>
+      <For each={COLUMNS}>
+        {(column) => (
+          <Table.Cell key={column.key} width={column.width}>
+            {column.render(company, helpers)}
+          </Table.Cell>
+        )}
+      </For>
+    </Table.Row>
   );
 };
 
@@ -317,27 +261,33 @@ const SortableHeader = ({
 }) => {
   const isActive = currentSort === sortKey;
   const hoverBg = useColorModeValue("gray.100", "gray.600");
+  const nextOrder = isActive && currentOrder === "asc" ? "desc" : "asc";
+  const tooltipText = `Click to sort by ${children} ${
+    nextOrder === "asc" ? "ascending" : "descending"
+  }`;
 
   return (
-    <Th
-      cursor="pointer"
-      onClick={() => onSort(sortKey)}
-      _hover={{ bg: hoverBg }}
-      position="relative"
-    >
-      <Flex align="center" justify="space-between">
-        {children}
-        {isActive && (
-          <Box ml={2}>
-            {currentOrder === "asc" ? (
-              <TriangleUpIcon boxSize={3} />
-            ) : (
-              <TriangleDownIcon boxSize={3} />
-            )}
-          </Box>
-        )}
-      </Flex>
-    </Th>
+    <Tooltip content={tooltipText} positioning={{ placement: "top" }}>
+      <Table.ColumnHeader
+        cursor="pointer"
+        onClick={() => onSort(sortKey)}
+        _hover={{ bg: hoverBg }}
+        position="relative"
+      >
+        <Flex align="center" justify="space-between">
+          {children}
+          {isActive && (
+            <Box ml={2}>
+              {currentOrder === "asc" ? (
+                <FaCaretUp size={12} />
+              ) : (
+                <FaCaretDown size={12} />
+              )}
+            </Box>
+          )}
+        </Flex>
+      </Table.ColumnHeader>
+    </Tooltip>
   );
 };
 
@@ -357,56 +307,72 @@ export const CompanyTable = ({
   };
 
   const renderTableHeader = () => (
-    <Thead bg={theadBg}>
-      <Tr>
-        {COLUMNS.map((column) => {
-          if (column.sortable) {
+    <Table.Header bg={theadBg}>
+      <Table.Row>
+        <For each={COLUMNS}>
+          {(column) => {
+            if (column.sortable) {
+              return (
+                <SortableHeader
+                  key={column.key}
+                  sortKey={column.sortKey!}
+                  currentSort={filters.sortBy}
+                  currentOrder={filters.sortOrder}
+                  onSort={handleSort}
+                >
+                  {column.label}
+                </SortableHeader>
+              );
+            }
             return (
-              <SortableHeader
-                key={column.key}
-                sortKey={column.sortKey!}
-                currentSort={filters.sortBy}
-                currentOrder={filters.sortOrder}
-                onSort={handleSort}
-              >
+              <Table.ColumnHeader key={column.key} width={column.width}>
                 {column.label}
-              </SortableHeader>
+              </Table.ColumnHeader>
             );
-          }
-          return (
-            <Th key={column.key} width={column.width}>
-              {column.label}
-            </Th>
-          );
-        })}
-      </Tr>
-    </Thead>
+          }}
+        </For>
+      </Table.Row>
+    </Table.Header>
   );
 
   if (isLoading) {
     return (
-      <TableContainer>
-        <Table variant="simple" size="sm">
+      <Box
+        borderWidth={1}
+        borderColor={borderColor}
+        borderRadius="lg"
+        bg="white"
+        overflowX="auto"
+        maxWidth="100%"
+      >
+        <Table.Root variant="outline" size="sm" minWidth="1100px">
           {renderTableHeader()}
-          <Tbody>
-            {Array.from({ length: 10 }).map((_, index) => (
-              <LoadingRow key={index} />
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
+          <Table.Body>
+            <For each={Array.from({ length: 10 }, (_, i) => i)}>
+              {(index) => <LoadingRow key={index} />}
+            </For>
+          </Table.Body>
+        </Table.Root>
+      </Box>
     );
   }
 
   if (companies.length === 0) {
     return (
-      <TableContainer>
-        <Table variant="simple" size="sm">
+      <Box
+        borderWidth={1}
+        borderColor={borderColor}
+        borderRadius="lg"
+        bg="white"
+        overflowX="auto"
+        maxWidth="100%"
+      >
+        <Table.Root variant="outline" size="sm" minWidth="1100px">
           {renderTableHeader()}
-          <Tbody>
-            <Tr>
-              <Td colSpan={COLUMNS.length} textAlign="center" py={10}>
-                <VStack spacing={2}>
+          <Table.Body>
+            <Table.Row>
+              <Table.Cell colSpan={COLUMNS.length} textAlign="center" py={10}>
+                <VStack gap={2}>
                   <Text fontSize="lg" color="gray.500">
                     No companies found
                   </Text>
@@ -414,29 +380,33 @@ export const CompanyTable = ({
                     Try adjusting your filters to see more results
                   </Text>
                 </VStack>
-              </Td>
-            </Tr>
-          </Tbody>
-        </Table>
-      </TableContainer>
+              </Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table.Root>
+      </Box>
     );
   }
 
   return (
-    <TableContainer
+    <Box
       borderWidth={1}
       borderColor={borderColor}
       borderRadius="lg"
       bg="white"
+      overflowX="auto"
+      maxWidth="100%"
     >
-      <Table variant="simple" size="sm">
+      <Table.Root variant="outline" size="sm" minWidth="1100px">
         {renderTableHeader()}
-        <Tbody>
-          {companies.map((company) => (
-            <CompanyRow key={company.id} company={company} />
-          ))}
-        </Tbody>
-      </Table>
-    </TableContainer>
+        <Table.Body>
+          <For each={companies}>
+            {(company, index) => (
+              <CompanyRow key={company.id} company={company} />
+            )}
+          </For>
+        </Table.Body>
+      </Table.Root>
+    </Box>
   );
 };

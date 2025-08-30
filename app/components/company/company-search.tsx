@@ -3,18 +3,13 @@ import {
   HStack,
   Text,
   Input,
-  Select,
   NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
   Button,
   Wrap,
-  Tag,
-  TagLabel,
-  TagCloseButton,
+  Badge,
+  For,
 } from "@chakra-ui/react";
+import { Tooltip } from "../../components/ui/tooltip";
 import { useState, useEffect, useCallback } from "react";
 import type { CompanyFilters } from "../../utils/companies.types";
 
@@ -75,41 +70,56 @@ export function CompanySearch({
   const hasActiveFilters = Object.keys(filters || {}).length > 0;
 
   return (
-    <VStack spacing={6} align="stretch">
+    <VStack gap={6} align="stretch">
       {/* Header */}
-      <VStack spacing={2} align="start">
+      <VStack gap={2} align="start">
         <HStack justify="space-between" w="full">
           <Text fontSize="lg" fontWeight="semibold">
             Filters
           </Text>
           {hasActiveFilters && (
-            <Button size="sm" variant="ghost" onClick={clearFilters}>
-              Clear All
-            </Button>
+            <Tooltip
+              content="Remove all active filters"
+              positioning={{ placement: "top" }}
+            >
+              <Button size="sm" variant="ghost" onClick={clearFilters}>
+                Clear All
+              </Button>
+            </Tooltip>
           )}
         </HStack>
 
         {/* Active Filters */}
         {hasActiveFilters && (
-          <Wrap spacing={2}>
-            {Object.entries(filters || {}).map(([key, value]) => (
-              <Tag key={key} size="sm" colorScheme="blue" variant="solid">
-                <TagLabel>
-                  {key === "search" ? `"${value}"` : `${key}: ${value}`}
-                </TagLabel>
-                <TagCloseButton
-                  onClick={() => removeFilter(key as keyof CompanyFilters)}
-                />
-              </Tag>
-            ))}
+          <Wrap gap={2}>
+            <For each={Object.entries(filters || {})}>
+              {([key, value]) => (
+                <Tooltip
+                  key={key}
+                  content={`Click to remove ${key} filter`}
+                  positioning={{ placement: "top" }}
+                >
+                  <Badge
+                    size="sm"
+                    colorPalette="blue"
+                    variant="solid"
+                    cursor="pointer"
+                    onClick={() => removeFilter(key as keyof CompanyFilters)}
+                    _hover={{ opacity: 0.8 }}
+                  >
+                    {key === "search" ? `"${value}"` : `${key}: ${value}`} ✕
+                  </Badge>
+                </Tooltip>
+              )}
+            </For>
           </Wrap>
         )}
       </VStack>
 
       {/* Filter Controls */}
-      <VStack spacing={4} align="stretch">
+      <VStack gap={4} align="stretch">
         {/* Search */}
-        <VStack spacing={2} align="start">
+        <VStack gap={2} align="start">
           <Text fontSize="sm" fontWeight="medium">
             Search
           </Text>
@@ -123,102 +133,124 @@ export function CompanySearch({
         </VStack>
 
         {/* Growth Stage */}
-        <VStack spacing={2} align="start">
+        <VStack gap={2} align="start">
           <Text fontSize="sm" fontWeight="medium">
             Growth Stage
           </Text>
-          <Select
-            placeholder="Any stage"
+          <select
             value={filters?.growth_stage || ""}
-            onChange={(e) =>
+            onChange={(e: any) =>
               handleFilterChange("growth_stage", e.target.value || undefined)
             }
-            size="sm"
+            style={{
+              padding: "8px",
+              borderRadius: "6px",
+              border: "1px solid #e2e8f0",
+              width: "100%",
+              fontSize: "14px",
+            }}
           >
+            <option value="">Any stage</option>
             <option value="seed">Seed</option>
             <option value="early">Early</option>
             <option value="growing">Growing</option>
             <option value="late">Late</option>
             <option value="exit">Exit</option>
-          </Select>
+          </select>
         </VStack>
 
         {/* Customer Focus */}
-        <VStack spacing={2} align="start">
+        <VStack gap={2} align="start">
           <Text fontSize="sm" fontWeight="medium">
             Customer Focus
           </Text>
-          <Select
-            placeholder="Any focus"
+          <select
             value={filters?.customer_focus || ""}
-            onChange={(e) =>
+            onChange={(e: any) =>
               handleFilterChange("customer_focus", e.target.value || undefined)
             }
-            size="sm"
+            style={{
+              padding: "8px",
+              borderRadius: "6px",
+              border: "1px solid #e2e8f0",
+              width: "100%",
+              fontSize: "14px",
+            }}
           >
+            <option value="">Any focus</option>
             <option value="b2b">B2B</option>
             <option value="b2c">B2C</option>
             <option value="b2b_b2c">B2B & B2C</option>
             <option value="b2c_b2b">B2C & B2B</option>
-          </Select>
+          </select>
         </VStack>
 
         {/* Rank Range */}
-        <VStack spacing={2} align="start">
+        <VStack gap={2} align="start">
           <Text fontSize="sm" fontWeight="medium">
             Rank Range
           </Text>
-          <HStack spacing={2}>
-            <NumberInput
-              size="sm"
+          <HStack gap={2}>
+            <NumberInput.Root
               min={1}
-              value={filters?.min_rank || ""}
-              onChange={(_, value) =>
-                handleFilterChange("min_rank", isNaN(value) ? undefined : value)
+              value={filters?.min_rank?.toString() || ""}
+              onValueChange={(details) =>
+                handleFilterChange(
+                  "min_rank",
+                  details.valueAsNumber || undefined
+                )
               }
             >
-              <NumberInputField placeholder="Min" />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
+              <NumberInput.ValueText />
+              <NumberInput.Control>
+                <NumberInput.IncrementTrigger />
+                <NumberInput.DecrementTrigger />
+              </NumberInput.Control>
+            </NumberInput.Root>
             <Text fontSize="sm" color="gray.500">
               to
             </Text>
-            <NumberInput
-              size="sm"
+            <NumberInput.Root
               min={1}
-              value={filters?.max_rank || ""}
-              onChange={(_, value) =>
-                handleFilterChange("max_rank", isNaN(value) ? undefined : value)
+              value={filters?.max_rank?.toString() || ""}
+              onValueChange={(details) =>
+                handleFilterChange(
+                  "max_rank",
+                  details.valueAsNumber || undefined
+                )
               }
             >
-              <NumberInputField placeholder="Max" />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
+              <NumberInput.ValueText />
+              <NumberInput.Control>
+                <NumberInput.IncrementTrigger />
+                <NumberInput.DecrementTrigger />
+              </NumberInput.Control>
+            </NumberInput.Root>
           </HStack>
         </VStack>
 
         {/* Last Funding Type */}
-        <VStack spacing={2} align="start">
+        <VStack gap={2} align="start">
           <Text fontSize="sm" fontWeight="medium">
             Last Funding Type
           </Text>
-          <Select
-            placeholder="Any funding type"
+          <select
             value={filters?.last_funding_type || ""}
-            onChange={(e) =>
+            onChange={(e: any) =>
               handleFilterChange(
                 "last_funding_type",
                 e.target.value || undefined
               )
             }
-            size="sm"
+            style={{
+              padding: "8px",
+              borderRadius: "6px",
+              border: "1px solid #e2e8f0",
+              width: "100%",
+              fontSize: "14px",
+            }}
           >
+            <option value="">Any funding type</option>
             <option value="Angel">Angel</option>
             <option value="Convertible Note">Convertible Note</option>
             <option value="Seed">Seed</option>
@@ -227,52 +259,50 @@ export function CompanySearch({
             <option value="Series C">Series C</option>
             <option value="Series D">Series D</option>
             <option value="IPO">IPO</option>
-          </Select>
+          </select>
         </VStack>
 
         {/* Funding Amount Range */}
-        <VStack spacing={2} align="start">
+        <VStack gap={2} align="start">
           <Text fontSize="sm" fontWeight="medium">
             Funding Amount (USD)
           </Text>
-          <HStack spacing={2}>
-            <NumberInput
-              size="sm"
+          <HStack gap={2}>
+            <NumberInput.Root
               min={0}
-              value={filters?.min_funding || ""}
-              onChange={(_, value) =>
+              value={filters?.min_funding?.toString() || ""}
+              onValueChange={(details) =>
                 handleFilterChange(
                   "min_funding",
-                  isNaN(value) ? undefined : value
+                  details.valueAsNumber || undefined
                 )
               }
             >
-              <NumberInputField placeholder="Min" />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
+              <NumberInput.ValueText />
+              <NumberInput.Control>
+                <NumberInput.IncrementTrigger />
+                <NumberInput.DecrementTrigger />
+              </NumberInput.Control>
+            </NumberInput.Root>
             <Text fontSize="sm" color="gray.500">
               to
             </Text>
-            <NumberInput
-              size="sm"
+            <NumberInput.Root
               min={0}
-              value={filters?.max_funding || ""}
-              onChange={(_, value) =>
+              value={filters?.max_funding?.toString() || ""}
+              onValueChange={(details) =>
                 handleFilterChange(
                   "max_funding",
-                  isNaN(value) ? undefined : value
+                  details.valueAsNumber || undefined
                 )
               }
             >
-              <NumberInputField placeholder="Max" />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
+              <NumberInput.ValueText />
+              <NumberInput.Control>
+                <NumberInput.IncrementTrigger />
+                <NumberInput.DecrementTrigger />
+              </NumberInput.Control>
+            </NumberInput.Root>
           </HStack>
         </VStack>
       </VStack>

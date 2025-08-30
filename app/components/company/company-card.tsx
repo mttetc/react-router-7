@@ -5,7 +5,7 @@ import {
   Text,
   Badge,
   Image,
-  Divider,
+  Separator,
   Wrap,
 } from "@chakra-ui/react";
 import type { Company } from "../../utils/companies.types";
@@ -79,23 +79,26 @@ export function CompanyCard({ company }: CompanyCardProps) {
         shadow: "lg",
       }}
     >
-      <VStack align="start" spacing={3}>
+      <VStack align="start" gap={3}>
         {/* Header with logo, name, and rank */}
         <HStack justify="space-between" w="full">
-          <HStack spacing={3}>
+          <HStack gap={3}>
             <Image
               src={`https://app.tryspecter.com/logo?domain=${company.domain}`}
               alt={`${company.name} logo`}
               w="32px"
               h="32px"
               borderRadius="md"
-              fallbackSrc="https://via.placeholder.com/32x32?text=?"
+              onError={(e) => {
+                e.currentTarget.src =
+                  "https://via.placeholder.com/32x32?text=?";
+              }}
             />
             <Text fontSize="lg" fontWeight="bold" color="gray.800">
               {company.name}
             </Text>
           </HStack>
-          <Badge colorScheme={getRankBadgeColor(company.rank)}>
+          <Badge colorPalette={getRankBadgeColor(company.rank)}>
             #{company.rank}
           </Badge>
         </HStack>
@@ -109,26 +112,26 @@ export function CompanyCard({ company }: CompanyCardProps) {
         <Text
           color="gray.600"
           fontSize="sm"
-          noOfLines={3}
+          lineClamp={3}
           overflow="hidden"
           textOverflow="ellipsis"
         >
           {company.description}
         </Text>
 
-        <Divider />
+        <Separator />
 
         {/* Tags */}
-        <Wrap spacing={4}>
+        <Wrap gap={4}>
           <Badge
             variant="outline"
-            colorScheme={getGrowthStageColor(company.growth_stage)}
+            colorPalette={getGrowthStageColor(company.growth_stage)}
           >
             {company.growth_stage}
           </Badge>
           <Badge
             variant="outline"
-            colorScheme={getCustomerFocusColor(company.customer_focus)}
+            colorPalette={getCustomerFocusColor(company.customer_focus)}
           >
             {company.customer_focus}
           </Badge>

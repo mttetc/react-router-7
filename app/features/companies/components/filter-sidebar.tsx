@@ -4,30 +4,139 @@ import {
   HStack,
   Text,
   Input,
-  InputGroup,
-  InputLeftElement,
-  Select,
   Button,
   Card,
-  CardBody,
-  CardHeader,
   Badge,
-  useColorModeValue,
-  Divider,
   NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  FormControl,
-  FormLabel,
   Stack,
-  ButtonGroup,
-  Tooltip,
-  Icon,
+  Portal,
+  Menu,
+  Separator,
+  Field,
+  For,
 } from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons";
+import { Tooltip } from "../../../components/ui/tooltip";
+import { useColorModeValue } from "../../../components/ui/color-mode";
+import { FaSearch, FaCog, FaInfoCircle, FaChevronDown } from "react-icons/fa";
+import {
+  FaSeedling,
+  FaTree,
+  FaBuilding,
+  FaRocket,
+  FaUsers,
+  FaUser,
+  FaExchangeAlt,
+  FaAngellist,
+  FaFileAlt,
+  FaEyeSlash,
+} from "react-icons/fa";
 import type { FilterState } from "../../../services/companies.service";
+
+// Custom Select component that mimics the compound structure you wanted
+interface SelectItem {
+  value: string;
+  label: string;
+  icon: string;
+}
+
+interface SelectRootProps {
+  items: SelectItem[];
+  value: string;
+  onValueChange: (value: string) => void;
+  placeholder: string;
+  size?: "sm" | "md" | "lg";
+  children?: React.ReactNode;
+}
+
+// Mimic Select.Root component
+const SelectRoot = ({
+  items,
+  value,
+  onValueChange,
+  placeholder,
+  size = "sm",
+}: SelectRootProps) => {
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const selectedItem = items.find((item) => item.value === value);
+
+  return (
+    <Menu.Root>
+      <Menu.Trigger asChild>
+        <Button
+          variant="outline"
+          size={size}
+          textAlign="left"
+          fontWeight="normal"
+          borderColor={borderColor}
+          _hover={{ borderColor: "blue.400" }}
+          _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px #3182ce" }}
+          w="full"
+          justifyContent="space-between"
+        >
+          <HStack gap={2}>
+            {selectedItem && <Text>{selectedItem.icon}</Text>}
+            <Text color={selectedItem ? "inherit" : "gray.500"}>
+              {selectedItem?.label || placeholder}
+            </Text>
+          </HStack>
+          <FaChevronDown />
+        </Button>
+      </Menu.Trigger>
+
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content maxH="200px" overflowY="auto">
+            <Menu.Item value="" onClick={() => onValueChange("")}>
+              <Text color="gray.500">{placeholder}</Text>
+            </Menu.Item>
+            <For each={items}>
+              {(item) => (
+                <Menu.Item
+                  key={item.value}
+                  value={item.value}
+                  onClick={() => onValueChange(item.value)}
+                  bg={value === item.value ? "blue.50" : "transparent"}
+                  _hover={{ bg: "blue.50" }}
+                >
+                  <HStack gap={2}>
+                    <Text>{item.icon}</Text>
+                    <Text>{item.label}</Text>
+                  </HStack>
+                </Menu.Item>
+              )}
+            </For>
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Menu.Root>
+  );
+};
+
+// Data collections
+const growthStageItems: SelectItem[] = [
+  { value: "early", label: "Early", icon: "🌱" },
+  { value: "seed", label: "Seed", icon: "🌿" },
+  { value: "growing", label: "Growing", icon: "🌳" },
+  { value: "late", label: "Late", icon: "🏢" },
+  { value: "exit", label: "Exit", icon: "🚀" },
+];
+
+const customerFocusItems: SelectItem[] = [
+  { value: "b2b", label: "B2B", icon: "🏢" },
+  { value: "b2c", label: "B2C", icon: "👥" },
+  { value: "b2b_b2c", label: "B2B & B2C", icon: "🔄" },
+  { value: "b2c_b2b", label: "B2C & B2B", icon: "🔄" },
+];
+
+const fundingTypeItems: SelectItem[] = [
+  { value: "Seed", label: "Seed", icon: "🌱" },
+  { value: "Series A", label: "Series A", icon: "🅰️" },
+  { value: "Series B", label: "Series B", icon: "🅱️" },
+  { value: "Series C", label: "Series C", icon: "©️" },
+  { value: "Angel", label: "Angel", icon: "👼" },
+  { value: "Convertible Note", label: "Convertible Note", icon: "📝" },
+  { value: "Undisclosed", label: "Undisclosed", icon: "🤐" },
+];
 
 interface FilterSidebarProps {
   filters: FilterState;
@@ -43,10 +152,11 @@ export const FilterSidebar = ({
   activeFilterCount,
 }: FilterSidebarProps) => {
   const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const textColor = useColorModeValue("gray.700", "gray.200");
 
   return (
-    <Card
+    <Card.Root
       bg={bgColor}
       borderColor={borderColor}
       h="fit-content"
@@ -54,216 +164,214 @@ export const FilterSidebar = ({
       top="80px"
       shadow="lg"
     >
-      <CardHeader pb={2}>
+      <Card.Header pb={2}>
         <HStack justify="space-between">
-          <Text fontSize="lg" fontWeight="bold" color="gray.700">
+          <Text fontSize="lg" fontWeight="bold" color={textColor}>
             Filters
           </Text>
           {activeFilterCount > 0 && (
-            <Tooltip label={`${activeFilterCount} active filters`} hasArrow>
-              <Badge colorScheme="blue" borderRadius="full" px={2}>
-                {activeFilterCount}
-              </Badge>
-            </Tooltip>
+            <Badge
+              colorPalette="blue"
+              borderRadius="full"
+              px={2}
+              title={`${activeFilterCount} active filters`}
+            >
+              {activeFilterCount}
+            </Badge>
           )}
         </HStack>
         {activeFilterCount > 0 && (
-          <Button 
-            size="sm" 
-            variant="outline" 
-            colorScheme="red"
-            onClick={onReset} 
-            w="full"
-            mt={3}
+          <Tooltip
+            content="Clear all active filters and reset to default view"
+            positioning={{ placement: "top" }}
           >
-            Reset All Filters
-          </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              colorPalette="red"
+              onClick={onReset}
+              w="full"
+              mt={3}
+            >
+              Reset All Filters
+            </Button>
+          </Tooltip>
         )}
-      </CardHeader>
+      </Card.Header>
 
-      <CardBody pt={2}>
-        <Stack spacing={6}>
+      <Card.Body pt={2}>
+        <Stack gap={6}>
           {/* Search */}
-          <FormControl>
-            <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">
-              🔍 Smart Search
-            </FormLabel>
-            <InputGroup size="md">
-              <InputLeftElement pointerEvents="none">
-                <SearchIcon color="gray.400" />
-              </InputLeftElement>
-              <Input
-                placeholder="Search companies, domains, descriptions..."
-                value={filters.search}
-                onChange={(e) => onFilterChange({ search: e.target.value })}
-                focusBorderColor="blue.400"
-                borderRadius="md"
-              />
-            </InputGroup>
-          </FormControl>
+          <Field.Root>
+            <Field.Label fontSize="sm" fontWeight="semibold" color="gray.600">
+              <HStack gap={2}>
+                <FaSearch />
+                <Text>Smart Search</Text>
+              </HStack>
+            </Field.Label>
+            <Input
+              placeholder="Search companies, domains, descriptions..."
+              value={filters.search}
+              onChange={(e) => onFilterChange({ search: e.target.value })}
+              borderRadius="md"
+              size="md"
+            />
+          </Field.Root>
 
-          <Divider />
+          <Separator />
 
           {/* Categories */}
           <Box>
-            <Text fontSize="sm" mb={4} fontWeight="semibold" color="gray.600">
-              📊 Categories
-            </Text>
-            <Stack spacing={4}>
-              <FormControl>
-                <FormLabel fontSize="xs" color="gray.500">
+            <HStack gap={2} mb={4}>
+              <FaCog />
+              <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+                Categories
+              </Text>
+            </HStack>
+            <Stack gap={4}>
+              <Field.Root>
+                <Field.Label fontSize="xs" color="gray.500">
                   Growth Stage
-                </FormLabel>
-                <Select
+                </Field.Label>
+                <SelectRoot
+                  items={growthStageItems}
+                  value={filters.growthStage || ""}
+                  onValueChange={(value) =>
+                    onFilterChange({ growthStage: value })
+                  }
                   placeholder="All stages"
                   size="sm"
-                  value={filters.growthStage}
-                  onChange={(e) => onFilterChange({ growthStage: e.target.value })}
-                  focusBorderColor="blue.400"
-                  borderRadius="md"
-                >
-                  <option value="early">🌱 Early</option>
-                  <option value="seed">🌿 Seed</option>
-                  <option value="growing">🌳 Growing</option>
-                  <option value="late">🏢 Late</option>
-                  <option value="exit">🚀 Exit</option>
-                </Select>
-              </FormControl>
+                />
+              </Field.Root>
 
-              <FormControl>
-                <FormLabel fontSize="xs" color="gray.500">
+              <Field.Root>
+                <Field.Label fontSize="xs" color="gray.500">
                   Customer Focus
-                </FormLabel>
-                <Select
+                </Field.Label>
+                <SelectRoot
+                  items={customerFocusItems}
+                  value={filters.customerFocus || ""}
+                  onValueChange={(value) =>
+                    onFilterChange({ customerFocus: value })
+                  }
                   placeholder="All customer types"
                   size="sm"
-                  value={filters.customerFocus}
-                  onChange={(e) => onFilterChange({ customerFocus: e.target.value })}
-                  focusBorderColor="blue.400"
-                  borderRadius="md"
-                >
-                  <option value="b2b">🏢 B2B</option>
-                  <option value="b2c">👥 B2C</option>
-                  <option value="b2b_b2c">🔄 B2B & B2C</option>
-                  <option value="b2c_b2b">🔄 B2C & B2B</option>
-                </Select>
-              </FormControl>
+                />
+              </Field.Root>
 
-              <FormControl>
-                <FormLabel fontSize="xs" color="gray.500">
+              <Field.Root>
+                <Field.Label fontSize="xs" color="gray.500">
                   Funding Type
-                </FormLabel>
-                <Select
+                </Field.Label>
+                <SelectRoot
+                  items={fundingTypeItems}
+                  value={filters.fundingType || ""}
+                  onValueChange={(value) =>
+                    onFilterChange({ fundingType: value })
+                  }
                   placeholder="All funding types"
                   size="sm"
-                  value={filters.fundingType}
-                  onChange={(e) => onFilterChange({ fundingType: e.target.value })}
-                  focusBorderColor="blue.400"
-                  borderRadius="md"
-                >
-                  <option value="Seed">🌱 Seed</option>
-                  <option value="Series A">🅰️ Series A</option>
-                  <option value="Series B">🅱️ Series B</option>
-                  <option value="Series C">©️ Series C</option>
-                  <option value="Angel">👼 Angel</option>
-                  <option value="Convertible Note">📝 Convertible Note</option>
-                  <option value="Undisclosed">🤐 Undisclosed</option>
-                </Select>
-              </FormControl>
+                />
+              </Field.Root>
             </Stack>
           </Box>
 
-          <Divider />
+          <Separator />
 
           {/* Ranges */}
           <Box>
-            <Text fontSize="sm" mb={4} fontWeight="semibold" color="gray.600">
-              📏 Ranges
-            </Text>
-            <Stack spacing={4}>
-              <FormControl>
-                <FormLabel fontSize="xs" color="gray.500">
+            <HStack gap={2} mb={4}>
+              <FaInfoCircle />
+              <Text fontSize="sm" fontWeight="semibold" color="gray.600">
+                Ranges
+              </Text>
+            </HStack>
+            <Stack gap={4}>
+              <Field.Root>
+                <Field.Label fontSize="xs" color="gray.500">
                   Rank Range
-                </FormLabel>
+                </Field.Label>
                 <HStack>
-                  <NumberInput
+                  <NumberInput.Root
                     size="sm"
-                    value={filters.minRank || ""}
-                    onChange={(_, val) =>
-                      onFilterChange({ minRank: isNaN(val) ? null : val })
+                    value={filters.minRank?.toString() || ""}
+                    onValueChange={(details) =>
+                      onFilterChange({ minRank: details.valueAsNumber || null })
                     }
                     min={1}
-                    focusBorderColor="blue.400"
                   >
-                    <NumberInputField placeholder="Min" borderRadius="md" />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                  <Text fontSize="xs" color="gray.400">to</Text>
-                  <NumberInput
+                    <NumberInput.ValueText />
+                    <NumberInput.Control>
+                      <NumberInput.IncrementTrigger />
+                      <NumberInput.DecrementTrigger />
+                    </NumberInput.Control>
+                  </NumberInput.Root>
+                  <Text fontSize="xs" color="gray.400">
+                    to
+                  </Text>
+                  <NumberInput.Root
                     size="sm"
-                    value={filters.maxRank || ""}
-                    onChange={(_, val) =>
-                      onFilterChange({ maxRank: isNaN(val) ? null : val })
+                    value={filters.maxRank?.toString() || ""}
+                    onValueChange={(details) =>
+                      onFilterChange({ maxRank: details.valueAsNumber || null })
                     }
                     min={1}
-                    focusBorderColor="blue.400"
                   >
-                    <NumberInputField placeholder="Max" borderRadius="md" />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
+                    <NumberInput.ValueText />
+                    <NumberInput.Control>
+                      <NumberInput.IncrementTrigger />
+                      <NumberInput.DecrementTrigger />
+                    </NumberInput.Control>
+                  </NumberInput.Root>
                 </HStack>
-              </FormControl>
+              </Field.Root>
 
-              <FormControl>
-                <FormLabel fontSize="xs" color="gray.500">
+              <Field.Root>
+                <Field.Label fontSize="xs" color="gray.500">
                   💰 Funding Amount (USD)
-                </FormLabel>
+                </Field.Label>
                 <HStack>
-                  <NumberInput
+                  <NumberInput.Root
                     size="sm"
-                    value={filters.minFunding || ""}
-                    onChange={(_, val) =>
-                      onFilterChange({ minFunding: isNaN(val) ? null : val })
+                    value={filters.minFunding?.toString() || ""}
+                    onValueChange={(details) =>
+                      onFilterChange({
+                        minFunding: details.valueAsNumber || null,
+                      })
                     }
                     min={0}
-                    focusBorderColor="blue.400"
                   >
-                    <NumberInputField placeholder="Min $" borderRadius="md" />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                  <Text fontSize="xs" color="gray.400">to</Text>
-                  <NumberInput
+                    <NumberInput.ValueText />
+                    <NumberInput.Control>
+                      <NumberInput.IncrementTrigger />
+                      <NumberInput.DecrementTrigger />
+                    </NumberInput.Control>
+                  </NumberInput.Root>
+                  <Text fontSize="xs" color="gray.400">
+                    to
+                  </Text>
+                  <NumberInput.Root
                     size="sm"
-                    value={filters.maxFunding || ""}
-                    onChange={(_, val) =>
-                      onFilterChange({ maxFunding: isNaN(val) ? null : val })
+                    value={filters.maxFunding?.toString() || ""}
+                    onValueChange={(details) =>
+                      onFilterChange({
+                        maxFunding: details.valueAsNumber || null,
+                      })
                     }
                     min={0}
-                    focusBorderColor="blue.400"
                   >
-                    <NumberInputField placeholder="Max $" borderRadius="md" />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
+                    <NumberInput.ValueText />
+                    <NumberInput.Control>
+                      <NumberInput.IncrementTrigger />
+                      <NumberInput.DecrementTrigger />
+                    </NumberInput.Control>
+                  </NumberInput.Root>
                 </HStack>
-              </FormControl>
+              </Field.Root>
             </Stack>
           </Box>
-
-
         </Stack>
-      </CardBody>
-    </Card>
+      </Card.Body>
+    </Card.Root>
   );
 };

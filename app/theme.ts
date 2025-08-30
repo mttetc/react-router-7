@@ -1,617 +1,208 @@
-import type { ChakraTheme } from "@chakra-ui/react";
-import { extendTheme } from "@chakra-ui/react";
+import { createSystem, defaultConfig } from "@chakra-ui/react";
 
 // Generating a new colour pallette?
 // https://palette.saas-ui.dev/
 
-const extension: Partial<ChakraTheme> = {
-  config: {
-    initialColorMode: "light",
-    useSystemColorMode: false,
-  },
-  styles: {
-    global: {
-      body: {
-        color: "text",
-        transitionProperty: "none",
-        _dark: {
-          bg: "black",
-        },
-        a: {
-          _focus: {
-            boxShadow: "none",
-          },
-          _focusVisible: {
-            outline: "-webkit-focus-ring-color auto 1px",
-            outlineOffset: "1px",
-          },
-        },
+export const system = createSystem(defaultConfig, {
+  theme: {
+    tokens: {
+      fontSizes: {
+        "xx-small": { value: "0.68rem" },
+        // xs: { value: "0.82rem" },
       },
-    },
-  },
-  fontSizes: {
-    "xx-small": "0.68rem",
-    // xs: "0.82rem",
-  },
-  colors: {
-    black: "#111317",
-    gray: {
-      50: "#f9fafa",
-      100: "#f0f1f3",
-      200: "#e6e7eb",
-      300: "#d1d4da",
-      400: "#aaadb2",
-      500: "#7d7f82",
-      600: "#535457",
-      700: "#363738",
-      800: "#1f2021",
-      900: "#19191a",
-    },
-    blue: {
-      50: "#eff6ff",
-      100: "#dbeafe",
-      200: "#bfdbfe",
-      300: "#93c5fd",
-      400: "#60a5fa",
-      500: "#3b82f6",
-      600: "#2563eb",
-      700: "#1d4ed8",
-      800: "#1e40af",
-      900: "#1e3a8a",
-    },
-    red: {
-      50: "#fef2f2",
-      100: "#fee2e2",
-      200: "#fecaca",
-      300: "#fca5a5",
-      400: "#f87171",
-      500: "#ef4444",
-      600: "#dc2626",
-      700: "#b91c1c",
-      800: "#991b1b",
-      900: "#7f1d1d",
-    },
-    // yellow: {
-    //   50: "#FFF8E1",
-    //   100: "#FFECB3",
-    //   200: "#FFE082",
-    //   300: "#FFD54F",
-    //   400: "#FFCA28",
-    //   500: "#FFC107",
-    //   600: "#FFB300",
-    //   700: "#FFA000",
-    //   800: "#FF8F00",
-    //   900: "#FF6F00",
-    // },
-    yellow: {
-      50: "#FFFAEA",
-      100: "#FFE082",
-      200: "#FFD54F",
-      300: "#FFCA28",
-      400: "#FFC107",
-      500: "#FFB300",
-      600: "#FFA000",
-      700: "#FF8F00",
-      800: "#FF6F00",
-      900: "#DD4F00",
-    },
-    teal: {
-      50: "#f0fdfa",
-      100: "#ccfbf1",
-      200: "#99f6e4",
-      300: "#5eead4",
-      400: "#2dd4bf",
-      500: "#14b8a6",
-      600: "#0d9488",
-      700: "#0f766e",
-      800: "#115e59",
-      900: "#134e4a",
-    },
-    green: {
-      50: "#e6f6ed",
-      100: "#c2e7d3",
-      200: "#9bd8b7",
-      300: "#71ca9c",
-      400: "#4fbe87",
-      500: "#25b272",
-      600: "#1ea367",
-      700: "#16915a",
-      800: "#107f4e",
-      900: "#096039",
-    },
-    purple: {
-      50: "#f5f3ff",
-      100: "#ede9fe",
-      200: "#ddd6fe",
-      300: "#c4b5fd",
-      400: "#a78bfa",
-      500: "#8b5cf6",
-      600: "#7c3aed",
-      700: "#6d28d9",
-      800: "#5b21b6",
-      900: "#4c1d95",
-    },
-    brand: {
-      50: "#f6f7ff",
-      100: "#dadfff",
-      200: "#b9c2ff",
-      300: "#909fff",
-      400: "#798bff",
-      500: "#586eff",
-      600: "#4459e8",
-      700: "#3747bb",
-      800: "#2e3d9e",
-      900: "#212c72",
-    },
-    brandDark: {
-      50: "#93a0c2",
-      100: "#6c7ba3",
-      200: "#576895",
-      300: "#46588a",
-      400: "#3e5286",
-      500: "#324981",
-      600: "#273655",
-      700: "#1f2b41",
-      800: "#1a2437",
-      900: "#131c29",
-    },
-    success: "#49D0A8",
-    warning: "#FA8F64",
-  },
-  fonts: {
-    heading: "Inter, sans-serif",
-    body: "Inter, sans-serif",
-  },
-  components: {
-    Link: {
-      baseStyle: {
-        _focus: {
-          boxShadow: "none",
+      colors: {
+        black: { value: "#111317" },
+        gray: {
+          50: { value: "#f9fafa" },
+          100: { value: "#f0f1f3" },
+          200: { value: "#e6e7eb" },
+          300: { value: "#d1d4da" },
+          400: { value: "#aaadb2" },
+          500: { value: "#7d7f82" },
+          600: { value: "#535457" },
+          700: { value: "#363738" },
+          800: { value: "#1f2021" },
+          900: { value: "#19191a" },
         },
-        _focusVisible: {
-          outline: "-webkit-focus-ring-color auto 1px",
-          outlineOffset: "1px",
+        blue: {
+          50: { value: "#eff6ff" },
+          100: { value: "#dbeafe" },
+          200: { value: "#bfdbfe" },
+          300: { value: "#93c5fd" },
+          400: { value: "#60a5fa" },
+          500: { value: "#3b82f6" },
+          600: { value: "#2563eb" },
+          700: { value: "#1d4ed8" },
+          800: { value: "#1e40af" },
+          900: { value: "#1e3a8a" },
         },
-      },
-    },
-    Button: {
-      defaultProps: {
-        size: "sm",
-      },
-      sizes: {
-        xs: {
-          borderRadius: "md",
-          fontSize: "xx-small",
+        red: {
+          50: { value: "#fef2f2" },
+          100: { value: "#fee2e2" },
+          200: { value: "#fecaca" },
+          300: { value: "#fca5a5" },
+          400: { value: "#f87171" },
+          500: { value: "#ef4444" },
+          600: { value: "#dc2626" },
+          700: { value: "#b91c1c" },
+          800: { value: "#991b1b" },
+          900: { value: "#7f1d1d" },
         },
-        sm: {
-          fontSize: "xs",
-          borderRadius: "lg",
-          px: 3,
+        yellow: {
+          50: { value: "#FFFAEA" },
+          100: { value: "#FFE082" },
+          200: { value: "#FFD54F" },
+          300: { value: "#FFCA28" },
+          400: { value: "#FFC107" },
+          500: { value: "#FFB300" },
+          600: { value: "#FFA000" },
+          700: { value: "#FF8F00" },
+          800: { value: "#FF6F00" },
+          900: { value: "#DD4F00" },
         },
-      },
-      variants: {
-        outline: {
-          shadow: "sm",
-          bgColor: "white",
+        teal: {
+          50: { value: "#f0fdfa" },
+          100: { value: "#ccfbf1" },
+          200: { value: "#99f6e4" },
+          300: { value: "#5eead4" },
+          400: { value: "#2dd4bf" },
+          500: { value: "#14b8a6" },
+          600: { value: "#0d9488" },
+          700: { value: "#0f766e" },
+          800: { value: "#115e59" },
+          900: { value: "#134e4a" },
         },
-        dashed: {
-          borderWidth: 1,
-          borderStyle: "dashed",
-          borderColor: "gray.200",
-          bgColor: "gray.50",
-          _hover: {
-            bgColor: "gray.100",
-          },
+        green: {
+          50: { value: "#e6f6ed" },
+          100: { value: "#c2e7d3" },
+          200: { value: "#9bd8b7" },
+          300: { value: "#71ca9c" },
+          400: { value: "#4fbe87" },
+          500: { value: "#25b272" },
+          600: { value: "#1ea367" },
+          700: { value: "#16915a" },
+          800: { value: "#107f4e" },
+          900: { value: "#096039" },
         },
-      },
-      baseStyle: {
-        _focus: {
-          boxShadow: "none",
+        purple: {
+          50: { value: "#f5f3ff" },
+          100: { value: "#ede9fe" },
+          200: { value: "#ddd6fe" },
+          300: { value: "#c4b5fd" },
+          400: { value: "#a78bfa" },
+          500: { value: "#8b5cf6" },
+          600: { value: "#7c3aed" },
+          700: { value: "#6d28d9" },
+          800: { value: "#5b21b6" },
+          900: { value: "#4c1d95" },
         },
-        _focusVisible: {
-          outline: "-webkit-focus-ring-color auto 1px",
-          outlineOffset: "1px",
+        brand: {
+          50: { value: "#f6f7ff" },
+          100: { value: "#dadfff" },
+          200: { value: "#b9c2ff" },
+          300: { value: "#909fff" },
+          400: { value: "#798bff" },
+          500: { value: "#586eff" },
+          600: { value: "#4459e8" },
+          700: { value: "#3747bb" },
+          800: { value: "#2e3d9e" },
+          900: { value: "#212c72" },
         },
-      },
-    },
-    ButtonGroup: {
-      defaultProps: {
-        spacing: 0,
-      },
-    },
-    Modal: {
-      defaultProps: {
-        motionPreset: "slideInBottom",
-        closeButton: {
-          size: "xs",
+        brandDark: {
+          50: { value: "#93a0c2" },
+          100: { value: "#6c7ba3" },
+          200: { value: "#576895" },
+          300: { value: "#495888" },
+          400: { value: "#3d4a7a" },
+          500: { value: "#343f6d" },
+          600: { value: "#2d3660" },
+          700: { value: "#272e54" },
+          800: { value: "#212747" },
+          900: { value: "#1c203b" },
         },
-      },
-      baseStyle: {
-        overlay: {
-          background: "rgba(255, 255, 255, 0.7)",
+        orange: {
+          50: { value: "#fff7ed" },
+          100: { value: "#ffedd5" },
+          200: { value: "#fed7aa" },
+          300: { value: "#fdba74" },
+          400: { value: "#fb923c" },
+          500: { value: "#f97316" },
+          600: { value: "#ea580c" },
+          700: { value: "#c2410c" },
+          800: { value: "#9a3412" },
+          900: { value: "#7c2d12" },
         },
-        dialog: {
-          overflow: "hidden",
-          rounded: "xl",
-          borderWidth: 1,
+        pink: {
+          50: { value: "#fdf2f8" },
+          100: { value: "#fce7f3" },
+          200: { value: "#fbcfe8" },
+          300: { value: "#f9a8d4" },
+          400: { value: "#f472b6" },
+          500: { value: "#ec4899" },
+          600: { value: "#db2777" },
+          700: { value: "#be185d" },
+          800: { value: "#9d174d" },
+          900: { value: "#831843" },
         },
-        closeButton: {
-          top: 1.5,
-          right: 1.5,
-          borderRadius: "full",
-          _focus: {
-            boxShadow: "none",
-          },
+        cyan: {
+          50: { value: "#ecfeff" },
+          100: { value: "#cffafe" },
+          200: { value: "#a5f3fc" },
+          300: { value: "#67e8f9" },
+          400: { value: "#22d3ee" },
+          500: { value: "#06b6d4" },
+          600: { value: "#0891b2" },
+          700: { value: "#0e7490" },
+          800: { value: "#155e75" },
+          900: { value: "#164e63" },
         },
-        body: {
-          py: 5,
-        },
-        header: {
-          fontWeight: "medium",
-          fontSize: "xs",
-          borderBottomWidth: 1,
-          borderColor: "gray.100",
-          py: 3,
-        },
-        footer: {
-          borderTopWidth: 1,
-          bg: "gray.50",
-          px: 5,
-          py: 3,
-        },
-      },
-    },
-    Kbd: {
-      baseStyle: {
-        bgColor: "gray.50",
-        borderColor: "gray.100",
-        fontSize: "xs",
-        borderBottomWidth: 1,
-        px: 0,
-        boxSize: 5,
-        color: "gray.500",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      },
-    },
-    Drawer: {
-      sizes: {
-        "2xl": { dialog: { maxW: "5xl" } },
-      },
-      baseStyle: {
-        overlay: {
-          background: "rgba(255, 255, 255, 0.7)",
-        },
-        dialog: {
-          m: 2,
-          rounded: "xl",
-          overflow: "hidden",
-          borderWidth: 1,
-        },
-        closeButton: {
-          borderRadius: "full",
-          _focus: {
-            boxShadow: "none",
-          },
-        },
-        header: {
-          fontWeight: "medium",
-          fontSize: "xs",
-          borderBottomWidth: 1,
-          borderColor: "gray.100",
-          py: 3,
-        },
-        footer: {
-          borderTopWidth: 1,
-          bg: "gray.50",
-          px: 5,
-          py: 3,
-        },
-      },
-    },
-    Select: {
-      defaultProps: {
-        size: "sm",
-      },
-      variants: {
-        outline: {
-          field: {
-            borderRadius: "md",
-            shadow: "sm",
-            borderWidth: 1,
-            _disabled: {
-              color: "gray.700",
-            },
-            bgGradient: "linear(to-b, white, gray.50)",
-          },
-        },
-        unstyled: {
-          icon: {
-            opacity: 0,
-          },
-        },
-      },
-    },
-    Input: {
-      defaultProps: {
-        size: "sm",
-      },
-      variants: {
-        filled: {
-          field: {
-            bgColor: "white",
-            borderRadius: "lg",
-            borderWidth: 1,
-            _focus: {
-              boxShadow: "none !important",
-              borderColor: "brand.500",
-            },
-          },
-        },
-        flushed: {
-          field: {
-            borderColor: "gray.100",
-            _focus: {
-              borderColor: "brand.500",
-              boxShadow: "none",
-            },
-          },
-        },
-        outline: {
-          field: {
-            bgColor: "white",
-            borderRadius: "lg",
-            _focus: {
-              boxShadow: "none !important",
-              borderColor: "brand.500",
-            },
-          },
-        },
-      },
-    },
-    Tabs: {
-      baseStyle: {
-        tab: {
-          _focus: {
-            boxShadow: "none",
-            outline: "none",
-          },
-        },
+        linkedin: { value: "#0077B5" },
+        facebook: { value: "#1877F2" },
+        messenger: { value: "#0084FF" },
+        whatsapp: { value: "#25D366" },
+        twitter: { value: "#1DA1F2" },
+        telegram: { value: "#0088CC" },
+        text: { value: "#1a202c" },
+        textSecondary: { value: "#718096" },
+        textTertiary: { value: "#a0aec0" },
+        textInverted: { value: "#ffffff" },
+        bg: { value: "#ffffff" },
+        bgSecondary: { value: "#f7fafc" },
+        bgTertiary: { value: "#edf2f7" },
+        bgInverted: { value: "#1a202c" },
+        border: { value: "#e2e8f0" },
+        borderSecondary: { value: "#cbd5e0" },
+        borderTertiary: { value: "#a0aec0" },
+        primary: { value: "#586eff" },
+        primaryHover: { value: "#4459e8" },
+        primaryActive: { value: "#3747bb" },
+        secondary: { value: "#718096" },
+        secondaryHover: { value: "#4a5568" },
+        secondaryActive: { value: "#2d3748" },
+        success: { value: "#25b272" },
+        successHover: { value: "#1ea367" },
+        successActive: { value: "#16915a" },
+        warning: { value: "#FFB300" },
+        warningHover: { value: "#FFA000" },
+        warningActive: { value: "#FF8F00" },
+        error: { value: "#ef4444" },
+        errorHover: { value: "#dc2626" },
+        errorActive: { value: "#b91c1c" },
+        info: { value: "#3b82f6" },
+        infoHover: { value: "#2563eb" },
+        infoActive: { value: "#1d4ed8" },
       },
       sizes: {
-        xs: {
-          tab: {
-            px: 4,
-            py: 1,
-            fontSize: "xs",
-          },
-        },
-      },
-      variants: {
-        line: {
-          tablist: {
-            borderBottom: "1px solid",
-            borderColor: "gray.100",
-            mb: "-1px",
-            gap: 4,
-          },
-          tab: {
-            borderBottom: "1px solid",
-            mb: "-1px",
-            py: 2,
-            px: 0,
-            fontWeight: "medium",
-            color: "gray.500",
-          },
-        },
-        "solid-rounded": {
-          tablist: {
-            gap: 1,
-          },
-          tab: {
-            rounded: "md",
-            px: 2,
-            _selected: {
-              color: "brand.500",
-              bgColor: "brand.50",
-            },
-          },
-        },
-      },
-    },
-    Textarea: {
-      defaultProps: {
-        size: "sm",
-      },
-      baseStyle: {
-        borderRadius: "lg",
-        maxH: "220px",
-      },
-      variants: {
-        outline: {
-          borderRadius: "lg",
-        },
-      },
-    },
-    Radio: {
-      defaultProps: {
-        size: "sm",
-      },
-    },
-    Progress: {
-      defaultProps: {
-        size: "sm",
-      },
-      baseStyle: {
-        track: {
-          borderRadius: "sm",
-        },
-      },
-      variants: {
-        light(props) {
-          return {
-            filledTrack: {
-              bgColor: props.colorScheme + ".300",
-            },
-          };
-        },
-      },
-    },
-    NumberInput: {
-      defaultProps: {
-        size: "sm",
-      },
-      variants: {
-        filled: {
-          field: {
-            bgColor: "white",
-            borderRadius: "lg",
-            _focus: {
-              boxShadow: "none !important",
-              borderColor: "brand.500",
-            },
-          },
-        },
-        outline: {
-          field: {
-            bgColor: "white",
-            borderRadius: "lg",
-            _focus: {
-              boxShadow: "none !important",
-              borderColor: "brand.500",
-            },
-          },
-        },
-      },
-    },
-    Tag: {
-      baseStyle: {
-        whiteSpace: "pre",
-        _focus: {
-          boxShadow: "none",
-        },
-        _focusVisible: {
-          outline: "-webkit-focus-ring-color auto 1px",
-          outlineOffset: "1px",
-        },
-      },
-      defaultProps: {
-        size: "sm",
-      },
-      variants: {
-        softOutline: {
-          container: {
-            shadow: "none",
-            borderWidth: 1,
-          },
-        },
-      },
-      sizes: {
-        xs: {
-          container: {
-            px: 1.5,
-            py: 1,
-            rounded: "md",
-            fontSize: "xx-small",
-          },
-        },
-      },
-    },
-    Spinner: {
-      defaultProps: {
-        size: "sm",
-      },
-    },
-    FormLabel: {
-      baseStyle: {
-        fontSize: "xs",
-        fontWeight: "semibold",
-        mb: 1,
-        color: "gray.400",
-      },
-    },
-    Skeleton: {
-      baseStyle: {
-        borderRadius: "sm",
-      },
-    },
-    Table: {
-      baseStyle: {
-        th: {
-          textTransform: "none",
-          verticalAlign: "bottom",
-          px: 2,
-          fontWeight: "semibold",
-          letterSpacing: "unset",
-        },
-      },
-    },
-    Switch: {
-      baseStyle: {
-        track: {
-          _focus: {
-            shadow: "none",
-          },
-        },
-      },
-    },
-    Popover: {
-      parts: [],
-      baseStyle: {
-        content: {
-          _focus: {
-            shadow: "unset",
-          },
-        },
-      },
-    },
-    Tooltip: {
-      defaultProps: {
-        openDelay: 200,
-      },
-      baseStyle: {
-        rounded: "md",
-        bgColor: "white",
-        borderWidth: 1,
-        borderColor: "gray.200",
-        color: "gray.900",
-        fontSize: "xs",
-      },
-    },
-    Alert: {
-      baseStyle: {
         container: {
-          backgroundColor: "white !important",
-          borderWidth: 1,
-          borderColor: "gray.200",
-          rounded: "md",
+          md: { value: "920px" },
         },
-        title: {
-          color: "gray.900",
-          fontWeight: "semibold",
-          fontSize: "sm",
-        },
-        description: {
-          color: "gray.900",
-          fontSize: "sm",
-        },
-        icon: {
-          color: "gray.900",
-        },
+      },
+      shadows: {
+        card: { value: "0 1px 2px 0 rgba(0, 0, 0, 0.05)" },
+        cardHover: { value: "0 10px 15px -3px rgba(0, 0, 0, 0.07)" },
       },
     },
   },
-  sizes: {
-    container: {
-      md: "920px",
-    },
-  },
-  direction: "ltr",
-  shadows: {
-    card: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-    cardHover: "0 10px 15px -3px rgba(0, 0, 0, 0.07)",
-  },
-};
-
-export const theme = extendTheme(extension);
+  // Global styles can be added via globalCss if needed
+  // For now, we'll handle them via CSS or component-specific styles
+});

@@ -28,6 +28,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const sortOrder = url.searchParams.get("sortOrder") ?? undefined;
 
   try {
+    console.log("🌐 [API] Fetching companies with params:", {
+      page,
+      limit,
+      search: q,
+      growth_stage,
+      customer_focus,
+      last_funding_type,
+      min_rank,
+      max_rank,
+      min_funding,
+      max_funding,
+      sortBy,
+      sortOrder,
+    });
+
     const companies = await getCompanies({
       page,
       limit,
@@ -41,6 +56,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
       max_funding,
       sortBy,
       sortOrder,
+    });
+
+    console.log("📋 [API] Returning companies:", {
+      hasData: !!companies,
+      dataType: typeof companies,
+      dataKeys: companies ? Object.keys(companies) : [],
+      companiesCount: companies?.data?.length || 0,
+      totalPages: companies?.totalPages,
+      currentPage: companies?.page,
     });
 
     return Response.json(companies);
