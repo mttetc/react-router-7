@@ -9,8 +9,11 @@ export const useCompaniesData = (
   filters: FilterState,
   pagination: PaginationState
 ) => {
+  const queryKey = ["companies", "feed", filters, pagination];
+  console.log("🔑 [Client] Query key:", JSON.stringify(queryKey));
+
   return useQuery({
-    queryKey: ["companies", "feed", filters, pagination],
+    queryKey,
     queryFn: () => {
       console.log("🔄 [Client] Fetching companies data (cache miss or stale)");
       return CompaniesService.fetchCompanies(filters, pagination);

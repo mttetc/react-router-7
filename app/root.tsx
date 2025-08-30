@@ -8,10 +8,8 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import "./app.css";
 import { Provider } from "./components/ui/provider";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { QueryProvider } from "./components/ui/query-provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,36 +27,22 @@ export const links: Route.LinksFunction = () => [
 // Use ChakraProvider with default theme for now
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // With SSR, we usually want to set some default staleTime
-            // above 0 to avoid refetching immediately on the client
-            staleTime: 1000 * 60 * 5, // 5 minutes
-            gcTime: 1000 * 60 * 30, // 30 minutes
-          },
-        },
-      })
-  );
-
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body>
-        <QueryClientProvider client={queryClient}>
+      <body suppressHydrationWarning>
+        <QueryProvider>
           <Provider>
             {children}
             <ScrollRestoration />
             <Scripts />
           </Provider>
-        </QueryClientProvider>
+        </QueryProvider>
       </body>
     </html>
   );

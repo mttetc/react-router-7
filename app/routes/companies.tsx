@@ -27,6 +27,7 @@ import {
   parseFiltersFromURL,
   parsePaginationFromURL,
 } from "../services/companies.service";
+import { getCompanies } from "../utils/companies.server";
 
 // Components
 
@@ -53,6 +54,10 @@ export async function loader({
   const pagination = parsePaginationFromURL(searchParams);
 
   console.log("🚀 [SSR] Prefetching companies data:", { filters, pagination });
+  console.log(
+    "🔑 [SSR] Query key:",
+    JSON.stringify(["companies", "feed", filters, pagination])
+  );
 
   // Create a new QueryClient for this request
   // On server, gcTime defaults to Infinity which disables manual garbage collection
@@ -73,7 +78,40 @@ export async function loader({
 
   const foo = await queryClient.prefetchQuery({
     queryKey: ["companies", "feed", filters, pagination],
-    queryFn: () => CompaniesService.fetchCompanies(filters, pagination),
+    queryFn: async () => {
+      // For SSR, use server-side function directly instead of HTTP request
+      console.log("🌐 [SSR] Fetching companies directly from server...");
+
+      const serverParams = {
+        page: pagination.page,
+        limit: pagination.limit,
+        search: filters.search || undefined,
+        growth_stage: filters.growthStage || undefined,
+        customer_focus: filters.customerFocus || undefined,
+        last_funding_type: filters.fundingType || undefined,
+        min_rank: filters.minRank || undefined,
+        max_rank: filters.maxRank || undefined,
+        min_funding: filters.minFunding || undefined,
+        max_funding: filters.maxFunding || undefined,
+        sortBy: filters.sortBy || undefined,
+        sortOrder: filters.sortOrder,
+      };
+
+      console.log("📋 [SSR] Server params:", serverParams);
+
+      const result = await getCompanies(serverParams);
+
+      console.log("✅ [SSR] Server fetch result:", {
+        hasData: !!result,
+        dataType: typeof result,
+        companiesCount: result?.data?.length || 0,
+        totalPages: result?.totalPages,
+        currentPage: result?.page,
+        firstCompany: result?.data?.[0]?.name || "No companies",
+      });
+
+      return result;
+    },
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
@@ -110,8 +148,8 @@ export async function loader({
 // MAIN COMPONENT
 // ============================================================================
 
-export default function CompanyFeed() {
-  const loaderData = useLoaderData<LoaderData>();
+// Inner component that uses the hydrated cache
+function CompanyFeedContent() {
   const bgColor = useColorModeValue("gray.50", "gray.900");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -125,7 +163,7 @@ export default function CompanyFeed() {
     parsePaginationFromURL(searchParams)
   );
 
-  // Data fetching with TanStack Query
+  // Data fetching with TanStack Query - now inside HydrationBoundary
   const { data, isLoading, error, isFetching, isStale } = useCompaniesData(
     filters,
     pagination
@@ -216,55 +254,64 @@ export default function CompanyFeed() {
   }
 
   return (
-    <HydrationBoundary state={loaderData.dehydratedState}>
-      <Box minH="100vh" bg={bgColor}>
-        <Header />
+    <Box minH="100vh" bg={bgColor}>
+      <Header />
 
-        <Container maxW="8xl" py={8}>
-          <Grid templateColumns="320px 1fr" gap={8}>
-            {/* Left Sidebar - Filters */}
-            <FilterSidebar
+      <Container maxW="8xl" py={8}>
+        <Grid templateColumns="320px 1fr" gap={8}>
+          {/* Left Sidebar - Filters */}
+          <FilterSidebar
+            filters={filters}
+            onFilterChange={updateFilters}
+            onReset={resetFilters}
+            activeFilterCount={activeFilterCount}
+          />
+
+          {/* Right Content */}
+          <Box>
+            {/* Active Filters */}
+            <ActiveFilters filters={filters} onRemoveFilter={removeFilter} />
+
+            {/* Table Header */}
+            <Box mb={4}>
+              <Text fontSize="sm" color="gray.500">
+                {isLoading
+                  ? "Loading companies..."
+                  : `Showing ${data?.data?.length || 0} companies`}
+              </Text>
+            </Box>
+
+            {/* Company Table */}
+            <CompanyTable
+              companies={data?.data || []}
+              isLoading={isLoading}
               filters={filters}
               onFilterChange={updateFilters}
-              onReset={resetFilters}
-              activeFilterCount={activeFilterCount}
             />
 
-            {/* Right Content */}
-            <Box>
-              {/* Active Filters */}
-              <ActiveFilters filters={filters} onRemoveFilter={removeFilter} />
-
-              {/* Table Header */}
-              <Box mb={4}>
-                <Text fontSize="sm" color="gray.500">
-                  {isLoading
-                    ? "Loading companies..."
-                    : `Showing ${data?.data?.length || 0} companies`}
-                </Text>
-              </Box>
-
-              {/* Company Table */}
-              <CompanyTable
-                companies={data?.data || []}
+            {/* Pagination - Always visible */}
+            <Box mt={8}>
+              <Pagination
+                currentPage={data?.page || 1}
+                totalPages={data?.totalPages || 1}
+                onPageChange={goToPage}
                 isLoading={isLoading}
-                filters={filters}
-                onFilterChange={updateFilters}
               />
-
-              {/* Pagination - Always visible */}
-              <Box mt={8}>
-                <Pagination
-                  currentPage={data?.page || 1}
-                  totalPages={data?.totalPages || 1}
-                  onPageChange={goToPage}
-                  isLoading={isLoading}
-                />
-              </Box>
             </Box>
-          </Grid>
-        </Container>
-      </Box>
+          </Box>
+        </Grid>
+      </Container>
+    </Box>
+  );
+}
+
+// Main component that wraps with HydrationBoundary
+export default function CompanyFeed() {
+  const loaderData = useLoaderData<LoaderData>();
+
+  return (
+    <HydrationBoundary state={loaderData.dehydratedState}>
+      <CompanyFeedContent />
     </HydrationBoundary>
   );
 }
