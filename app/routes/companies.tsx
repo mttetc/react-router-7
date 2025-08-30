@@ -8,66 +8,44 @@ import {
 } from "react-router";
 import { useDebounce } from "rooks";
 import {
-  queryOptions,
+  useQuery,
   useIsFetching,
-  useSuspenseQuery,
-  useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect } from "react";
-import type { QueryClient } from "@tanstack/react-query";
 import type { LoaderFunctionArgs } from "react-router";
 import type { Company, PaginatedResult } from "../utils/companies.types";
 
-const companyListQuery = (q?: string) =>
-  queryOptions({
-    queryKey: ["companies", "list", q ?? "all"],
-    queryFn: async (): Promise<PaginatedResult<Company>> => {
-      const params = new URLSearchParams();
-      if (q) params.set("q", q);
-      params.set("page", "1");
-      params.set("limit", "12");
+const getCompaniesClient = async (q?: string): Promise<PaginatedResult<Company>> => {
+  const params = new URLSearchParams();
+  if (q) params.set("q", q);
+  params.set("page", "1");
+  params.set("limit", "12");
 
-      const response = await fetch(`/api/companies?${params}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch companies");
-      }
-      return response.json();
-    },
-  });
+  const response = await fetch(`/api/companies?${params}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch companies");
+  }
+  return response.json();
+};
 
-// Create a server-side loader that doesn't need QueryClient
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q") ?? "";
-
-  // Get companies data on the server side
+  
   const { getCompanies } = await import("../utils/companies.server");
   const companies = await getCompanies({ page: 1, limit: 12, search: q });
-
+  
   return { q, companies };
 }
 
 export default function Root() {
-  const loaderData = useLoaderData() as
-    | Awaited<ReturnType<typeof loader>>
-    | undefined;
-  const q = loaderData?.q ?? "";
-  const initialCompanies = loaderData?.companies;
-  const queryClient = useQueryClient();
+  const { q, companies: initialCompanies } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
-  // Prefill the query cache with loader data on mount
-  useEffect(() => {
-    if (initialCompanies) {
-      queryClient.setQueryData(["companies", "list", q ?? "all"], initialCompanies);
-    }
-  }, [initialCompanies, q, queryClient]);
-
-  // Use TanStack Query with initial data from loader
-  const { data: companies } = useSuspenseQuery({
-    ...companyListQuery(q),
+  const { data: companies } = useQuery({
+    queryKey: ['companies', 'list', q ?? 'all'],
+    queryFn: () => getCompaniesClient(q),
     initialData: initialCompanies,
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
   const searching = useIsFetching({ queryKey: ["companies", "list"] }) > 0;
   const navigation = useNavigation();
   const submit = useSubmit();
