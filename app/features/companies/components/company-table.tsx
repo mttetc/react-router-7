@@ -167,6 +167,10 @@ const COLUMNS: TableColumn[] = [
           noOfLines={1}
           isTruncated
           cursor="help"
+          maxWidth="230px"
+          overflow="hidden"
+          whiteSpace="nowrap"
+          textOverflow="ellipsis"
         >
           {company.description}
         </Text>
