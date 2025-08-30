@@ -29,7 +29,7 @@ const getCompaniesClient = async (
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q") ?? "";
-  
+
   // Only return the search query, let TanStack Query handle data fetching
   return { q };
 }
