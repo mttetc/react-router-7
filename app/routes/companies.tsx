@@ -11,7 +11,9 @@ import { useQuery, useIsFetching } from "@tanstack/react-query";
 import type { LoaderFunctionArgs } from "react-router";
 import type { Company, PaginatedResult } from "../utils/companies.types";
 
-const getCompaniesClient = async (q?: string): Promise<PaginatedResult<Company>> => {
+const getCompaniesClient = async (
+  q?: string
+): Promise<PaginatedResult<Company>> => {
   const params = new URLSearchParams();
   if (q) params.set("q", q);
   params.set("page", "1");
@@ -27,22 +29,17 @@ const getCompaniesClient = async (q?: string): Promise<PaginatedResult<Company>>
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q") ?? "";
-
-  const { getCompanies } = await import("../utils/companies.server");
-  const companies = await getCompanies({ page: 1, limit: 12, search: q });
-
-  return { q, companies };
+  
+  // Only return the search query, let TanStack Query handle data fetching
+  return { q };
 }
 
 export default function Root() {
-  const { q, companies: initialCompanies } = useLoaderData() as Awaited<
-    ReturnType<typeof loader>
-  >;
+  const { q } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
   const { data: companies } = useQuery({
     queryKey: ["companies", "list", q ?? "all"],
     queryFn: () => getCompaniesClient(q),
-    initialData: initialCompanies,
   });
 
   const searching = useIsFetching({ queryKey: ["companies", "list"] }) > 0;
@@ -79,7 +76,7 @@ export default function Root() {
           </Link>
         </div>
         <nav>
-          {companies.data.length ? (
+          {companies?.data?.length ? (
             <ul>
               {companies.data.map((company) => (
                 <li key={company.id}>
