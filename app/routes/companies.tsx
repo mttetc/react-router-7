@@ -1,4 +1,4 @@
-import { Box, Container, Grid, useColorModeValue } from "@chakra-ui/react";
+import { Box, Container, Grid, Text, useColorModeValue } from "@chakra-ui/react";
 import { useState, useMemo, useEffect } from "react";
 import { useDebounce } from "rooks";
 import { useNavigate, useSearchParams } from "react-router";
