@@ -7,10 +7,7 @@ import {
   useSubmit,
 } from "react-router";
 import { useDebounce } from "rooks";
-import {
-  useQuery,
-  useIsFetching,
-} from "@tanstack/react-query";
+import { useQuery, useIsFetching } from "@tanstack/react-query";
 import type { LoaderFunctionArgs } from "react-router";
 import type { Company, PaginatedResult } from "../utils/companies.types";
 
@@ -30,18 +27,20 @@ const getCompaniesClient = async (q?: string): Promise<PaginatedResult<Company>>
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q") ?? "";
-  
+
   const { getCompanies } = await import("../utils/companies.server");
   const companies = await getCompanies({ page: 1, limit: 12, search: q });
-  
+
   return { q, companies };
 }
 
 export default function Root() {
-  const { q, companies: initialCompanies } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
+  const { q, companies: initialCompanies } = useLoaderData() as Awaited<
+    ReturnType<typeof loader>
+  >;
 
   const { data: companies } = useQuery({
-    queryKey: ['companies', 'list', q ?? 'all'],
+    queryKey: ["companies", "list", q ?? "all"],
     queryFn: () => getCompaniesClient(q),
     initialData: initialCompanies,
   });
