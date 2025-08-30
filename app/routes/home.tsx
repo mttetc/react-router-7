@@ -1,4 +1,12 @@
-import { Box, Button, Center, Heading, Image, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Heading,
+  Image,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import type { Route } from "./+types/home";
 import { HiArrowRight } from "react-icons/hi";
 import { motion } from "framer-motion";
@@ -51,14 +59,19 @@ export default function Home() {
         <Text color="gray.500" fontSize="sm" mb={4} letterSpacing="tight">
           Welcome to the Specter frontend test.
         </Text>
-        <Button
-          variant="outline"
-          rightIcon={<HiArrowRight />}
-          as={Link}
-          to="/test"
-        >
-          Get Started
-        </Button>
+        <VStack spacing={3}>
+          <Button
+            variant="outline"
+            rightIcon={<HiArrowRight />}
+            as={Link}
+            to="/test"
+          >
+            Get Started
+          </Button>
+          <Button variant="solid" colorScheme="blue" as={Link} to="/companies">
+            View Companies
+          </Button>
+        </VStack>
       </Box>
     </Center>
   );
