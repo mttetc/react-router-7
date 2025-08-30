@@ -50,6 +50,7 @@ const LoadingRow = () => {
 const CompanyRow = ({ company }: { company: Company }) => {
   const { onCopy } = useClipboard(company.domain);
   const toast = useToast();
+  const hoverBg = useColorModeValue("gray.50", "gray.700");
 
   const handleCopyDomain = () => {
     onCopy();
@@ -85,7 +86,7 @@ const CompanyRow = ({ company }: { company: Company }) => {
   };
 
   return (
-    <Tr _hover={{ bg: useColorModeValue("gray.50", "gray.700") }}>
+    <Tr _hover={{ bg: hoverBg }}>
       {/* Rank */}
       <Td>
         <Badge colorScheme="yellow" borderRadius="full" px={2}>
@@ -229,12 +230,13 @@ const SortableHeader = ({
   onSort: (sortBy: string) => void;
 }) => {
   const isActive = currentSort === sortKey;
+  const hoverBg = useColorModeValue("gray.100", "gray.600");
   
   return (
     <Th 
       cursor="pointer" 
       onClick={() => onSort(sortKey)}
-      _hover={{ bg: useColorModeValue("gray.100", "gray.600") }}
+      _hover={{ bg: hoverBg }}
       position="relative"
     >
       <Flex align="center" justify="space-between">
@@ -255,6 +257,7 @@ const SortableHeader = ({
 
 export const CompanyTable = ({ companies, isLoading, filters, onFilterChange }: CompanyTableProps) => {
   const borderColor = useColorModeValue("gray.200", "gray.600");
+  const theadBg = useColorModeValue("gray.50", "gray.700");
 
   const handleSort = (sortBy: string) => {
     const newOrder = filters.sortBy === sortBy && filters.sortOrder === "asc" ? "desc" : "asc";
@@ -325,7 +328,7 @@ export const CompanyTable = ({ companies, isLoading, filters, onFilterChange }: 
   return (
     <TableContainer borderWidth={1} borderColor={borderColor} borderRadius="lg" bg="white">
       <Table variant="simple" size="sm">
-        <Thead bg={useColorModeValue("gray.50", "gray.700")}>
+        <Thead bg={theadBg}>
           <Tr>
             <SortableHeader 
               sortKey="rank" 
