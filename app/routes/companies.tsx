@@ -11,7 +11,9 @@ import {
   queryOptions,
   useIsFetching,
   useSuspenseQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import type { LoaderFunctionArgs } from "react-router";
 import type { Company, PaginatedResult } from "../utils/companies.types";
@@ -33,6 +35,7 @@ const companyListQuery = (q?: string) =>
     },
   });
 
+// Create a server-side loader that doesn't need QueryClient
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q") ?? "";
@@ -50,9 +53,21 @@ export default function Root() {
     | undefined;
   const q = loaderData?.q ?? "";
   const initialCompanies = loaderData?.companies;
+  const queryClient = useQueryClient();
 
-  // Use initial data from loader, only use React Query on client for new searches
-  const companies = initialCompanies || { data: [], total: 0, page: 1, limit: 12, totalPages: 0 };
+  // Prefill the query cache with loader data on mount
+  useEffect(() => {
+    if (initialCompanies) {
+      queryClient.setQueryData(["companies", "list", q ?? "all"], initialCompanies);
+    }
+  }, [initialCompanies, q, queryClient]);
+
+  // Use TanStack Query with initial data from loader
+  const { data: companies } = useSuspenseQuery({
+    ...companyListQuery(q),
+    initialData: initialCompanies,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
   const searching = useIsFetching({ queryKey: ["companies", "list"] }) > 0;
   const navigation = useNavigation();
   const submit = useSubmit();
