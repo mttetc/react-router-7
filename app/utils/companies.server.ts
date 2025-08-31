@@ -87,7 +87,9 @@ export async function getCompanies(
   }
 
   if (min_funding !== undefined || max_funding !== undefined) {
-    where.last_funding_amount = {};
+    where.last_funding_amount = {
+      not: null, // Exclude companies with null funding amounts when any funding filter is applied
+    };
     if (min_funding !== undefined) where.last_funding_amount.gte = min_funding;
     if (max_funding !== undefined) where.last_funding_amount.lte = max_funding;
   }
