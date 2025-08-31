@@ -41,7 +41,7 @@ export const Header = () => {
             <HStack gap={3} align="baseline">
               <Text
                 fontSize="sm"
-                color={useColorModeValue("gray.500", "gray.400")}
+                color={useColorModeValue("brand.500", "brand.400")}
                 fontWeight="normal"
                 fontStyle="italic"
               >

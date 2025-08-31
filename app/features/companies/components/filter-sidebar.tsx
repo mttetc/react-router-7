@@ -1,129 +1,54 @@
 import {
   Badge,
   Box,
-  Button,
   Card,
   Field,
   For,
   HStack,
   Input,
-  Menu,
   Portal,
+  Select,
   Separator,
   Slider,
   Stack,
   Text,
+  createListCollection,
 } from "@chakra-ui/react";
-import { FaChevronDown, FaSearch } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import { useColorModeValue } from "../../../components/ui/color-mode";
-import { Tooltip } from "../../../components/ui/tooltip";
 import type { FilterState } from "../../../services/companies.service";
 
-// Custom Select component that mimics the compound structure you wanted
-interface SelectItem {
-  value: string;
-  label: string;
-  icon: string;
-}
+// Data collections for Chakra UI Select
+const growthStageCollection = createListCollection({
+  items: [
+    { value: "early", label: "🌱 Early" },
+    { value: "seed", label: "🌿 Seed" },
+    { value: "growing", label: "🌳 Growing" },
+    { value: "late", label: "🏢 Late" },
+    { value: "exit", label: "🚀 Exit" },
+  ],
+});
 
-interface SelectRootProps {
-  items: SelectItem[];
-  value: string;
-  onValueChange: (value: string) => void;
-  placeholder: string;
-  size?: "sm" | "md" | "lg";
-  children?: React.ReactNode;
-}
+const customerFocusCollection = createListCollection({
+  items: [
+    { value: "b2b", label: "🏢 B2B" },
+    { value: "b2c", label: "👥 B2C" },
+    { value: "b2b_b2c", label: "🔄 B2B & B2C" },
+    { value: "b2c_b2b", label: "🔄 B2C & B2B" },
+  ],
+});
 
-// Mimic Select.Root component
-const SelectRoot = ({
-  items,
-  value,
-  onValueChange,
-  placeholder,
-  size = "sm",
-}: SelectRootProps) => {
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const selectedItem = items.find((item) => item.value === value);
-
-  return (
-    <Menu.Root>
-      <Menu.Trigger asChild>
-        <Button
-          variant="outline"
-          size={size}
-          textAlign="left"
-          fontWeight="normal"
-          borderColor={borderColor}
-          _hover={{ borderColor: "brand.400" }}
-          _focus={{ borderColor: "brand.400", boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)" }}
-          w="full"
-          justifyContent="space-between"
-        >
-          <HStack gap={2}>
-            {selectedItem && <Text>{selectedItem.icon}</Text>}
-            <Text color={selectedItem ? "inherit" : "gray.500"}>
-              {selectedItem?.label || placeholder}
-            </Text>
-          </HStack>
-          <FaChevronDown />
-        </Button>
-      </Menu.Trigger>
-
-      <Portal>
-        <Menu.Positioner>
-          <Menu.Content maxH="200px" overflowY="auto">
-            <Menu.Item value="" onClick={() => onValueChange("")}>
-              <Text color="gray.500">{placeholder}</Text>
-            </Menu.Item>
-            <For each={items}>
-              {(item) => (
-                <Menu.Item
-                  key={item.value}
-                  value={item.value}
-                  onClick={() => onValueChange(item.value)}
-                  bg={value === item.value ? "brand.50" : "transparent"}
-                  _hover={{ bg: "brand.50" }}
-                >
-                  <HStack gap={2}>
-                    <Text>{item.icon}</Text>
-                    <Text>{item.label}</Text>
-                  </HStack>
-                </Menu.Item>
-              )}
-            </For>
-          </Menu.Content>
-        </Menu.Positioner>
-      </Portal>
-    </Menu.Root>
-  );
-};
-
-// Data collections
-const growthStageItems: SelectItem[] = [
-  { value: "early", label: "Early", icon: "🌱" },
-  { value: "seed", label: "Seed", icon: "🌿" },
-  { value: "growing", label: "Growing", icon: "🌳" },
-  { value: "late", label: "Late", icon: "🏢" },
-  { value: "exit", label: "Exit", icon: "🚀" },
-];
-
-const customerFocusItems: SelectItem[] = [
-  { value: "b2b", label: "B2B", icon: "🏢" },
-  { value: "b2c", label: "B2C", icon: "👥" },
-  { value: "b2b_b2c", label: "B2B & B2C", icon: "🔄" },
-  { value: "b2c_b2b", label: "B2C & B2B", icon: "🔄" },
-];
-
-const fundingTypeItems: SelectItem[] = [
-  { value: "Seed", label: "Seed", icon: "🌱" },
-  { value: "Series A", label: "Series A", icon: "🅰️" },
-  { value: "Series B", label: "Series B", icon: "🅱️" },
-  { value: "Series C", label: "Series C", icon: "©️" },
-  { value: "Angel", label: "Angel", icon: "👼" },
-  { value: "Convertible Note", label: "Convertible Note", icon: "📝" },
-  { value: "Undisclosed", label: "Undisclosed", icon: "🤐" },
-];
+const fundingTypeCollection = createListCollection({
+  items: [
+    { value: "Seed", label: "🌱 Seed" },
+    { value: "Series A", label: "🅰️ Series A" },
+    { value: "Series B", label: "🅱️ Series B" },
+    { value: "Series C", label: "©️ Series C" },
+    { value: "Angel", label: "👼 Angel" },
+    { value: "Convertible Note", label: "📝 Convertible Note" },
+    { value: "Undisclosed", label: "🤐 Undisclosed" },
+  ],
+});
 
 interface FilterSidebarProps {
   filters: FilterState;
@@ -136,7 +61,6 @@ export const FilterSidebar = ({
 }: FilterSidebarProps) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-  const textColor = useColorModeValue("gray.700", "gray.200");
 
   return (
     <Card.Root
@@ -162,6 +86,10 @@ export const FilterSidebar = ({
               onChange={(e) => onFilterChange({ search: e.target.value })}
               borderRadius="md"
               size="sm"
+              _focus={{
+                borderColor: "brand.400",
+                boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+              }}
             />
           </Field.Root>
 
@@ -174,45 +102,120 @@ export const FilterSidebar = ({
                 <Field.Label fontSize="xs" color="gray.500">
                   Growth Stage
                 </Field.Label>
-                <SelectRoot
-                  items={growthStageItems}
-                  value={filters.growthStage || ""}
-                  onValueChange={(value) =>
-                    onFilterChange({ growthStage: value })
-                  }
-                  placeholder="All stages"
+                <Select.Root
+                  collection={growthStageCollection}
                   size="sm"
-                />
+                  value={filters.growthStage ? [filters.growthStage] : []}
+                  onValueChange={(details) => {
+                    onFilterChange({ 
+                      growthStage: details.value[0] || "" 
+                    });
+                  }}
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="All stages" />
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Portal>
+                    <Select.Positioner>
+                      <Select.Content>
+                        <For each={growthStageCollection.items}>
+                          {(item) => (
+                            <Select.Item item={item} key={item.value}>
+                              {item.label}
+                              <Select.ItemIndicator />
+                            </Select.Item>
+                          )}
+                        </For>
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Portal>
+                </Select.Root>
               </Field.Root>
 
               <Field.Root>
                 <Field.Label fontSize="xs" color="gray.500">
                   Customer Focus
                 </Field.Label>
-                <SelectRoot
-                  items={customerFocusItems}
-                  value={filters.customerFocus || ""}
-                  onValueChange={(value) =>
-                    onFilterChange({ customerFocus: value })
-                  }
-                  placeholder="All customer types"
+                <Select.Root
+                  collection={customerFocusCollection}
                   size="sm"
-                />
+                  value={filters.customerFocus ? [filters.customerFocus] : []}
+                  onValueChange={(details) => {
+                    onFilterChange({ 
+                      customerFocus: details.value[0] || "" 
+                    });
+                  }}
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="All customer types" />
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Portal>
+                    <Select.Positioner>
+                      <Select.Content>
+                        <For each={customerFocusCollection.items}>
+                          {(item) => (
+                            <Select.Item item={item} key={item.value}>
+                              {item.label}
+                              <Select.ItemIndicator />
+                            </Select.Item>
+                          )}
+                        </For>
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Portal>
+                </Select.Root>
               </Field.Root>
 
               <Field.Root>
                 <Field.Label fontSize="xs" color="gray.500">
                   Funding Type
                 </Field.Label>
-                <SelectRoot
-                  items={fundingTypeItems}
-                  value={filters.fundingType || ""}
-                  onValueChange={(value) =>
-                    onFilterChange({ fundingType: value })
-                  }
-                  placeholder="All funding types"
+                <Select.Root
+                  collection={fundingTypeCollection}
                   size="sm"
-                />
+                  value={filters.fundingType ? [filters.fundingType] : []}
+                  onValueChange={(details) => {
+                    onFilterChange({ 
+                      fundingType: details.value[0] || "" 
+                    });
+                  }}
+                >
+                  <Select.HiddenSelect />
+                  <Select.Control>
+                    <Select.Trigger>
+                      <Select.ValueText placeholder="All funding types" />
+                    </Select.Trigger>
+                    <Select.IndicatorGroup>
+                      <Select.Indicator />
+                    </Select.IndicatorGroup>
+                  </Select.Control>
+                  <Portal>
+                    <Select.Positioner>
+                      <Select.Content>
+                        <For each={fundingTypeCollection.items}>
+                          {(item) => (
+                            <Select.Item item={item} key={item.value}>
+                              {item.label}
+                              <Select.ItemIndicator />
+                            </Select.Item>
+                          )}
+                        </For>
+                      </Select.Content>
+                    </Select.Positioner>
+                  </Portal>
+                </Select.Root>
               </Field.Root>
             </Stack>
           </Box>
@@ -231,6 +234,7 @@ export const FilterSidebar = ({
                     width="100%"
                     min={1}
                     max={10000}
+                    colorPalette="brand"
                     value={[filters.minRank || 1, filters.maxRank || 10000]}
                     onValueChange={(details) => {
                       const [min, max] = details.value;
@@ -268,6 +272,7 @@ export const FilterSidebar = ({
                     min={0}
                     max={100000000}
                     step={100000}
+                    colorPalette="brand"
                     value={[
                       filters.minFunding || 0,
                       filters.maxFunding || 100000000,
