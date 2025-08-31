@@ -5,8 +5,8 @@ import {
   Select,
   createListCollection,
 } from "@chakra-ui/react";
-import { useFormStatus } from "react-dom";
 import type { SelectFieldProps } from "./types";
+import { useFilterState } from "~/hooks/use-filter-state";
 
 export function SelectField({
   name,
@@ -16,22 +16,20 @@ export function SelectField({
   placeholder = "Select an option",
   disabled = false,
 }: SelectFieldProps) {
-  const { pending } = useFormStatus();
+  const { filters, updateFilters } = useFilterState();
 
   const collection = createListCollection({
     items: options,
   });
 
-  const handleValueChange = (details: { value: string[] }) => {
-    // Update hidden input value
-    const hiddenInput = document.querySelector(
-      `input[name="${name}"]`
-    ) as HTMLInputElement;
-    if (hiddenInput) {
-      hiddenInput.value = details.value[0] || "";
-      // Auto-submit form immediately for select changes
-      hiddenInput.form?.requestSubmit();
-    }
+  // Get current value from nuqs state
+  const currentValue = (filters as any)[name] || "";
+
+  const handleValueChange = async (details: { value: string[] }) => {
+    const newValue = details.value[0] || "";
+    await updateFilters({
+      [name]: newValue,
+    } as Partial<typeof filters>);
   };
 
   const fieldId = `select-${name}`;
@@ -45,17 +43,10 @@ export function SelectField({
         id={fieldId}
         collection={collection}
         size="sm"
-        value={defaultValue ? [defaultValue.toString()] : []}
+        value={currentValue ? [currentValue.toString()] : []}
         onValueChange={handleValueChange}
-        disabled={disabled || pending}
+        disabled={disabled}
       >
-        {/* Hidden input for form submission */}
-        <input
-          type="hidden"
-          name={name}
-          defaultValue={defaultValue?.toString() || ""}
-        />
-
         <Select.HiddenSelect />
         <Select.Control>
           <Select.Trigger>

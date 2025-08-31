@@ -7,11 +7,11 @@ import {
   Tag,
   For,
 } from "@chakra-ui/react";
-import { useFormStatus } from "react-dom";
 import type { FilterState } from "../../../services/companies.service";
 import { useCurrencyStore } from "~/stores/currency.store";
 import { convertCurrency, getCurrencySymbol } from "~/utils/currency.utils";
 import { ClientOnly } from "~/components/ui/client-only";
+import { useFilterState } from "~/hooks/use-filter-state";
 
 interface QuickFilterBase {
   id: string;
@@ -84,15 +84,11 @@ const QUICK_FILTER_TEMPLATES: QuickFilterBase[] = [
 ];
 
 interface QuickFiltersProps {
-  currentFilters: FilterState;
-  formId?: string;
+  // No props needed - component gets state from nuqs hooks
 }
 
-function QuickFiltersInner({
-  currentFilters,
-  formId = "filter-form",
-}: QuickFiltersProps) {
-  const { pending } = useFormStatus();
+function QuickFiltersInner({}: QuickFiltersProps) {
+  const { filters, updateFilters } = useFilterState();
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   // Generate quick filters with currency-aware data
@@ -123,29 +119,37 @@ function QuickFiltersInner({
     }
   );
 
-  const applyQuickFilter = (quickFilter: ProcessedQuickFilter) => {
-    const form = document.getElementById(formId) as HTMLFormElement;
-    if (!form) return;
-
+  const applyQuickFilter = async (quickFilter: ProcessedQuickFilter) => {
     const isCurrentlyActive = isFilterActive(quickFilter);
 
-    // Update form fields with the quick filter values
-    Object.entries(quickFilter.filters).forEach(([key, value]) => {
-      const hiddenInput = form.querySelector(
-        `input[name="${key}"]`
-      ) as HTMLInputElement;
-      if (hiddenInput) {
-        // If filter is currently active, clear it; otherwise, apply it
-        hiddenInput.value = isCurrentlyActive ? "" : value?.toString() || "";
-      }
-    });
-
-    form.requestSubmit();
+    if (isCurrentlyActive) {
+      // Clear the filter if it's currently active
+      const clearUpdates: Partial<FilterState> = {};
+      Object.keys(quickFilter.filters).forEach((key) => {
+        const filterKey = key as keyof FilterState;
+        if (
+          filterKey === "minRank" ||
+          filterKey === "maxRank" ||
+          filterKey === "minFunding" ||
+          filterKey === "maxFunding"
+        ) {
+          clearUpdates[filterKey] = null;
+        } else if (filterKey === "sortOrder") {
+          clearUpdates[filterKey] = "asc";
+        } else {
+          clearUpdates[filterKey] = "";
+        }
+      });
+      await updateFilters(clearUpdates);
+    } else {
+      // Apply the filter
+      await updateFilters(quickFilter.filters);
+    }
   };
 
   const isFilterActive = (quickFilter: ProcessedQuickFilter): boolean => {
     return Object.entries(quickFilter.filters).every(([key, value]) => {
-      const currentValue = (currentFilters as any)[key];
+      const currentValue = (filters as any)[key];
       return currentValue === value;
     });
   };
@@ -162,8 +166,7 @@ function QuickFiltersInner({
               colorPalette={filter.color}
               variant={isActive ? "solid" : "outline"}
               size="2xs"
-              onClick={() => !pending && applyQuickFilter(filter)}
-              disabled={pending}
+              onClick={() => applyQuickFilter(filter)}
             >
               {filter.convertedAmount ? (
                 <>
@@ -188,7 +191,7 @@ function QuickFiltersInner({
   );
 }
 
-export function QuickFilters({ currentFilters, formId }: QuickFiltersProps) {
+export function QuickFilters({}: QuickFiltersProps) {
   return (
     <ClientOnly
       fallback={
@@ -209,7 +212,7 @@ export function QuickFilters({ currentFilters, formId }: QuickFiltersProps) {
         </Wrap>
       }
     >
-      <QuickFiltersInner currentFilters={currentFilters} formId={formId} />
+      <QuickFiltersInner />
     </ClientOnly>
   );
 }

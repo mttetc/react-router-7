@@ -6,19 +6,19 @@ import {
   Text,
   FormatNumber,
 } from "@chakra-ui/react";
-import { useFormStatus } from "react-dom";
 import { useCallback } from "react";
 import { useCurrencyStore } from "~/stores/currency.store";
 import { convertCurrency, convertToUSD } from "~/utils/currency.utils";
 import type { FilterState } from "~/services/companies.service";
 import { useSyncArrayState } from "~/hooks/use-sync-state";
+import { useFilterState } from "~/hooks/use-filter-state";
 
 interface FundingSliderFieldProps {
-  filters: FilterState;
+  // No props needed - gets state from nuqs
 }
 
-export function FundingSliderField({ filters }: FundingSliderFieldProps) {
-  const { pending } = useFormStatus();
+export function FundingSliderField({}: FundingSliderFieldProps) {
+  const { filters, updateFilters } = useFilterState();
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   // Convert USD amounts to user's currency for display
@@ -40,39 +40,25 @@ export function FundingSliderField({ filters }: FundingSliderFieldProps) {
     : convertToUserCurrency(100000000);
   const maxSliderValue = convertToUserCurrency(100000000);
 
-  // Sync state hook for smooth slider interaction with debounced form submission
+  // Sync state hook for smooth slider interaction with debounced updates
   const [localValues, setLocalValues] = useSyncArrayState({
     initialValue: [minFundingDisplay, maxFundingDisplay] as const,
     externalValue: [minFundingDisplay, maxFundingDisplay] as const,
     onSync: useCallback(
-      (values: readonly [number, number]) => {
+      async (values: readonly [number, number]) => {
         const [minVal, maxVal] = values;
 
-        // Update hidden inputs with USD values (converted from user currency)
-        const minInput = document.querySelector(
-          `input[name="minFunding"]`
-        ) as HTMLInputElement;
-        const maxInput = document.querySelector(
-          `input[name="maxFunding"]`
-        ) as HTMLInputElement;
+        // Convert user currency values back to USD for the API
+        const minUSD = minVal === 0 ? null : convertUserCurrencyToUSD(minVal);
+        const maxUSD =
+          maxVal === maxSliderValue ? null : convertUserCurrencyToUSD(maxVal);
 
-        if (minInput && maxInput) {
-          // Convert user currency values back to USD for the API
-          const minUSD =
-            minVal === 0 ? "" : convertUserCurrencyToUSD(minVal).toString();
-          const maxUSD =
-            maxVal === maxSliderValue
-              ? ""
-              : convertUserCurrencyToUSD(maxVal).toString();
-
-          minInput.value = minUSD;
-          maxInput.value = maxUSD;
-
-          // Auto-submit form
-          minInput.form?.requestSubmit();
-        }
+        await updateFilters({
+          minFunding: minUSD,
+          maxFunding: maxUSD,
+        });
       },
-      [convertUserCurrencyToUSD, maxSliderValue]
+      [convertUserCurrencyToUSD, maxSliderValue, updateFilters]
     ),
     debounceMs: 300,
   });
@@ -107,18 +93,6 @@ export function FundingSliderField({ filters }: FundingSliderFieldProps) {
       </Field.Label>
 
       <Box role="group" aria-labelledby={fieldId} w="100%">
-        {/* Hidden inputs for form submission (USD values) */}
-        <input
-          type="hidden"
-          name="minFunding"
-          defaultValue={filters.minFunding?.toString() || ""}
-        />
-        <input
-          type="hidden"
-          name="maxFunding"
-          defaultValue={filters.maxFunding?.toString() || ""}
-        />
-
         <Slider.Root
           id={fieldId}
           width="100%"
@@ -127,9 +101,8 @@ export function FundingSliderField({ filters }: FundingSliderFieldProps) {
           step={convertToUserCurrency(100000)}
           cursor="pointer"
           colorPalette="purple"
-          value={localValues}
+          value={[...localValues]}
           onValueChange={handleValueChange}
-          disabled={pending}
         >
           <Slider.Control>
             <Slider.Track>

@@ -6,10 +6,10 @@ import {
   Text,
   FormatNumber,
 } from "@chakra-ui/react";
-import { useFormStatus } from "react-dom";
 import { useCallback } from "react";
 import type { SliderFieldProps } from "./types";
 import { useSyncArrayState } from "~/hooks/use-sync-state";
+import { useFilterState } from "~/hooks/use-filter-state";
 
 interface SliderFieldComponentProps extends SliderFieldProps {
   minName: string;
@@ -32,33 +32,26 @@ export function SliderField({
   maxDefaultValue = max,
   disabled = false,
 }: SliderFieldComponentProps) {
-  const { pending } = useFormStatus();
+  const { filters, updateFilters } = useFilterState();
 
-  // Sync state hook for smooth slider interaction with debounced form submission
+  // Get current values from nuqs state
+  const currentMinValue = (filters as any)[minName] || min;
+  const currentMaxValue = (filters as any)[maxName] || max;
+
+  // Sync state hook for smooth slider interaction with debounced updates
   const [localValues, setLocalValues] = useSyncArrayState({
-    initialValue: [minDefaultValue, maxDefaultValue] as const,
-    externalValue: [minDefaultValue, maxDefaultValue] as const,
+    initialValue: [currentMinValue, currentMaxValue] as const,
+    externalValue: [currentMinValue, currentMaxValue] as const,
     onSync: useCallback(
-      (values: readonly [number, number]) => {
+      async (values: readonly [number, number]) => {
         const [minVal, maxVal] = values;
 
-        // Update hidden inputs
-        const minInput = document.querySelector(
-          `input[name="${minName}"]`
-        ) as HTMLInputElement;
-        const maxInput = document.querySelector(
-          `input[name="${maxName}"]`
-        ) as HTMLInputElement;
-
-        if (minInput && maxInput) {
-          minInput.value = minVal === min ? "" : minVal.toString();
-          maxInput.value = maxVal === max ? "" : maxVal.toString();
-
-          // Auto-submit form
-          minInput.form?.requestSubmit();
-        }
+        await updateFilters({
+          [minName]: minVal === min ? null : minVal,
+          [maxName]: maxVal === max ? null : maxVal,
+        } as Partial<typeof filters>);
       },
-      [minName, maxName, min, max]
+      [minName, maxName, min, max, updateFilters]
     ),
     debounceMs: 300,
   });
@@ -101,22 +94,6 @@ export function SliderField({
         {label}
       </Field.Label>
       <Box w="100%" role="group">
-        {/* Hidden inputs for form submission */}
-        <input
-          type="hidden"
-          name={minName}
-          defaultValue={
-            minDefaultValue === min ? "" : minDefaultValue.toString()
-          }
-        />
-        <input
-          type="hidden"
-          name={maxName}
-          defaultValue={
-            maxDefaultValue === max ? "" : maxDefaultValue.toString()
-          }
-        />
-
         <Slider.Root
           id={fieldId}
           width="100%"
@@ -125,9 +102,9 @@ export function SliderField({
           step={step}
           cursor="pointer"
           colorPalette="purple"
-          value={localValues}
+          value={[...localValues]}
           onValueChange={handleValueChange}
-          disabled={disabled || pending}
+          disabled={disabled}
         >
           <Slider.Control>
             <Slider.Track>

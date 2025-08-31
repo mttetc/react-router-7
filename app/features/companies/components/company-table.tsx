@@ -6,6 +6,7 @@ import {
   Link as ChakraLink,
   Flex,
   HStack,
+  ScrollArea,
   Skeleton,
   Table,
   Text,
@@ -384,17 +385,23 @@ export const CompanyTable = ({
         borderColor={borderColor}
         borderRadius="lg"
         bg="white"
-        overflowX="auto"
         maxWidth="100%"
       >
-        <Table.Root variant="outline" size="sm" minWidth="1100px">
-          {renderTableHeader()}
-          <Table.Body>
-            <For each={Array.from({ length: 10 }, (_, i) => i)}>
-              {(index) => <LoadingRow key={index} />}
-            </For>
-          </Table.Body>
-        </Table.Root>
+        <ScrollArea.Root>
+          <ScrollArea.Viewport>
+            <Table.Root variant="outline" size="sm" minWidth="1100px">
+              {renderTableHeader()}
+              <Table.Body>
+                <For each={Array.from({ length: 10 }, (_, i) => i)}>
+                  {(index) => <LoadingRow key={index} />}
+                </For>
+              </Table.Body>
+            </Table.Root>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="horizontal">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
       </Box>
     );
   }
@@ -406,26 +413,36 @@ export const CompanyTable = ({
         borderColor={borderColor}
         borderRadius="lg"
         bg="white"
-        overflowX="auto"
         maxWidth="100%"
       >
-        <Table.Root variant="outline" size="sm" minWidth="1100px">
-          {renderTableHeader()}
-          <Table.Body>
-            <Table.Row>
-              <Table.Cell colSpan={COLUMNS.length} textAlign="center" py={10}>
-                <VStack gap={2}>
-                  <Text fontSize="lg" color="gray.500">
-                    No companies found
-                  </Text>
-                  <Text fontSize="sm" color="gray.400">
-                    Try adjusting your filters to see more results
-                  </Text>
-                </VStack>
-              </Table.Cell>
-            </Table.Row>
-          </Table.Body>
-        </Table.Root>
+        <ScrollArea.Root>
+          <ScrollArea.Viewport>
+            <Table.Root variant="outline" size="sm" minWidth="1100px">
+              {renderTableHeader()}
+              <Table.Body>
+                <Table.Row>
+                  <Table.Cell
+                    colSpan={COLUMNS.length}
+                    textAlign="center"
+                    py={10}
+                  >
+                    <VStack gap={2}>
+                      <Text fontSize="lg" color="gray.500">
+                        No companies found
+                      </Text>
+                      <Text fontSize="sm" color="gray.400">
+                        Try adjusting your filters to see more results
+                      </Text>
+                    </VStack>
+                  </Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table.Root>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="horizontal">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
       </Box>
     );
   }
@@ -436,19 +453,25 @@ export const CompanyTable = ({
       borderColor={borderColor}
       borderRadius="lg"
       bg="white"
-      overflowX="auto"
       maxWidth="100%"
     >
-      <Table.Root variant="outline" size="sm" minWidth="1100px">
-        {renderTableHeader()}
-        <Table.Body>
-          <For each={companies}>
-            {(company, index) => (
-              <CompanyRow key={company.id} company={company} />
-            )}
-          </For>
-        </Table.Body>
-      </Table.Root>
+      <ScrollArea.Root>
+        <ScrollArea.Viewport>
+          <Table.Root variant="outline" size="sm" minWidth="1100px">
+            {renderTableHeader()}
+            <Table.Body>
+              <For each={companies}>
+                {(company, index) => (
+                  <CompanyRow key={company.id} company={company} />
+                )}
+              </For>
+            </Table.Body>
+          </Table.Root>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar orientation="horizontal">
+          <ScrollArea.Thumb />
+        </ScrollArea.Scrollbar>
+      </ScrollArea.Root>
     </Box>
   );
 };

@@ -8,18 +8,10 @@ import {
   useScrollArea,
 } from "@chakra-ui/react";
 
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import {
-  redirect,
-  useLoaderData,
-  useNavigation,
-  useSearchParams,
-} from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData, useNavigation } from "react-router";
+import { useEffect, useRef } from "react";
 import { useColorModeValue } from "../components/ui/color-mode";
-import {
-  parseFiltersFromFormData,
-  validateFilters,
-} from "../features/companies/forms/utils";
 
 // Services and hooks
 
@@ -36,6 +28,8 @@ import {
 } from "../services/companies.service";
 import { getCompanies } from "../utils/companies.server";
 import type { Company, PaginatedResult } from "../utils/companies.types";
+import { useFilterState, usePaginationState } from "~/hooks/use-filter-state";
+import { useCompaniesData } from "~/features/companies/hooks/use-companies-data";
 
 // Components
 
@@ -50,33 +44,7 @@ interface LoaderData {
 }
 
 // ============================================================================
-// ACTION
-// ============================================================================
-
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const filters = parseFiltersFromFormData(formData);
-
-  console.log("🔄 [Form Action] Processing form submission:", filters);
-
-  // Validate filters
-  const validation = validateFilters(filters);
-  if (!validation.success) {
-    console.error("❌ [Form Action] Validation failed:", validation.errors);
-    return { errors: validation.errors };
-  }
-
-  // Build URL params and redirect
-  const pagination = { page: 1, limit: 12 };
-  const params = buildURLParams(filters, pagination);
-  const redirectUrl = `?${params.toString()}`;
-
-  console.log("✅ [Form Action] Redirecting to:", redirectUrl);
-  return redirect(redirectUrl);
-}
-
-// ============================================================================
-// LOADER
+// LOADER (SSR Support)
 // ============================================================================
 
 export async function loader({
@@ -141,63 +109,53 @@ export async function loader({
 export default function CompanyFeed() {
   const loaderData = useLoaderData<LoaderData>();
   const navigation = useNavigation();
-  const [_, setSearchParams] = useSearchParams();
   const scrollArea = useScrollArea();
 
-  // Get current state from loader data
-  const filters = loaderData.filters;
-  const pagination = loaderData.pagination;
+  // Get filter and pagination state from nuqs hooks
+  const { filters, updateFilters } = useFilterState();
+  const { pagination, goToPage, resetPagination } = usePaginationState();
 
-  // Use server data directly
-  const data = loaderData.companiesData;
-  // Check if we're navigating (loading new data)
-  const isLoading = navigation.state === "loading";
+  // Use React Query to fetch data that responds to filter changes
+  const { data, isLoading, error } = useCompaniesData(
+    filters,
+    pagination,
+    undefined // Don't use initial data for now to test if React Query works
+  );
 
-  // Simple pagination handler
-  const goToPage = (page: number) => {
+  // Check if we're navigating (for additional loading states)
+  const isNavigating = navigation.state === "loading";
+
+  // Debug: Log data changes
+  useEffect(() => {
+    console.log("📊 [Companies] Data updated:", {
+      hasData: !!data,
+      companiesCount: data?.data?.length || 0,
+      totalPages: data?.totalPages,
+      currentPage: data?.page,
+      isLoading,
+      error: !!error,
+    });
+  }, [data, isLoading, error]);
+
+  // Reset pagination when filters change (but not on initial render)
+  const prevFiltersRef = useRef(filters);
+  useEffect(() => {
+    const filtersChanged =
+      JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters);
+    if (filtersChanged && pagination.page !== 1) {
+      console.log("🔄 [Companies] Resetting pagination due to filter change");
+      resetPagination();
+    }
+    prevFiltersRef.current = filters;
+  }, [filters, pagination.page, resetPagination]);
+
+  // Enhanced pagination handler with scroll
+  const handlePageChange = async (page: number) => {
     // Scroll to top when changing pages
     scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
 
     // Navigate to new page
-    const newPagination = { ...pagination, page };
-    const params = buildURLParams(filters, newPagination);
-    setSearchParams(params);
-  };
-
-  // Simple filter reset (for active filters component)
-  const resetFilters = () => {
-    const emptyFilters: FilterState = {
-      search: "",
-      growthStage: "",
-      customerFocus: "",
-      fundingType: "",
-      minRank: null,
-      maxRank: null,
-      minFunding: null,
-      maxFunding: null,
-      sortBy: "",
-      sortOrder: "asc",
-    };
-    const params = buildURLParams(emptyFilters, { page: 1, limit: 12 });
-    setSearchParams(params);
-  };
-
-  const removeFilter = (key: keyof FilterState) => {
-    const updatedFilters = { ...filters };
-    if (
-      key === "minRank" ||
-      key === "maxRank" ||
-      key === "minFunding" ||
-      key === "maxFunding"
-    ) {
-      updatedFilters[key] = null;
-    } else if (key === "sortOrder") {
-      updatedFilters[key] = "asc";
-    } else {
-      updatedFilters[key] = "";
-    }
-    const params = buildURLParams(updatedFilters, { page: 1, limit: 12 });
-    setSearchParams(params);
+    await goToPage(page);
   };
 
   return (
@@ -238,12 +196,7 @@ export default function CompanyFeed() {
                 animationDuration="moderate"
                 animationDelay="0.1s"
               >
-                <FilterForm
-                  filters={filters}
-                  action="/companies"
-                  onRemoveFilter={removeFilter}
-                  onResetAll={resetFilters}
-                />
+                <FilterForm />
               </Presence>
 
               {/* Right Content */}
@@ -261,8 +214,10 @@ export default function CompanyFeed() {
                   {/* Table Header */}
                   <Box mb={4}>
                     <Text fontSize="sm" color="gray.500">
-                      {isLoading
+                      {isLoading || isNavigating
                         ? "Loading companies..."
+                        : error
+                        ? "Error loading companies"
                         : `Showing ${data?.data?.length || 0} companies`}
                     </Text>
                   </Box>
@@ -270,9 +225,9 @@ export default function CompanyFeed() {
                   {/* Company Table */}
                   <CompanyTable
                     companies={data?.data || []}
-                    isLoading={isLoading}
+                    isLoading={isLoading || isNavigating}
                     filters={filters}
-                    onFilterChange={() => {}} // Form handles filtering now
+                    onFilterChange={updateFilters} // Use nuqs updateFilters for sorting
                   />
 
                   {/* Pagination - Only show if there are results */}
@@ -281,8 +236,8 @@ export default function CompanyFeed() {
                       <Pagination
                         currentPage={data.page}
                         totalPages={data.totalPages}
-                        onPageChange={goToPage}
-                        isLoading={isLoading}
+                        onPageChange={handlePageChange}
+                        isLoading={isLoading || isNavigating}
                       />
                     </Box>
                   )}

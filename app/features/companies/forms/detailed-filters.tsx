@@ -4,6 +4,7 @@ import {
   Button,
   Collapsible,
   HStack,
+  Icon,
   Separator,
   Stack,
   Text,
@@ -14,6 +15,7 @@ import type { FilterState } from "~/services/companies.service";
 import { SelectField } from "./select-field";
 import { SliderField } from "./slider-field";
 import { FundingSliderField } from "./funding-slider-field";
+import { useFilterState } from "~/hooks/use-filter-state";
 
 // Data for select options
 const growthStageOptions = [
@@ -47,14 +49,11 @@ const fundingTypeOptions = [
 ];
 
 interface DetailedFiltersProps {
-  filters: FilterState;
   defaultOpen?: boolean;
 }
 
-export function DetailedFilters({
-  filters,
-  defaultOpen = false,
-}: DetailedFiltersProps) {
+export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
+  const { filters } = useFilterState();
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const hasActiveAdvancedFilters = Boolean(
@@ -70,22 +69,21 @@ export function DetailedFilters({
   return (
     <Box>
       <Button
-        variant="ghost"
+        variant="outline"
+        colorPalette={hasActiveAdvancedFilters ? "purple" : "gray"}
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
         width="full"
         justifyContent="space-between"
-        color={hasActiveAdvancedFilters ? "purple.600" : "gray.600"}
-        _hover={{ bg: "gray.100" }}
       >
         <HStack>
           <FaCog />
           <Text>More Filters</Text>
           {hasActiveAdvancedFilters && (
-            <Box w={2} h={2} bg="purple.500" borderRadius="full" ml={2} />
+            <Box w={2} h={2} bg="purple.500" borderRadius="full" />
           )}
-          {isOpen ? <FaChevronUp /> : <FaChevronDown />}
         </HStack>
+        <Icon size="xs">{isOpen ? <FaChevronUp /> : <FaChevronDown />}</Icon>
       </Button>
 
       <Collapsible.Root open={isOpen}>
@@ -169,7 +167,7 @@ export function DetailedFilters({
                       />
                     }
                   >
-                    <FundingSliderField filters={filters} />
+                    <FundingSliderField />
                   </ClientOnly>
                 </Stack>
               </Box>

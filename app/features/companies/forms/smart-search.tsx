@@ -11,9 +11,9 @@ import {
   For,
 } from "@chakra-ui/react";
 import { FaSearch, FaMagic } from "react-icons/fa";
-import { useFormStatus } from "react-dom";
 import { useDebounce } from "rooks";
 import type { FilterState } from "../../../services/companies.service";
+import { useFilterState } from "~/hooks/use-filter-state";
 
 // Helper function to format currency amounts for labels
 const formatCurrencyLabel = (value: number, type: "min" | "max"): string => {
@@ -27,8 +27,7 @@ const formatCurrencyLabel = (value: number, type: "min" | "max"): string => {
 };
 
 interface SmartSearchProps {
-  defaultValue?: string;
-  onFiltersDetected?: (filters: Partial<FilterState>) => void;
+  // No props needed - component manages its own state via nuqs
 }
 
 interface ParsedFilter {
@@ -189,23 +188,23 @@ function parseSmartSearch(query: string): {
   return { filters, remainingQuery, parsedFilters };
 }
 
-export function SmartSearch({
-  defaultValue = "",
-  onFiltersDetected,
-}: SmartSearchProps) {
-  const { pending } = useFormStatus();
-  const [query, setQuery] = useState(defaultValue);
+export function SmartSearch({}: SmartSearchProps) {
+  const { search, updateFilters } = useFilterState();
+  const [query, setQuery] = useState(search);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [parsedFilters, setParsedFilters] = useState<ParsedFilter[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const submitForm = useCallback((form: HTMLFormElement | null) => {
-    if (form) {
-      form.requestSubmit();
-    }
-  }, []);
-
-  const debouncedSubmit = useDebounce(submitForm, 300);
+  // Debounced function to update filters
+  const debouncedUpdateFilters = useDebounce(
+    async (filters: Partial<FilterState>, remainingQuery: string) => {
+      await updateFilters({
+        ...filters,
+        search: remainingQuery,
+      });
+    },
+    300
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
@@ -219,31 +218,8 @@ export function SmartSearch({
     } = parseSmartSearch(newQuery);
     setParsedFilters(newParsedFilters);
 
-    // Update hidden form fields
-    Object.entries(filters).forEach(([key, value]) => {
-      const hiddenInput = document.querySelector(
-        `input[name="${key}"]`
-      ) as HTMLInputElement;
-      if (hiddenInput) {
-        hiddenInput.value = value?.toString() || "";
-      }
-    });
-
-    // Update search field
-    const searchInput = document.querySelector(
-      'input[name="search"]'
-    ) as HTMLInputElement;
-    if (searchInput) {
-      searchInput.value = remainingQuery;
-    }
-
-    // Trigger form submission
-    debouncedSubmit(e.target.form);
-
-    // Notify parent of detected filters
-    if (onFiltersDetected) {
-      onFiltersDetected(filters);
-    }
+    // Update filters with debounce
+    debouncedUpdateFilters(filters, remainingQuery);
   };
 
   const suggestions = [
@@ -281,7 +257,6 @@ export function SmartSearch({
             border="none"
             outline="none"
             _focus={{ boxShadow: "none" }}
-            disabled={pending}
             fontSize="sm"
           />
           {parsedFilters.length > 0 && (
@@ -348,7 +323,6 @@ export function SmartSearch({
                         handleChange({
                           target: {
                             value: suggestion,
-                            form: inputRef.current?.form,
                           },
                         } as any);
                         setShowSuggestions(false);
