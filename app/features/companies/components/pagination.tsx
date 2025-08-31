@@ -35,7 +35,7 @@ export const Pagination = ({
         page={currentPage}
         onPageChange={(details) => onPageChange(details.page)}
       >
-        <ButtonGroup variant="outline" size="sm">
+        <ButtonGroup variant="outline" size="sm" colorPalette="purple">
           <ChakraPagination.PrevTrigger asChild>
             <IconButton disabled={isLoading}>
               <LuChevronLeft />

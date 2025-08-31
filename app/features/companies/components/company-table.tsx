@@ -253,15 +253,17 @@ const SortableHeader = ({
   currentSort,
   currentOrder,
   onSort,
+  textColor,
 }: {
   children: React.ReactNode;
   sortKey: string;
   currentSort: string;
   currentOrder: string;
   onSort: (sortBy: string) => void;
+  textColor?: string;
 }) => {
   const isActive = currentSort === sortKey;
-  const hoverBg = useColorModeValue("gray.100", "gray.600");
+  const hoverBg = useColorModeValue("brand.100", "brand.800");
   const nextOrder = isActive && currentOrder === "asc" ? "desc" : "asc";
   const tooltipText = `Click to sort by ${children} ${
     nextOrder === "asc" ? "ascending" : "descending"
@@ -274,6 +276,7 @@ const SortableHeader = ({
         onClick={() => onSort(sortKey)}
         _hover={{ bg: hoverBg }}
         position="relative"
+        color={textColor}
       >
         <Flex align="center" justify="space-between">
           {children}
@@ -299,7 +302,8 @@ export const CompanyTable = ({
   onFilterChange,
 }: CompanyTableProps) => {
   const borderColor = useColorModeValue("gray.200", "gray.600");
-  const theadBg = useColorModeValue("gray.50", "gray.700");
+  const theadBg = useColorModeValue("brand.50", "brand.900");
+  const theadTextColor = useColorModeValue("brand.700", "brand.200");
 
   const handleSort = (sortBy: string) => {
     const newOrder =
@@ -320,13 +324,14 @@ export const CompanyTable = ({
                   currentSort={filters.sortBy}
                   currentOrder={filters.sortOrder}
                   onSort={handleSort}
+                  textColor={theadTextColor}
                 >
                   {column.label}
                 </SortableHeader>
               );
             }
             return (
-              <Table.ColumnHeader key={column.key} width={column.width}>
+              <Table.ColumnHeader key={column.key} width={column.width} color={theadTextColor}>
                 {column.label}
               </Table.ColumnHeader>
             );
