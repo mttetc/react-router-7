@@ -52,7 +52,7 @@ export const Header = () => {
                 positioning={{ placement: "bottom" }}
               >
                 <Badge
-                  colorPalette="brand"
+                  colorPalette="purple"
                   borderRadius="full"
                   px={3}
                   py={1}

@@ -137,7 +137,7 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
                       aria-label="Visit website"
                       size="xs"
                       variant="ghost"
-                      colorPalette="brand"
+                      colorPalette="purple"
                     >
                       <FaExternalLinkAlt />
                     </IconButton>

@@ -86,10 +86,6 @@ export const FilterSidebar = ({
               onChange={(e) => onFilterChange({ search: e.target.value })}
               borderRadius="md"
               size="sm"
-              _focus={{
-                borderColor: "brand.400",
-                boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
-              }}
             />
           </Field.Root>
 
@@ -234,7 +230,7 @@ export const FilterSidebar = ({
                     width="100%"
                     min={1}
                     max={10000}
-                    colorPalette="brand"
+                    colorPalette="purple"
                     value={[filters.minRank || 1, filters.maxRank || 10000]}
                     onValueChange={(details) => {
                       const [min, max] = details.value;
@@ -272,7 +268,7 @@ export const FilterSidebar = ({
                     min={0}
                     max={100000000}
                     step={100000}
-                    colorPalette="brand"
+                    colorPalette="purple"
                     value={[
                       filters.minFunding || 0,
                       filters.maxFunding || 100000000,

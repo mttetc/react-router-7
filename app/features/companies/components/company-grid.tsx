@@ -125,7 +125,7 @@ export const CompanyGrid = ({
               >
                 <Button
                   variant={filters.sortOrder === "asc" ? "solid" : "outline"}
-                  colorPalette="brand"
+                  colorPalette="purple"
                   onClick={() => onFilterChange({ sortOrder: "asc" })}
                   px={2}
                   disabled={isLoading}
@@ -139,7 +139,7 @@ export const CompanyGrid = ({
               >
                 <Button
                   variant={filters.sortOrder === "desc" ? "solid" : "outline"}
-                  colorPalette="brand"
+                  colorPalette="purple"
                   onClick={() => onFilterChange({ sortOrder: "desc" })}
                   px={2}
                   disabled={isLoading}

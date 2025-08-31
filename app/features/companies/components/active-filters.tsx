@@ -61,7 +61,7 @@ export const ActiveFilters = ({
         <Text fontSize="sm" fontWeight="semibold" color={textColor}>
           🏷️ Active Filters
         </Text>
-        <Badge colorPalette="brand" borderRadius="full">
+        <Badge colorPalette="purple" borderRadius="full">
           {activeFilters.length}
         </Badge>
       </HStack>

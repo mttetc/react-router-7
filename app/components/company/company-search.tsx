@@ -138,7 +138,7 @@ export function CompanySearch({
                 >
                   <Badge
                     size="sm"
-                    colorPalette="brand"
+                    colorPalette="purple"
                     variant="solid"
                     cursor="pointer"
                     onClick={() => removeFilter(key as keyof CompanyFilters)}
@@ -218,7 +218,10 @@ export function CompanySearch({
             size="sm"
             value={filters?.customer_focus ? [filters.customer_focus] : []}
             onValueChange={(details) => {
-              handleFilterChange("customer_focus", details.value[0] || undefined);
+              handleFilterChange(
+                "customer_focus",
+                details.value[0] || undefined
+              );
             }}
           >
             <Select.HiddenSelect />
@@ -299,7 +302,9 @@ export function CompanySearch({
           <Select.Root
             collection={fundingTypeCollection}
             size="sm"
-            value={filters?.last_funding_type ? [filters.last_funding_type] : []}
+            value={
+              filters?.last_funding_type ? [filters.last_funding_type] : []
+            }
             onValueChange={(details) => {
               handleFilterChange(
                 "last_funding_type",
