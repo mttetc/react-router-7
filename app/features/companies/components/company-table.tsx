@@ -3,6 +3,7 @@ import {
   Avatar,
   Badge,
   Box,
+  Center,
   Link as ChakraLink,
   Flex,
   HStack,
@@ -407,42 +408,33 @@ export const CompanyTable = ({
   }
 
   if (companies.length === 0) {
+    const emptyBgColor = useColorModeValue("gray.50", "gray.700");
+
     return (
       <Box
         borderWidth={1}
         borderColor={borderColor}
         borderRadius="lg"
         bg="white"
-        maxWidth="100%"
+        p={12}
+        textAlign="center"
       >
-        <ScrollArea.Root>
-          <ScrollArea.Viewport>
-            <Table.Root variant="outline" size="sm" minWidth="1100px">
-              {renderTableHeader()}
-              <Table.Body>
-                <Table.Row>
-                  <Table.Cell
-                    colSpan={COLUMNS.length}
-                    textAlign="center"
-                    py={10}
-                  >
-                    <VStack gap={2}>
-                      <Text fontSize="lg" color="gray.500">
-                        No companies found
-                      </Text>
-                      <Text fontSize="sm" color="gray.400">
-                        Try adjusting your filters to see more results
-                      </Text>
-                    </VStack>
-                  </Table.Cell>
-                </Table.Row>
-              </Table.Body>
-            </Table.Root>
-          </ScrollArea.Viewport>
-          <ScrollArea.Scrollbar orientation="horizontal">
-            <ScrollArea.Thumb />
-          </ScrollArea.Scrollbar>
-        </ScrollArea.Root>
+        <VStack gap={4} maxW="md" mx="auto">
+          <Text fontSize="6xl" mb={2}>
+            🔍
+          </Text>
+          <Text fontSize="xl" fontWeight="bold" color="gray.600">
+            No companies found
+          </Text>
+          <Text fontSize="md" color="gray.500" mb={2}>
+            Try adjusting your filters to see more results
+          </Text>
+          <VStack gap={2} fontSize="sm" color="gray.400">
+            <Text>💡 Try removing some filters</Text>
+            <Text>🔍 Use broader search terms</Text>
+            <Text>📊 Adjust your range filters</Text>
+          </VStack>
+        </VStack>
       </Box>
     );
   }

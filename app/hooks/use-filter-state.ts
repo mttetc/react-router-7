@@ -1,4 +1,9 @@
-import { i, is, parseAsInteger, parseAsString } from "nuqs";
+import {
+  useQueryState,
+  useQueryStates,
+  parseAsInteger,
+  parseAsString,
+} from "nuqs";
 import type { FilterState } from "~/services/companies.service";
 
 /**
@@ -23,8 +28,8 @@ const parseAsSortOrder = {
  * This centralizes all filter state management with type safety
  */
 export function useFilterState() {
-  // Use is for better batching of updates
-  const [filters, setFilters] = is({
+  // Use useQueryStates for better batching of updates
+  const [filters, setFilters] = useQueryStates({
     search: parseAsString.withDefault(""),
     growthStage: parseAsString.withDefault(""),
     customerFocus: parseAsString.withDefault(""),
@@ -36,6 +41,9 @@ export function useFilterState() {
     sortBy: parseAsString.withDefault(""),
     sortOrder: parseAsSortOrder.withDefault("asc"),
   });
+
+  // Also manage pagination state here for better coordination
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
   // Individual setters for backward compatibility
   const setSearch = (value: string | null) =>
@@ -65,24 +73,34 @@ export function useFilterState() {
     updates: Partial<FilterState>,
     resetPage = true
   ) => {
-    // Use setFilters for batched updates - this will update all keys in a single URL change
-    await setFilters(updates);
+    // Batch filter updates with pagination reset to prevent multiple API calls
+    if (resetPage && page !== 1) {
+      // Reset page to 1 when filters change, but do it in the same update cycle
+      await Promise.all([setFilters(updates), setPage(1)]);
+    } else {
+      // Just update filters without touching pagination
+      await setFilters(updates);
+    }
   };
 
   // Reset all filters to default values
   const resetFilters = async () => {
-    await setFilters({
-      search: "",
-      growthStage: "",
-      customerFocus: "",
-      fundingType: "",
-      minRank: null,
-      maxRank: null,
-      minFunding: null,
-      maxFunding: null,
-      sortBy: "",
-      sortOrder: "asc",
-    });
+    // Reset both filters and pagination in the same batch
+    await Promise.all([
+      setFilters({
+        search: "",
+        growthStage: "",
+        customerFocus: "",
+        fundingType: "",
+        minRank: null,
+        maxRank: null,
+        minFunding: null,
+        maxFunding: null,
+        sortBy: "",
+        sortOrder: "asc",
+      }),
+      setPage(1),
+    ]);
   };
 
   // Remove a specific filter
@@ -128,6 +146,10 @@ export function useFilterState() {
     maxFunding: filters.maxFunding,
     setMaxFunding,
 
+    // Pagination state (managed here for coordination)
+    page,
+    setPage,
+
     // Computed and utility functions
     filters,
     updateFilters,
@@ -138,13 +160,16 @@ export function useFilterState() {
 
 /**
  * Hook for pagination state management
+ * Note: Page state is now managed in useFilterState for better coordination
  */
 export function usePaginationState() {
-  const [page, setPage] = i("page", parseAsInteger.withDefault(1));
   const [limit, setLimit] = useQueryState(
     "limit",
     parseAsInteger.withDefault(12)
   );
+
+  // Get page state from the coordinated filter state
+  const { page, setPage } = useFilterState();
 
   const pagination = { page, limit };
 

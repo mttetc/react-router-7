@@ -10,7 +10,7 @@ import {
 
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigation } from "react-router";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useColorModeValue } from "../components/ui/color-mode";
 
 // Services and hooks
@@ -137,17 +137,8 @@ export default function CompanyFeed() {
     });
   }, [data, isLoading, error]);
 
-  // Reset pagination when filters change (but not on initial render)
-  const prevFiltersRef = useRef(filters);
-  useEffect(() => {
-    const filtersChanged =
-      JSON.stringify(prevFiltersRef.current) !== JSON.stringify(filters);
-    if (filtersChanged && pagination.page !== 1) {
-      console.log("🔄 [Companies] Resetting pagination due to filter change");
-      resetPagination();
-    }
-    prevFiltersRef.current = filters;
-  }, [filters, pagination.page, resetPagination]);
+  // Note: Pagination reset is now handled automatically in useFilterState
+  // when filters change, preventing race conditions and multiple API calls
 
   // Enhanced pagination handler with scroll
   const handlePageChange = async (page: number) => {

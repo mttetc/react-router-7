@@ -32,8 +32,11 @@ export const useCompaniesData = (
       return CompaniesService.fetchCompanies(filters, pagination);
     },
     initialData,
-    staleTime: 0, // Make data immediately stale for testing
-    refetchOnMount: true,
+    staleTime: 1000 * 60 * 5, // 5 minutes - prevent unnecessary refetches
+    refetchOnMount: false, // Don't refetch on mount if we have data
     refetchOnWindowFocus: false,
+    // Add retry configuration to prevent multiple calls on failure
+    retry: 1,
+    retryDelay: 1000,
   });
 };

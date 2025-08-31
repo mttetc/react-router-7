@@ -58,7 +58,7 @@ export const Header = () => {
                   size="sm"
                   variant="surface"
                 >
-                  5K+
+                  5K+ Companies
                 </Badge>
               </Tooltip>
             </HStack>
