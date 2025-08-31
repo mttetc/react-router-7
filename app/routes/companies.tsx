@@ -1,7 +1,20 @@
-import { Box, Container, Grid, Text, Presence } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import {
+  Box,
+  Container,
+  Grid,
+  Presence,
+  ScrollArea,
+  Text,
+  useScrollArea,
+} from "@chakra-ui/react";
+import { useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useNavigate, useSearchParams } from "react-router";
+import {
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { useDebounce } from "rooks";
 import { useColorModeValue } from "../components/ui/color-mode";
 
@@ -11,7 +24,6 @@ import { CompanyTable } from "~/features/companies/components/company-table";
 import { FilterSidebar } from "~/features/companies/components/filter-sidebar";
 import { Header } from "~/features/companies/components/header";
 import { Pagination } from "~/features/companies/components/pagination";
-import { useActiveFilterCount } from "../features/companies/utils/filter-utils";
 import {
   buildURLParams,
   type FilterState,
@@ -101,7 +113,9 @@ export default function CompanyFeed() {
   const loaderData = useLoaderData<LoaderData>();
   const bgColor = useColorModeValue("gray.50", "gray.900");
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const [searchParams] = useSearchParams();
+  const scrollArea = useScrollArea();
 
   // Initialize state from URL params
   const [filters, setFilters] = useState<FilterState>(() =>
@@ -114,7 +128,8 @@ export default function CompanyFeed() {
 
   // Use server data directly
   const data = loaderData.companiesData;
-  const isLoading = false; // Server-side rendering, no loading state
+  // Check if we're navigating (loading new data)
+  const isLoading = navigation.state === "loading";
 
   // Debounced navigation to prevent excessive server calls
   const navigateToFilters = (
@@ -177,25 +192,27 @@ export default function CompanyFeed() {
   const goToPage = (page: number) => {
     const updatedPagination = { ...pagination, page };
 
-    // Update UI state immediately
-    setPagination(updatedPagination);
+    // Scroll first
+    scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
 
-    // Navigate immediately for pagination (no debounce needed)
-    navigateToFilters(filters, updatedPagination);
+    // Then do the rest in next tick
+    setTimeout(() => {
+      setPagination(updatedPagination);
+      navigateToFilters(filters, updatedPagination);
+    }, 0);
   };
-
-  // Count active filters
-  const activeFilterCount = useActiveFilterCount(filters);
 
   return (
     <Box
-      minH="100vh"
+      height="100dvh"
       bgImage="url(bg.png)"
       bgSize="cover"
       backgroundPosition="center"
       backgroundAttachment="fixed"
       pos="relative"
       zIndex={0}
+      display="flex"
+      flexDirection="column"
       _before={{
         content: '""',
         pos: "absolute",
@@ -209,72 +226,82 @@ export default function CompanyFeed() {
     >
       <Header />
 
-      <Container maxW="8xl" py={8}>
-        <Grid templateColumns="280px 1fr" gap={8}>
-          {/* Left Sidebar - Filters */}
-          <Presence
-            present={true}
-            animationName={{
-              _open: "slide-from-bottom, fade-in",
-              _closed: "slide-to-bottom, fade-out",
-            }}
-            animationDuration="moderate"
-            animationDelay="0.1s"
-          >
-            <FilterSidebar filters={filters} onFilterChange={updateFilters} />
-          </Presence>
+      <ScrollArea.RootProvider value={scrollArea} flex="1">
+        <ScrollArea.Viewport>
+          <Container maxW="8xl" py={8}>
+            <Grid templateColumns="280px 1fr" gap={8}>
+              {/* Left Sidebar - Filters */}
+              <Presence
+                present={true}
+                animationName={{
+                  _open: "slide-from-bottom, fade-in",
+                  _closed: "slide-to-bottom, fade-out",
+                }}
+                animationDuration="moderate"
+                animationDelay="0.1s"
+              >
+                <FilterSidebar
+                  filters={filters}
+                  onFilterChange={updateFilters}
+                />
+              </Presence>
 
-          {/* Right Content */}
-          <Presence
-            present={true}
-            animationName={{
-              _open: "slide-from-bottom, fade-in",
-              _closed: "slide-to-bottom, fade-out",
-            }}
-            animationDuration="moderate"
-            animationDelay="0.2s"
-            overflow="hidden"
-          >
-            <Box overflow="hidden">
-              {/* Active Filters */}
-              <ActiveFilters
-                filters={filters}
-                onRemoveFilter={removeFilter}
-                onResetAll={resetFilters}
-              />
-
-              {/* Table Header */}
-              <Box mb={4}>
-                <Text fontSize="sm" color="gray.500">
-                  {isLoading
-                    ? "Loading companies..."
-                    : `Showing ${data?.data?.length || 0} companies`}
-                </Text>
-              </Box>
-
-              {/* Company Table */}
-              <CompanyTable
-                companies={data?.data || []}
-                isLoading={isLoading}
-                filters={filters}
-                onFilterChange={updateFilters}
-              />
-
-              {/* Pagination - Only show if there are results */}
-              {data && data.total > 0 && (
-                <Box mt={8}>
-                  <Pagination
-                    currentPage={data.page}
-                    totalPages={data.totalPages}
-                    onPageChange={goToPage}
-                    isLoading={isLoading}
+              {/* Right Content */}
+              <Presence
+                present={true}
+                animationName={{
+                  _open: "slide-from-bottom, fade-in",
+                  _closed: "slide-to-bottom, fade-out",
+                }}
+                animationDuration="moderate"
+                animationDelay="0.2s"
+                overflow="hidden"
+              >
+                <Box overflow="hidden">
+                  {/* Active Filters */}
+                  <ActiveFilters
+                    filters={filters}
+                    onRemoveFilter={removeFilter}
+                    onResetAll={resetFilters}
                   />
+
+                  {/* Table Header */}
+                  <Box mb={4}>
+                    <Text fontSize="sm" color="gray.500">
+                      {isLoading
+                        ? "Loading companies..."
+                        : `Showing ${data?.data?.length || 0} companies`}
+                    </Text>
+                  </Box>
+
+                  {/* Company Table */}
+                  <CompanyTable
+                    companies={data?.data || []}
+                    isLoading={isLoading}
+                    filters={filters}
+                    onFilterChange={updateFilters}
+                  />
+
+                  {/* Pagination - Only show if there are results */}
+                  {data && data.total > 0 && (
+                    <Box mt={8}>
+                      <Pagination
+                        currentPage={data.page}
+                        totalPages={data.totalPages}
+                        onPageChange={goToPage}
+                        isLoading={isLoading}
+                      />
+                    </Box>
+                  )}
                 </Box>
-              )}
-            </Box>
-          </Presence>
-        </Grid>
-      </Container>
+              </Presence>
+            </Grid>
+          </Container>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar>
+          <ScrollArea.Thumb />
+        </ScrollArea.Scrollbar>
+      </ScrollArea.RootProvider>
     </Box>
   );
 }

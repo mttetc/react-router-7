@@ -212,7 +212,34 @@ const LoadingRow = () => (
     <For each={COLUMNS}>
       {(column) => (
         <Table.Cell key={column.key} width={column.width}>
-          <Skeleton height="20px" />
+          {column.key === "rank" && (
+            <Skeleton height="20px" width="40px" borderRadius="md" />
+          )}
+          {column.key === "company" && (
+            <HStack gap={3}>
+              <Skeleton height="28px" width="28px" borderRadius="full" />
+              <VStack align="start" gap={1}>
+                <Skeleton height="14px" width="100px" />
+                <Skeleton height="12px" width="70px" />
+              </VStack>
+            </HStack>
+          )}
+          {column.key === "description" && (
+            <Skeleton height="14px" width="180px" />
+          )}
+          {column.key === "stage" && (
+            <Skeleton height="18px" width="60px" borderRadius="md" />
+          )}
+          {column.key === "focus" && (
+            <Skeleton height="18px" width="45px" borderRadius="md" />
+          )}
+          {column.key === "funding" && <Skeleton height="14px" width="70px" />}
+          {column.key === "fundingType" && (
+            <Skeleton height="14px" width="90px" />
+          )}
+          {column.key === "createdAt" && (
+            <Skeleton height="14px" width="80px" />
+          )}
         </Table.Cell>
       )}
     </For>

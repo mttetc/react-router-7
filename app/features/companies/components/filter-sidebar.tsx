@@ -215,7 +215,7 @@ export const FilterSidebar = ({
       borderColor={borderColor}
       h="fit-content"
       position="sticky"
-      top="80px"
+      top="32px"
     >
       <Card.Body>
         <Stack gap={6}>
@@ -233,6 +233,7 @@ export const FilterSidebar = ({
               onChange={(e) => onFilterChange({ search: e.target.value })}
               borderRadius="md"
               size="sm"
+              textOverflow="ellipsis"
             />
           </Field.Root>
 
