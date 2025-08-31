@@ -94,6 +94,14 @@ export async function getCompanies(
     if (max_funding !== undefined) where.last_funding_amount.lte = max_funding;
   }
 
+  // When sorting by funding, exclude companies with null funding amounts
+  if (sortBy === "funding") {
+    where.last_funding_amount = {
+      ...where.last_funding_amount,
+      not: null,
+    };
+  }
+
   // Build orderBy clause
   let orderBy: any = { rank: "asc" }; // Default sorting
 
