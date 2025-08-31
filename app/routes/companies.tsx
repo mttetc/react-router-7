@@ -7,21 +7,24 @@ import {
   Text,
   useScrollArea,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import type { LoaderFunctionArgs } from "react-router";
+
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 import {
   useLoaderData,
-  useNavigate,
   useNavigation,
   useSearchParams,
+  redirect,
 } from "react-router";
-import { useDebounce } from "rooks";
 import { useColorModeValue } from "../components/ui/color-mode";
+import {
+  parseFiltersFromFormData,
+  validateFilters,
+} from "../features/companies/forms/utils";
 
 // Services and hooks
 import { ActiveFilters } from "~/features/companies/components/active-filters";
 import { CompanyTable } from "~/features/companies/components/company-table";
-import { FilterSidebar } from "~/features/companies/components/filter-sidebar";
+import { FilterForm } from "~/features/companies/forms";
 import { Header } from "~/features/companies/components/header";
 import { Pagination } from "~/features/companies/components/pagination";
 import {
@@ -44,6 +47,32 @@ interface LoaderData {
   companiesData: PaginatedResult<Company>;
   filters: FilterState;
   pagination: PaginationState;
+}
+
+// ============================================================================
+// ACTION
+// ============================================================================
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const filters = parseFiltersFromFormData(formData);
+
+  console.log("🔄 [Form Action] Processing form submission:", filters);
+
+  // Validate filters
+  const validation = validateFilters(filters);
+  if (!validation.success) {
+    console.error("❌ [Form Action] Validation failed:", validation.errors);
+    return { errors: validation.errors };
+  }
+
+  // Build URL params and redirect
+  const pagination = { page: 1, limit: 12 };
+  const params = buildURLParams(filters, pagination);
+  const redirectUrl = `?${params.toString()}`;
+
+  console.log("✅ [Form Action] Redirecting to:", redirectUrl);
+  return redirect(redirectUrl);
 }
 
 // ============================================================================
@@ -112,56 +141,33 @@ export async function loader({
 export default function CompanyFeed() {
   const loaderData = useLoaderData<LoaderData>();
   const bgColor = useColorModeValue("gray.50", "gray.900");
-  const navigate = useNavigate();
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const scrollArea = useScrollArea();
 
-  // Initialize state from URL params
-  const [filters, setFilters] = useState<FilterState>(() =>
-    parseFiltersFromURL(searchParams)
-  );
-
-  const [pagination, setPagination] = useState<PaginationState>(() =>
-    parsePaginationFromURL(searchParams)
-  );
+  // Get current state from loader data
+  const filters = loaderData.filters;
+  const pagination = loaderData.pagination;
 
   // Use server data directly
   const data = loaderData.companiesData;
   // Check if we're navigating (loading new data)
   const isLoading = navigation.state === "loading";
 
-  // Debounced navigation to prevent excessive server calls
-  const navigateToFilters = (
-    newFilters: FilterState,
-    newPagination: PaginationState
-  ) => {
-    const params = buildURLParams(newFilters, newPagination);
-    const newSearch = params.toString();
-    const currentSearch = searchParams.toString();
+  // Simple pagination handler
+  const goToPage = (page: number) => {
+    // Scroll to top when changing pages
+    scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
 
-    if (newSearch !== currentSearch) {
-      navigate(`?${newSearch}`, { replace: true });
-    }
+    // Navigate to new page
+    const newPagination = { ...pagination, page };
+    const params = buildURLParams(filters, newPagination);
+    window.location.href = `?${params.toString()}`;
   };
 
-  const debouncedNavigate = useDebounce(navigateToFilters, 300);
-
-  // Filter management with immediate UI updates but debounced navigation
-  const updateFilters = (newFilters: Partial<FilterState>) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    const updatedPagination = { ...pagination, page: 1 }; // Reset to first page
-
-    // Update UI state immediately
-    setFilters(updatedFilters);
-    setPagination(updatedPagination);
-
-    // Debounce the navigation (which triggers server fetch)
-    debouncedNavigate(updatedFilters, updatedPagination);
-  };
-
+  // Simple filter reset (for active filters component)
   const resetFilters = () => {
-    setFilters({
+    const emptyFilters: FilterState = {
       search: "",
       growthStage: "",
       customerFocus: "",
@@ -172,34 +178,25 @@ export default function CompanyFeed() {
       maxFunding: null,
       sortBy: "",
       sortOrder: "asc",
-    });
-    setPagination({ page: 1, limit: 12 });
+    };
+    const params = buildURLParams(emptyFilters, { page: 1, limit: 12 });
+    window.location.href = `?${params.toString()}`;
   };
 
   const removeFilter = (key: keyof FilterState) => {
+    const updatedFilters = { ...filters };
     if (
       key === "minRank" ||
       key === "maxRank" ||
       key === "minFunding" ||
       key === "maxFunding"
     ) {
-      updateFilters({ [key]: null });
+      updatedFilters[key] = null;
     } else {
-      updateFilters({ [key]: "" });
+      (updatedFilters as any)[key] = "";
     }
-  };
-
-  const goToPage = (page: number) => {
-    const updatedPagination = { ...pagination, page };
-
-    // Scroll first
-    scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
-
-    // Then do the rest in next tick
-    setTimeout(() => {
-      setPagination(updatedPagination);
-      navigateToFilters(filters, updatedPagination);
-    }, 0);
+    const params = buildURLParams(updatedFilters, { page: 1, limit: 12 });
+    window.location.href = `?${params.toString()}`;
   };
 
   return (
@@ -240,10 +237,7 @@ export default function CompanyFeed() {
                 animationDuration="moderate"
                 animationDelay="0.1s"
               >
-                <FilterSidebar
-                  filters={filters}
-                  onFilterChange={updateFilters}
-                />
+                <FilterForm filters={filters} action="/companies" />
               </Presence>
 
               {/* Right Content */}
@@ -279,7 +273,7 @@ export default function CompanyFeed() {
                     companies={data?.data || []}
                     isLoading={isLoading}
                     filters={filters}
-                    onFilterChange={updateFilters}
+                    onFilterChange={() => {}} // Form handles filtering now
                   />
 
                   {/* Pagination - Only show if there are results */}
