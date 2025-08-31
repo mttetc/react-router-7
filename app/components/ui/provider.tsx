@@ -12,9 +12,7 @@ export function Provider(props: ColorModeProviderProps) {
   return (
     <LocaleProvider locale={ssrLocale}>
       <ChakraProvider value={system}>
-        <ColorModeProvider {...props}>
-          {props.children}
-        </ColorModeProvider>
+        <ColorModeProvider {...props}>{props.children}</ColorModeProvider>
       </ChakraProvider>
     </LocaleProvider>
   );
