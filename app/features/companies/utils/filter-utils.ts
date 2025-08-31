@@ -1,7 +1,37 @@
 import { useMemo } from "react";
+import { useLocaleContext } from "@chakra-ui/react";
 import type { FilterState } from "../../../services/companies.service";
+import { useCurrency } from "../../../stores/currency.store";
+import {
+  convertCurrency,
+  getCurrencyName,
+  getCurrencySymbol,
+} from "../../../utils/currency.utils";
 
 export const useActiveFilters = (filters: FilterState) => {
+  const { getEffectiveCurrency } = useCurrency();
+
+  // Helper function to format funding amounts in user's currency
+  const formatFundingForDisplay = (amountUSD: number): string => {
+    const targetCurrency = getEffectiveCurrency();
+    const convertedAmount = convertCurrency(amountUSD, targetCurrency);
+
+    // Format with appropriate currency symbol
+    if (convertedAmount >= 1000000) {
+      return `${(convertedAmount / 1000000).toFixed(1)}M ${getCurrencySymbol(
+        targetCurrency
+      )}`;
+    }
+    if (convertedAmount >= 1000) {
+      return `${(convertedAmount / 1000).toFixed(0)}K ${getCurrencySymbol(
+        targetCurrency
+      )}`;
+    }
+    return `${convertedAmount.toLocaleString()} ${getCurrencySymbol(
+      targetCurrency
+    )}`;
+  };
+
   return useMemo(() => {
     const active = [];
     if (filters.search)
@@ -28,15 +58,15 @@ export const useActiveFilters = (filters: FilterState) => {
     if (filters.minFunding)
       active.push({
         key: "minFunding",
-        label: `Min Funding: $${filters.minFunding.toLocaleString()}`,
+        label: `Min Funding: ${formatFundingForDisplay(filters.minFunding)}`,
       });
     if (filters.maxFunding)
       active.push({
         key: "maxFunding",
-        label: `Max Funding: $${filters.maxFunding.toLocaleString()}`,
+        label: `Max Funding: ${formatFundingForDisplay(filters.maxFunding)}`,
       });
     return active;
-  }, [filters]);
+  }, [filters, getEffectiveCurrency]);
 };
 
 export const useActiveFilterCount = (filters: FilterState) => {
@@ -48,6 +78,22 @@ export const useActiveFilterCount = (filters: FilterState) => {
   }, [filters]);
 };
 
+// Helper function for formatting funding amounts with locale
+export const formatFundingWithLocale = (
+  amount: number | null,
+  locale: string
+): string => {
+  if (!amount) return "N/A";
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(1)}M`;
+  }
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(0)}K`;
+  }
+  return `$${amount.toLocaleString(locale)}`;
+};
+
+// Legacy function for backward compatibility - will use detected locale
 export const formatFunding = (amount: number | null): string => {
   if (!amount) return "N/A";
   if (amount >= 1000000) {
@@ -56,5 +102,10 @@ export const formatFunding = (amount: number | null): string => {
   if (amount >= 1000) {
     return `$${(amount / 1000).toFixed(0)}K`;
   }
-  return `$${amount.toLocaleString()}`;
+  // Use browser's default locale if available
+  const locale =
+    typeof window !== "undefined" && window.navigator
+      ? window.navigator.language
+      : "en-US";
+  return `$${amount.toLocaleString(locale)}`;
 };

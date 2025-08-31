@@ -15,6 +15,7 @@ import {
   useColorModeValue,
 } from "../../../components/ui/color-mode";
 import { Tooltip } from "../../../components/ui/tooltip";
+import { CurrencySelector } from "../../../components/ui/currency-selector";
 
 export const Header = () => {
   const bgColor = useColorModeValue("white", "gray.800");
@@ -54,11 +55,8 @@ export const Header = () => {
                 <Badge
                   colorPalette="purple"
                   borderRadius="full"
-                  px={3}
-                  py={1}
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  shadow="sm"
+                  size="sm"
+                  variant="surface"
                 >
                   5K+
                 </Badge>
@@ -66,7 +64,7 @@ export const Header = () => {
             </HStack>
           </HStack>
 
-          <HStack gap={2}>
+          <HStack gap={3}>
             <Breadcrumb.Root fontSize="xs" color="gray.500">
               <Breadcrumb.List>
                 <Breadcrumb.Item>
@@ -78,12 +76,21 @@ export const Header = () => {
                 </Breadcrumb.Item>
               </Breadcrumb.List>
             </Breadcrumb.Root>
-            <Tooltip
-              content="Toggle between light and dark mode"
-              positioning={{ placement: "bottom" }}
-            >
-              <ColorModeButton size="xs" />
-            </Tooltip>
+
+            <HStack gap={2}>
+              <Tooltip
+                content="Select currency for funding amounts"
+                positioning={{ placement: "bottom" }}
+              >
+                <CurrencySelector />
+              </Tooltip>
+              <Tooltip
+                content="Toggle between light and dark mode"
+                positioning={{ placement: "bottom" }}
+              >
+                <ColorModeButton size="xs" />
+              </Tooltip>
+            </HStack>
           </HStack>
         </Flex>
       </Container>

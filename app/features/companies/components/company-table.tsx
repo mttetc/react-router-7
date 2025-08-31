@@ -12,12 +12,13 @@ import {
   VStack,
   Presence,
   For,
+  useLocaleContext,
 } from "@chakra-ui/react";
 import { Tooltip } from "../../../components/ui/tooltip";
 import { useColorModeValue } from "../../../components/ui/color-mode";
 import type { FilterState } from "../../../services/companies.service";
 import type { Company } from "../../../utils/companies.types";
-import { formatFunding } from "../utils/filter-utils";
+import { FormatCurrencyCompact } from "../../../components/ui/format-currency";
 
 // Column configuration
 interface TableColumn {
@@ -84,7 +85,7 @@ const COLUMNS: TableColumn[] = [
     sortKey: "rank",
     width: "80px",
     render: (company) => (
-      <Badge colorPalette="yellow" borderRadius="full" px={2}>
+      <Badge colorPalette="yellow" variant="surface">
         #{company.rank}
       </Badge>
     ),
@@ -176,7 +177,11 @@ const COLUMNS: TableColumn[] = [
     width: "120px",
     render: (company) => (
       <Text fontWeight="semibold" color="green.600">
-        {formatFunding(company.last_funding_amount)}
+        {company.last_funding_amount ? (
+          <FormatCurrencyCompact value={company.last_funding_amount} />
+        ) : (
+          "N/A"
+        )}
       </Text>
     ),
   },
@@ -331,7 +336,11 @@ export const CompanyTable = ({
               );
             }
             return (
-              <Table.ColumnHeader key={column.key} width={column.width} color={theadTextColor}>
+              <Table.ColumnHeader
+                key={column.key}
+                width={column.width}
+                color={theadTextColor}
+              >
                 {column.label}
               </Table.ColumnHeader>
             );

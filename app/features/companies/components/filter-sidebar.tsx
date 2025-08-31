@@ -17,6 +17,14 @@ import {
 import { FaSearch } from "react-icons/fa";
 import { useColorModeValue } from "../../../components/ui/color-mode";
 import type { FilterState } from "../../../services/companies.service";
+import { useCurrency } from "../../../stores/currency.store";
+import {
+  convertCurrency,
+  convertToUSD,
+  getCurrencySymbol,
+  getCurrencyName,
+} from "../../../utils/currency.utils";
+import { ClientOnly } from "../../../components/ui/client-only";
 
 // Data collections for Chakra UI Select
 const growthStageCollection = createListCollection({
@@ -53,6 +61,145 @@ const fundingTypeCollection = createListCollection({
 interface FilterSidebarProps {
   filters: FilterState;
   onFilterChange: (newFilters: Partial<FilterState>) => void;
+}
+
+// Component for the funding amount field that needs client-side currency
+function FundingAmountField({
+  filters,
+  onFilterChange,
+}: {
+  filters: FilterState;
+  onFilterChange: (newFilters: Partial<FilterState>) => void;
+}) {
+  const { getEffectiveCurrency } = useCurrency();
+
+  const currentCurrency = getEffectiveCurrency();
+  const currencySymbol = getCurrencySymbol(currentCurrency);
+
+  // Convert USD amounts to user's currency for display
+  const convertToUserCurrency = (usdAmount: number) => {
+    return convertCurrency(usdAmount, currentCurrency);
+  };
+
+  // Convert user currency amounts back to USD for API
+  const convertUserCurrencyToUSD = (userCurrencyAmount: number) => {
+    return convertToUSD(userCurrencyAmount, currentCurrency);
+  };
+
+  // Convert slider values (USD) to display values (user currency)
+  const minFundingDisplay = filters.minFunding
+    ? convertToUserCurrency(filters.minFunding)
+    : 0;
+  const maxFundingDisplay = filters.maxFunding
+    ? convertToUserCurrency(filters.maxFunding)
+    : convertToUserCurrency(100000000);
+  const maxSliderValue = convertToUserCurrency(100000000);
+
+  return (
+    <Field.Root>
+      <Field.Label fontSize="xs" color="gray.500">
+        Funding Amount ({currentCurrency})
+      </Field.Label>
+      <Box w="100%">
+        <Slider.Root
+          width="100%"
+          min={0}
+          max={maxSliderValue}
+          cursor="pointer"
+          step={convertToUserCurrency(100000)} // Convert step to user currency
+          colorPalette="purple"
+          value={[minFundingDisplay, maxFundingDisplay]}
+          onValueChange={(details) => {
+            const [minUser, maxUser] = details.value;
+            // Convert back to USD for the API
+            const minUSD =
+              minUser === 0 ? null : convertUserCurrencyToUSD(minUser);
+            const maxUSD =
+              maxUser === maxSliderValue
+                ? null
+                : convertUserCurrencyToUSD(maxUser);
+            onFilterChange({
+              minFunding: minUSD,
+              maxFunding: maxUSD,
+            });
+          }}
+        >
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Range />
+            </Slider.Track>
+            <Slider.Thumbs />
+          </Slider.Control>
+        </Slider.Root>
+        <HStack justify="space-between" mt={2}>
+          <Text fontSize="xs" color="gray.500">
+            {minFundingDisplay > 0
+              ? `${currencySymbol}${(minFundingDisplay / 1000000).toFixed(1)}M`
+              : `${currencySymbol}0`}
+          </Text>
+          <Text fontSize="xs" color="gray.500">
+            {maxFundingDisplay < maxSliderValue
+              ? `${currencySymbol}${(maxFundingDisplay / 1000000).toFixed(1)}M`
+              : `${currencySymbol}${(maxSliderValue / 1000000).toFixed(0)}M`}
+          </Text>
+        </HStack>
+      </Box>
+    </Field.Root>
+  );
+}
+
+// SSR-safe fallback component
+function FundingAmountFieldFallback({
+  filters,
+  onFilterChange,
+}: {
+  filters: FilterState;
+  onFilterChange: (newFilters: Partial<FilterState>) => void;
+}) {
+  return (
+    <Field.Root>
+      <Field.Label fontSize="xs" color="gray.500">
+        Funding Amount (USD)
+      </Field.Label>
+      <Box w="100%">
+        <Slider.Root
+          width="100%"
+          min={0}
+          max={100000000}
+          cursor="pointer"
+          step={100000}
+          colorPalette="purple"
+          value={[filters.minFunding || 0, filters.maxFunding || 100000000]}
+          onValueChange={(details) => {
+            const [min, max] = details.value;
+            onFilterChange({
+              minFunding: min === 0 ? null : min,
+              maxFunding: max === 100000000 ? null : max,
+            });
+          }}
+        >
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Range />
+            </Slider.Track>
+            <Slider.Thumbs />
+          </Slider.Control>
+        </Slider.Root>
+        <HStack justify="space-between" mt={2}>
+          <Text fontSize="xs" color="gray.500">
+            {filters.minFunding
+              ? `$${(filters.minFunding / 1000000).toFixed(1)}M`
+              : "$0"}
+          </Text>
+          <Text fontSize="xs" color="gray.500">
+            {filters.maxFunding
+              ? `$${(filters.maxFunding / 1000000).toFixed(1)}M`
+              : "$100M"}
+          </Text>
+        </HStack>
+      </Box>
+    </Field.Root>
+  );
 }
 
 export const FilterSidebar = ({
@@ -231,6 +378,7 @@ export const FilterSidebar = ({
                     min={1}
                     max={10000}
                     colorPalette="purple"
+                    cursor="pointer"
                     value={[filters.minRank || 1, filters.maxRank || 10000]}
                     onValueChange={(details) => {
                       const [min, max] = details.value;
@@ -258,50 +406,19 @@ export const FilterSidebar = ({
                 </Box>
               </Field.Root>
 
-              <Field.Root>
-                <Field.Label fontSize="xs" color="gray.500">
-                  Funding Amount (USD)
-                </Field.Label>
-                <Box w="100%">
-                  <Slider.Root
-                    width="100%"
-                    min={0}
-                    max={100000000}
-                    step={100000}
-                    colorPalette="purple"
-                    value={[
-                      filters.minFunding || 0,
-                      filters.maxFunding || 100000000,
-                    ]}
-                    onValueChange={(details) => {
-                      const [min, max] = details.value;
-                      onFilterChange({
-                        minFunding: min === 0 ? null : min,
-                        maxFunding: max === 100000000 ? null : max,
-                      });
-                    }}
-                  >
-                    <Slider.Control>
-                      <Slider.Track>
-                        <Slider.Range />
-                      </Slider.Track>
-                      <Slider.Thumbs />
-                    </Slider.Control>
-                  </Slider.Root>
-                  <HStack justify="space-between" mt={2}>
-                    <Text fontSize="xs" color="gray.500">
-                      {filters.minFunding
-                        ? `$${(filters.minFunding / 1000000).toFixed(1)}M`
-                        : "$0"}
-                    </Text>
-                    <Text fontSize="xs" color="gray.500">
-                      {filters.maxFunding
-                        ? `$${(filters.maxFunding / 1000000).toFixed(1)}M`
-                        : "$100M"}
-                    </Text>
-                  </HStack>
-                </Box>
-              </Field.Root>
+              <ClientOnly
+                fallback={
+                  <FundingAmountFieldFallback
+                    filters={filters}
+                    onFilterChange={onFilterChange}
+                  />
+                }
+              >
+                <FundingAmountField
+                  filters={filters}
+                  onFilterChange={onFilterChange}
+                />
+              </ClientOnly>
             </Stack>
           </Box>
         </Stack>

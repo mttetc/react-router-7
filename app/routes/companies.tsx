@@ -1,4 +1,4 @@
-import { Box, Container, Grid, Text } from "@chakra-ui/react";
+import { Box, Container, Grid, Text, Presence } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router";
@@ -210,44 +210,69 @@ export default function CompanyFeed() {
       <Header />
 
       <Container maxW="8xl" py={8}>
-        <Grid templateColumns="320px 1fr" gap={8}>
+        <Grid templateColumns="280px 1fr" gap={8}>
           {/* Left Sidebar - Filters */}
-          <FilterSidebar filters={filters} onFilterChange={updateFilters} />
+          <Presence
+            present={true}
+            animationName={{
+              _open: "slide-from-bottom, fade-in",
+              _closed: "slide-to-bottom, fade-out",
+            }}
+            animationDuration="moderate"
+            animationDelay="0.1s"
+          >
+            <FilterSidebar filters={filters} onFilterChange={updateFilters} />
+          </Presence>
 
           {/* Right Content */}
-          <Box overflow="hidden">
-            {/* Active Filters */}
-            <ActiveFilters filters={filters} onRemoveFilter={removeFilter} />
+          <Presence
+            present={true}
+            animationName={{
+              _open: "slide-from-bottom, fade-in",
+              _closed: "slide-to-bottom, fade-out",
+            }}
+            animationDuration="moderate"
+            animationDelay="0.2s"
+            overflow="hidden"
+          >
+            <Box overflow="hidden">
+              {/* Active Filters */}
+              <ActiveFilters
+                filters={filters}
+                onRemoveFilter={removeFilter}
+                onResetAll={resetFilters}
+              />
 
-            {/* Table Header */}
-            <Box mb={4}>
-              <Text fontSize="sm" color="gray.500">
-                {isLoading
-                  ? "Loading companies..."
-                  : `Showing ${data?.data?.length || 0} companies`}
-              </Text>
-            </Box>
-
-            {/* Company Table */}
-            <CompanyTable
-              companies={data?.data || []}
-              isLoading={isLoading}
-              filters={filters}
-              onFilterChange={updateFilters}
-            />
-
-            {/* Pagination - Only show if there are results */}
-            {data && data.total > 0 && (
-              <Box mt={8}>
-                <Pagination
-                  currentPage={data.page}
-                  totalPages={data.totalPages}
-                  onPageChange={goToPage}
-                  isLoading={isLoading}
-                />
+              {/* Table Header */}
+              <Box mb={4}>
+                <Text fontSize="sm" color="gray.500">
+                  {isLoading
+                    ? "Loading companies..."
+                    : `Showing ${data?.data?.length || 0} companies`}
+                </Text>
               </Box>
-            )}
-          </Box>
+
+              {/* Company Table */}
+              <CompanyTable
+                companies={data?.data || []}
+                isLoading={isLoading}
+                filters={filters}
+                onFilterChange={updateFilters}
+              />
+
+              {/* Pagination - Only show if there are results */}
+              {data && data.total > 0 && (
+                <Box mt={8}>
+                  <Pagination
+                    currentPage={data.page}
+                    totalPages={data.totalPages}
+                    onPageChange={goToPage}
+                    isLoading={isLoading}
+                  />
+                </Box>
+              )}
+            </Box>
+          </Presence>
         </Grid>
       </Container>
     </Box>

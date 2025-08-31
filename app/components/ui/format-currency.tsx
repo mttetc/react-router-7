@@ -1,0 +1,95 @@
+"use client";
+
+import { FormatNumber, useLocaleContext } from "@chakra-ui/react";
+import {
+  getCurrencyFromLocale,
+  convertCurrency,
+} from "../../utils/currency.utils";
+import { ClientOnly } from "./client-only";
+import { useCurrency } from "../../stores/currency.store";
+
+interface FormatCurrencyProps {
+  /** Amount in USD (base currency) */
+  value: number;
+  /** Override the currency (optional) */
+  currency?: string;
+  /** Number formatting options */
+  notation?: "standard" | "scientific" | "engineering" | "compact";
+  maximumFractionDigits?: number;
+  minimumFractionDigits?: number;
+  /** Whether to show currency symbol */
+  showCurrency?: boolean;
+}
+
+function getClientLocale(): string {
+  if (typeof window !== "undefined" && window.navigator) {
+    return window.navigator.language || "en-US";
+  }
+  return "en-US";
+}
+
+export function FormatCurrency({
+  value,
+  currency: overrideCurrency,
+  notation = "compact",
+  maximumFractionDigits = 1,
+  minimumFractionDigits,
+  showCurrency = true,
+}: FormatCurrencyProps) {
+  const { getEffectiveCurrency } = useCurrency();
+
+  // Determine currency based on store state or override
+  const targetCurrency = overrideCurrency || getEffectiveCurrency();
+
+  // Convert from USD to target currency
+  const convertedAmount = convertCurrency(value, targetCurrency);
+
+  // SSR-safe fallback - show USD format during server rendering
+  const ssrFallback = (
+    <FormatNumber
+      value={value}
+      style={showCurrency ? "currency" : "decimal"}
+      currency={showCurrency ? "USD" : undefined}
+      notation={notation}
+      maximumFractionDigits={maximumFractionDigits}
+      minimumFractionDigits={minimumFractionDigits}
+    />
+  );
+
+  return (
+    <ClientOnly fallback={ssrFallback}>
+      <FormatNumber
+        value={convertedAmount}
+        style={showCurrency ? "currency" : "decimal"}
+        currency={showCurrency ? targetCurrency : undefined}
+        notation={notation}
+        maximumFractionDigits={maximumFractionDigits}
+        minimumFractionDigits={minimumFractionDigits}
+      />
+    </ClientOnly>
+  );
+}
+
+interface FormatCurrencyCompactProps {
+  /** Amount in USD (base currency) */
+  value: number;
+  /** Override the currency (optional) */
+  currency?: string;
+}
+
+/**
+ * Simplified component for compact currency formatting
+ */
+export function FormatCurrencyCompact({
+  value,
+  currency,
+}: FormatCurrencyCompactProps) {
+  return (
+    <FormatCurrency
+      value={value}
+      currency={currency}
+      notation="compact"
+      maximumFractionDigits={1}
+    />
+  );
+}

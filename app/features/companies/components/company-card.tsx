@@ -13,17 +13,19 @@ import {
   Flex,
   Spacer,
   IconButton,
+  useLocaleContext,
 } from "@chakra-ui/react";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { useColorModeValue } from "../../../components/ui/color-mode";
 import type { Company } from "../../../utils/companies.types";
-import { formatFunding } from "../utils/filter-utils";
+import { FormatCurrencyCompact } from "../../../components/ui/format-currency";
 
 interface CompanyCardProps {
   company: Company;
 }
 
 export const CompanyCard = ({ company }: CompanyCardProps) => {
+  const { locale } = useLocaleContext();
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
@@ -102,8 +104,6 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
                 <Avatar.Fallback>{company.name.charAt(0)}</Avatar.Fallback>
               </Avatar.Root>
               <Box flex={1} minW={0}>
-                {" "}
-                {/* minW={0} prevents overflow */}
                 <Heading
                   size="sm"
                   lineClamp={1}
@@ -188,7 +188,13 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
                     Funding
                   </Text>
                   <Text fontSize="sm" fontWeight="semibold" color="green.600">
-                    {formatFunding(company.last_funding_amount)}
+                    {company.last_funding_amount ? (
+                      <FormatCurrencyCompact
+                        value={company.last_funding_amount}
+                      />
+                    ) : (
+                      "N/A"
+                    )}
                   </Text>
                 </VStack>
                 <VStack align="end" gap={0}>
