@@ -14,12 +14,24 @@ import {
   ButtonGroup,
   Button,
   For,
+  Select,
+  Portal,
+  createListCollection,
 } from "@chakra-ui/react";
 import { Tooltip } from "../../../components/ui/tooltip";
 import { useColorModeValue } from "../../../components/ui/color-mode";
 import type { Company } from "../../../utils/companies.types";
 import { CompanyCard } from "./company-card";
 import type { FilterState } from "../../../services/companies.service";
+
+// Sort options collection
+const sortCollection = createListCollection({
+  items: [
+    { value: "name", label: "Name" },
+    { value: "rank", label: "Rank" },
+    { value: "funding", label: "Funding" },
+  ],
+});
 
 interface CompanyGridProps {
   companies: Company[];
@@ -71,24 +83,40 @@ export const CompanyGrid = ({
             <Text fontSize="xs" color="gray.500">
               Sort by:
             </Text>
-            <select
-              value={filters.sortBy}
-              onChange={(e: any) => onFilterChange({ sortBy: e.target.value })}
-              disabled={isLoading}
-              style={{
-                padding: "6px",
-                borderRadius: "4px",
-                border: "1px solid",
-                borderColor: "gray.200",
-                fontSize: "14px",
-                width: "120px",
+            <Select.Root
+              collection={sortCollection}
+              size="xs"
+              width="120px"
+              value={filters.sortBy ? [filters.sortBy] : []}
+              onValueChange={(details) => {
+                onFilterChange({ sortBy: details.value[0] || "" });
               }}
+              disabled={isLoading}
             >
-              <option value="">Default</option>
-              <option value="name">Name</option>
-              <option value="rank">Rank</option>
-              <option value="funding">Funding</option>
-            </select>
+              <Select.HiddenSelect />
+              <Select.Control>
+                <Select.Trigger>
+                  <Select.ValueText placeholder="Default" />
+                </Select.Trigger>
+                <Select.IndicatorGroup>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    <For each={sortCollection.items}>
+                      {(item) => (
+                        <Select.Item item={item} key={item.value}>
+                          {item.label}
+                          <Select.ItemIndicator />
+                        </Select.Item>
+                      )}
+                    </For>
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
 
             <ButtonGroup size="sm" attached>
               <Tooltip
@@ -183,22 +211,39 @@ export const CompanyGrid = ({
           <Text fontSize="xs" color="gray.500">
             Sort by:
           </Text>
-          <select
-            value={filters.sortBy}
-            onChange={(e: any) => onFilterChange({ sortBy: e.target.value })}
-            style={{
-              padding: "6px",
-              borderRadius: "4px",
-              border: "1px solid #e2e8f0",
-              fontSize: "14px",
-              width: "120px",
+          <Select.Root
+            collection={sortCollection}
+            size="xs"
+            width="120px"
+            value={filters.sortBy ? [filters.sortBy] : []}
+            onValueChange={(details) => {
+              onFilterChange({ sortBy: details.value[0] || "" });
             }}
           >
-            <option value="">Default</option>
-            <option value="name">Name</option>
-            <option value="rank">Rank</option>
-            <option value="funding">Funding</option>
-          </select>
+            <Select.HiddenSelect />
+            <Select.Control>
+              <Select.Trigger>
+                <Select.ValueText placeholder="Default" />
+              </Select.Trigger>
+              <Select.IndicatorGroup>
+                <Select.Indicator />
+              </Select.IndicatorGroup>
+            </Select.Control>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  <For each={sortCollection.items}>
+                    {(item) => (
+                      <Select.Item item={item} key={item.value}>
+                        {item.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    )}
+                  </For>
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+          </Select.Root>
 
           <ButtonGroup size="sm" attached>
             <Tooltip

@@ -107,8 +107,8 @@ export const FilterSidebar = ({
                   size="sm"
                   value={filters.growthStage ? [filters.growthStage] : []}
                   onValueChange={(details) => {
-                    onFilterChange({ 
-                      growthStage: details.value[0] || "" 
+                    onFilterChange({
+                      growthStage: details.value[0] || "",
                     });
                   }}
                 >
@@ -147,8 +147,8 @@ export const FilterSidebar = ({
                   size="sm"
                   value={filters.customerFocus ? [filters.customerFocus] : []}
                   onValueChange={(details) => {
-                    onFilterChange({ 
-                      customerFocus: details.value[0] || "" 
+                    onFilterChange({
+                      customerFocus: details.value[0] || "",
                     });
                   }}
                 >
@@ -187,8 +187,8 @@ export const FilterSidebar = ({
                   size="sm"
                   value={filters.fundingType ? [filters.fundingType] : []}
                   onValueChange={(details) => {
-                    onFilterChange({ 
-                      fundingType: details.value[0] || "" 
+                    onFilterChange({
+                      fundingType: details.value[0] || "",
                     });
                   }}
                 >

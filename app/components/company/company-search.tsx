@@ -8,10 +8,47 @@ import {
   Wrap,
   Badge,
   For,
+  Select,
+  Portal,
+  createListCollection,
 } from "@chakra-ui/react";
 import { Tooltip } from "../../components/ui/tooltip";
 import { useState, useEffect, useCallback } from "react";
 import type { CompanyFilters } from "../../utils/companies.types";
+
+// Collections for select components
+const growthStageCollection = createListCollection({
+  items: [
+    { value: "early", label: "🌱 Early" },
+    { value: "seed", label: "🌿 Seed" },
+    { value: "growing", label: "🌳 Growing" },
+    { value: "late", label: "🏢 Late" },
+    { value: "exit", label: "🚀 Exit" },
+  ],
+});
+
+const customerFocusCollection = createListCollection({
+  items: [
+    { value: "b2b", label: "🏢 B2B" },
+    { value: "b2c", label: "👥 B2C" },
+    { value: "b2b_b2c", label: "🔄 B2B & B2C" },
+    { value: "b2c_b2b", label: "🔄 B2C & B2B" },
+  ],
+});
+
+const fundingTypeCollection = createListCollection({
+  items: [
+    { value: "Seed", label: "🌱 Seed" },
+    { value: "Series A", label: "🅰️ Series A" },
+    { value: "Series B", label: "🅱️ Series B" },
+    { value: "Series C", label: "©️ Series C" },
+    { value: "Series D", label: "🔢 Series D" },
+    { value: "IPO", label: "📈 IPO" },
+    { value: "Angel", label: "👼 Angel" },
+    { value: "Convertible Note", label: "📝 Convertible Note" },
+    { value: "Undisclosed", label: "🤐 Undisclosed" },
+  ],
+});
 
 interface CompanySearchProps {
   filters?: CompanyFilters;
@@ -137,27 +174,38 @@ export function CompanySearch({
           <Text fontSize="sm" fontWeight="medium">
             Growth Stage
           </Text>
-          <select
-            value={filters?.growth_stage || ""}
-            onChange={(e: any) =>
-              handleFilterChange("growth_stage", e.target.value || undefined)
-            }
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid",
-              borderColor: "gray.200",
-              width: "100%",
-              fontSize: "14px",
+          <Select.Root
+            collection={growthStageCollection}
+            size="sm"
+            value={filters?.growth_stage ? [filters.growth_stage] : []}
+            onValueChange={(details) => {
+              handleFilterChange("growth_stage", details.value[0] || undefined);
             }}
           >
-            <option value="">Any stage</option>
-            <option value="seed">Seed</option>
-            <option value="early">Early</option>
-            <option value="growing">Growing</option>
-            <option value="late">Late</option>
-            <option value="exit">Exit</option>
-          </select>
+            <Select.HiddenSelect />
+            <Select.Control>
+              <Select.Trigger>
+                <Select.ValueText placeholder="Any stage" />
+              </Select.Trigger>
+              <Select.IndicatorGroup>
+                <Select.Indicator />
+              </Select.IndicatorGroup>
+            </Select.Control>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  <For each={growthStageCollection.items}>
+                    {(item) => (
+                      <Select.Item item={item} key={item.value}>
+                        {item.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    )}
+                  </For>
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+          </Select.Root>
         </VStack>
 
         {/* Customer Focus */}
@@ -165,26 +213,38 @@ export function CompanySearch({
           <Text fontSize="sm" fontWeight="medium">
             Customer Focus
           </Text>
-          <select
-            value={filters?.customer_focus || ""}
-            onChange={(e: any) =>
-              handleFilterChange("customer_focus", e.target.value || undefined)
-            }
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid",
-              borderColor: "gray.200",
-              width: "100%",
-              fontSize: "14px",
+          <Select.Root
+            collection={customerFocusCollection}
+            size="sm"
+            value={filters?.customer_focus ? [filters.customer_focus] : []}
+            onValueChange={(details) => {
+              handleFilterChange("customer_focus", details.value[0] || undefined);
             }}
           >
-            <option value="">Any focus</option>
-            <option value="b2b">B2B</option>
-            <option value="b2c">B2C</option>
-            <option value="b2b_b2c">B2B & B2C</option>
-            <option value="b2c_b2b">B2C & B2B</option>
-          </select>
+            <Select.HiddenSelect />
+            <Select.Control>
+              <Select.Trigger>
+                <Select.ValueText placeholder="Any focus" />
+              </Select.Trigger>
+              <Select.IndicatorGroup>
+                <Select.Indicator />
+              </Select.IndicatorGroup>
+            </Select.Control>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  <For each={customerFocusCollection.items}>
+                    {(item) => (
+                      <Select.Item item={item} key={item.value}>
+                        {item.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    )}
+                  </For>
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+          </Select.Root>
         </VStack>
 
         {/* Rank Range */}
@@ -236,33 +296,41 @@ export function CompanySearch({
           <Text fontSize="sm" fontWeight="medium">
             Last Funding Type
           </Text>
-          <select
-            value={filters?.last_funding_type || ""}
-            onChange={(e: any) =>
+          <Select.Root
+            collection={fundingTypeCollection}
+            size="sm"
+            value={filters?.last_funding_type ? [filters.last_funding_type] : []}
+            onValueChange={(details) => {
               handleFilterChange(
                 "last_funding_type",
-                e.target.value || undefined
-              )
-            }
-            style={{
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid",
-              borderColor: "gray.200",
-              width: "100%",
-              fontSize: "14px",
+                details.value[0] || undefined
+              );
             }}
           >
-            <option value="">Any funding type</option>
-            <option value="Angel">Angel</option>
-            <option value="Convertible Note">Convertible Note</option>
-            <option value="Seed">Seed</option>
-            <option value="Series A">Series A</option>
-            <option value="Series B">Series B</option>
-            <option value="Series C">Series C</option>
-            <option value="Series D">Series D</option>
-            <option value="IPO">IPO</option>
-          </select>
+            <Select.HiddenSelect />
+            <Select.Control>
+              <Select.Trigger>
+                <Select.ValueText placeholder="Any funding type" />
+              </Select.Trigger>
+              <Select.IndicatorGroup>
+                <Select.Indicator />
+              </Select.IndicatorGroup>
+            </Select.Control>
+            <Portal>
+              <Select.Positioner>
+                <Select.Content>
+                  <For each={fundingTypeCollection.items}>
+                    {(item) => (
+                      <Select.Item item={item} key={item.value}>
+                        {item.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    )}
+                  </For>
+                </Select.Content>
+              </Select.Positioner>
+            </Portal>
+          </Select.Root>
         </VStack>
 
         {/* Funding Amount Range */}
