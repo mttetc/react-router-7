@@ -1,10 +1,4 @@
 import { Box, Container, Grid, Text } from "@chakra-ui/react";
-import type { DehydratedState } from "@tanstack/react-query";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigate, useSearchParams } from "react-router";
@@ -17,17 +11,16 @@ import { CompanyTable } from "~/features/companies/components/company-table";
 import { FilterSidebar } from "~/features/companies/components/filter-sidebar";
 import { Header } from "~/features/companies/components/header";
 import { Pagination } from "~/features/companies/components/pagination";
-import { useCompaniesData } from "../features/companies/hooks/use-companies-data";
 import { useActiveFilterCount } from "../features/companies/utils/filter-utils";
 import {
   buildURLParams,
-  CompaniesService,
   type FilterState,
   type PaginationState,
   parseFiltersFromURL,
   parsePaginationFromURL,
 } from "../services/companies.service";
 import { getCompanies } from "../utils/companies.server";
+import type { Company, PaginatedResult } from "../utils/companies.types";
 
 // Components
 
@@ -36,7 +29,9 @@ import { getCompanies } from "../utils/companies.server";
 // ============================================================================
 
 interface LoaderData {
-  dehydratedState: DehydratedState;
+  companiesData: PaginatedResult<Company>;
+  filters: FilterState;
+  pagination: PaginationState;
 }
 
 // ============================================================================
@@ -53,94 +48,47 @@ export async function loader({
   const filters = parseFiltersFromURL(searchParams);
   const pagination = parsePaginationFromURL(searchParams);
 
-  console.log("🚀 [SSR] Prefetching companies data:", { filters, pagination });
-  console.log(
-    "🔑 [SSR] Query key:",
-    JSON.stringify(["companies", "feed", filters, pagination])
-  );
-
-  // Create a new QueryClient for this request
-  // On server, gcTime defaults to Infinity which disables manual garbage collection
-  // and automatically clears memory once request is finished
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 2 * 60 * 1000, // 2 minutes
-        // On server, we don't need to set gcTime as it defaults to Infinity
-        // which is optimal for SSR
-      },
-    },
+  console.log("🚀 [SSR] Fetching companies data:", {
+    filters,
+    pagination,
   });
 
-  // Prefetch the companies data
-  console.log("⏳ [SSR] Starting prefetch...");
+  // Fetch companies data directly on the server (only for initial load)
   const startTime = Date.now();
 
-  const foo = await queryClient.prefetchQuery({
-    queryKey: ["companies", "feed", filters, pagination],
-    queryFn: async () => {
-      // For SSR, use server-side function directly instead of HTTP request
-      console.log("🌐 [SSR] Fetching companies directly from server...");
+  const serverParams = {
+    page: pagination.page,
+    limit: pagination.limit,
+    search: filters.search || undefined,
+    growth_stage: filters.growthStage || undefined,
+    customer_focus: filters.customerFocus || undefined,
+    last_funding_type: filters.fundingType || undefined,
+    min_rank: filters.minRank || undefined,
+    max_rank: filters.maxRank || undefined,
+    min_funding: filters.minFunding || undefined,
+    max_funding: filters.maxFunding || undefined,
+    sortBy: filters.sortBy || undefined,
+    sortOrder: filters.sortOrder,
+  };
 
-      const serverParams = {
-        page: pagination.page,
-        limit: pagination.limit,
-        search: filters.search || undefined,
-        growth_stage: filters.growthStage || undefined,
-        customer_focus: filters.customerFocus || undefined,
-        last_funding_type: filters.fundingType || undefined,
-        min_rank: filters.minRank || undefined,
-        max_rank: filters.maxRank || undefined,
-        min_funding: filters.minFunding || undefined,
-        max_funding: filters.maxFunding || undefined,
-        sortBy: filters.sortBy || undefined,
-        sortOrder: filters.sortOrder,
-      };
+  console.log("📋 [SSR] Server params:", serverParams);
 
-      console.log("📋 [SSR] Server params:", serverParams);
-
-      const result = await getCompanies(serverParams);
-
-      console.log("✅ [SSR] Server fetch result:", {
-        hasData: !!result,
-        dataType: typeof result,
-        companiesCount: result?.data?.length || 0,
-        totalPages: result?.totalPages,
-        currentPage: result?.page,
-        firstCompany: result?.data?.[0]?.name || "No companies",
-      });
-
-      return result;
-    },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-  });
+  const companiesData = await getCompanies(serverParams);
 
   const endTime = Date.now();
-  console.log(`✅ [SSR] Prefetch completed in ${endTime - startTime}ms`);
+  console.log(`✅ [SSR] Fetch completed in ${endTime - startTime}ms`);
+  console.log("📊 [SSR] Fetched data:", {
+    hasData: !!companiesData,
+    companiesCount: companiesData?.data?.length || 0,
+    totalPages: companiesData?.totalPages,
+    currentPage: companiesData?.page,
+  });
 
-  // Debug: Log the actual data we fetched
-  console.log("📊 [SSR] Prefetched data:", foo);
-
-  // Dehydrate the state
-  const dehydratedState = dehydrate(queryClient);
-
-  // Debug: Log what we're sending to the client
-  console.log(
-    "📦 [SSR] Dehydrated state queries:",
-    dehydratedState.queries?.length || 0
-  );
-  console.log(
-    "📦 [SSR] Query keys:",
-    dehydratedState.queries?.map((q) => q.queryKey) || []
-  );
-
-  // Clear the cache to prevent memory leaks on server
-  // This is important for high-traffic applications
-  queryClient.clear();
-
-  // Return the dehydrated state
+  // Return the data directly to be used as initialData
   return {
-    dehydratedState,
+    companiesData,
+    filters,
+    pagination,
   };
 }
 
@@ -148,8 +96,9 @@ export async function loader({
 // MAIN COMPONENT
 // ============================================================================
 
-// Inner component that uses the hydrated cache
-function CompanyFeedContent() {
+// Main component
+export default function CompanyFeed() {
+  const loaderData = useLoaderData<LoaderData>();
   const bgColor = useColorModeValue("gray.50", "gray.900");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -163,41 +112,38 @@ function CompanyFeedContent() {
     parsePaginationFromURL(searchParams)
   );
 
-  // Data fetching with TanStack Query - now inside HydrationBoundary
-  const { data, isLoading, error, isFetching, isStale } = useCompaniesData(
-    filters,
-    pagination
-  );
+  // Use server data directly
+  const data = loaderData.companiesData;
+  const isLoading = false; // Server-side rendering, no loading state
 
-  // Debug: Log what we're getting from the query
-  console.log("🔍 [Client] Query state:", {
-    hasData: !!data,
-    dataKeys: data ? Object.keys(data) : [],
-    dataLength: data?.data?.length,
-    isLoading,
-    isFetching,
-    isStale,
-    error: error?.message,
-  });
-
-  // Sync URL with state changes
-  useEffect(() => {
-    const params = buildURLParams(filters, pagination);
+  // Debounced navigation to prevent excessive server calls
+  const navigateToFilters = (
+    newFilters: FilterState,
+    newPagination: PaginationState
+  ) => {
+    const params = buildURLParams(newFilters, newPagination);
     const newSearch = params.toString();
     const currentSearch = searchParams.toString();
 
     if (newSearch !== currentSearch) {
       navigate(`?${newSearch}`, { replace: true });
     }
-  }, [filters, pagination, navigate, searchParams]);
-
-  // Filter management with debouncing for search
-  const updateFilters = (newFilters: Partial<FilterState>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
-    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page
   };
 
-  const debouncedUpdateFilters = useDebounce(updateFilters, 300);
+  const debouncedNavigate = useDebounce(navigateToFilters, 300);
+
+  // Filter management with immediate UI updates but debounced navigation
+  const updateFilters = (newFilters: Partial<FilterState>) => {
+    const updatedFilters = { ...filters, ...newFilters };
+    const updatedPagination = { ...pagination, page: 1 }; // Reset to first page
+
+    // Update UI state immediately
+    setFilters(updatedFilters);
+    setPagination(updatedPagination);
+
+    // Debounce the navigation (which triggers server fetch)
+    debouncedNavigate(updatedFilters, updatedPagination);
+  };
 
   const resetFilters = () => {
     setFilters({
@@ -229,29 +175,17 @@ function CompanyFeedContent() {
   };
 
   const goToPage = (page: number) => {
-    setPagination((prev) => ({ ...prev, page }));
+    const updatedPagination = { ...pagination, page };
+
+    // Update UI state immediately
+    setPagination(updatedPagination);
+
+    // Navigate immediately for pagination (no debounce needed)
+    navigateToFilters(filters, updatedPagination);
   };
 
   // Count active filters
   const activeFilterCount = useActiveFilterCount(filters);
-
-  if (error) {
-    return (
-      <Box minH="100vh" bg={bgColor}>
-        <Header />
-        <Container maxW="8xl" py={8}>
-          <Box textAlign="center" py={20}>
-            <Box fontSize="lg" fontWeight="medium" color="red.500" mb={2}>
-              Error loading companies
-            </Box>
-            <Box fontSize="sm" color="gray.500">
-              Please try refreshing the page
-            </Box>
-          </Box>
-        </Container>
-      </Box>
-    );
-  }
 
   return (
     <Box minH="100vh" bg={bgColor}>
@@ -268,7 +202,7 @@ function CompanyFeedContent() {
           />
 
           {/* Right Content */}
-          <Box>
+          <Box overflow="hidden">
             {/* Active Filters */}
             <ActiveFilters filters={filters} onRemoveFilter={removeFilter} />
 
@@ -289,29 +223,20 @@ function CompanyFeedContent() {
               onFilterChange={updateFilters}
             />
 
-            {/* Pagination - Always visible */}
-            <Box mt={8}>
-              <Pagination
-                currentPage={data?.page || 1}
-                totalPages={data?.totalPages || 1}
-                onPageChange={goToPage}
-                isLoading={isLoading}
-              />
-            </Box>
+            {/* Pagination - Only show if there are results */}
+            {data && data.total > 0 && (
+              <Box mt={8}>
+                <Pagination
+                  currentPage={data.page}
+                  totalPages={data.totalPages}
+                  onPageChange={goToPage}
+                  isLoading={isLoading}
+                />
+              </Box>
+            )}
           </Box>
         </Grid>
       </Container>
     </Box>
-  );
-}
-
-// Main component that wraps with HydrationBoundary
-export default function CompanyFeed() {
-  const loaderData = useLoaderData<LoaderData>();
-
-  return (
-    <HydrationBoundary state={loaderData.dehydratedState}>
-      <CompanyFeedContent />
-    </HydrationBoundary>
   );
 }

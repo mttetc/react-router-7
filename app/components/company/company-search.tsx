@@ -201,7 +201,7 @@ export function CompanySearch({
                 )
               }
             >
-              <NumberInput.ValueText />
+              <NumberInput.Input />
               <NumberInput.Control>
                 <NumberInput.IncrementTrigger />
                 <NumberInput.DecrementTrigger />
@@ -220,7 +220,7 @@ export function CompanySearch({
                 )
               }
             >
-              <NumberInput.ValueText />
+              <NumberInput.Input />
               <NumberInput.Control>
                 <NumberInput.IncrementTrigger />
                 <NumberInput.DecrementTrigger />

@@ -1,4 +1,12 @@
-import { HStack, Text, Pagination as ChakraPagination } from "@chakra-ui/react";
+"use client";
+
+import {
+  HStack,
+  ButtonGroup,
+  IconButton,
+  Pagination as ChakraPagination,
+} from "@chakra-ui/react";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 interface PaginationProps {
   currentPage: number;
@@ -15,41 +23,45 @@ export const Pagination = ({
 }: PaginationProps) => {
   if (totalPages <= 1) return null;
 
-  // Calculate total count assuming 10 items per page
-  const itemsPerPage = 10;
+  // Calculate total count assuming 12 items per page (matching the limit in companies.tsx)
+  const itemsPerPage = 12;
   const totalCount = totalPages * itemsPerPage;
 
   return (
-    <HStack
-      justify="center"
-      py={4}
-      px={6}
-      bg="white"
-      borderTop="1px"
-      borderColor="gray.200"
-    >
+    <HStack justify="center" py={4} px={6}>
       <ChakraPagination.Root
         count={totalCount}
         pageSize={itemsPerPage}
         page={currentPage}
-        onPageChange={(details: any) => onPageChange(details.page)}
+        onPageChange={(details) => onPageChange(details.page)}
       >
-        <ChakraPagination.PrevTrigger disabled={isLoading} />
-        <ChakraPagination.Items
-          render={(page) => (
-            <ChakraPagination.Item {...page} disabled={isLoading}>
-              {page.value}
-            </ChakraPagination.Item>
-          )}
-        />
-        <ChakraPagination.NextTrigger disabled={isLoading} />
-      </ChakraPagination.Root>
+        <ButtonGroup variant="outline" size="sm">
+          <ChakraPagination.PrevTrigger asChild>
+            <IconButton disabled={isLoading}>
+              <LuChevronLeft />
+            </IconButton>
+          </ChakraPagination.PrevTrigger>
 
-      <Text fontSize="xs" color="gray.500" ml={3}>
-        {totalPages > 1
-          ? `${currentPage} of ${totalPages}`
-          : `Page ${currentPage}`}
-      </Text>
+          <ChakraPagination.Items
+            render={(page) => (
+              <IconButton
+                variant={{ base: "outline", _selected: "solid" }}
+                disabled={isLoading}
+              >
+                {page.value}
+              </IconButton>
+            )}
+          />
+
+          <ChakraPagination.NextTrigger asChild>
+            <IconButton disabled={isLoading}>
+              <LuChevronRight />
+            </IconButton>
+          </ChakraPagination.NextTrigger>
+        </ButtonGroup>
+
+        <ChakraPagination.PageText ml={4} />
+      </ChakraPagination.Root>
     </HStack>
   );
 };

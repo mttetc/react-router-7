@@ -1,35 +1,22 @@
 import {
+  Badge,
   Box,
-  VStack,
-  HStack,
-  Text,
-  Input,
   Button,
   Card,
-  Badge,
-  NumberInput,
-  Stack,
-  Portal,
-  Menu,
-  Separator,
   Field,
   For,
+  HStack,
+  Input,
+  Menu,
+  Portal,
+  Separator,
+  Slider,
+  Stack,
+  Text,
 } from "@chakra-ui/react";
-import { Tooltip } from "../../../components/ui/tooltip";
+import { FaChevronDown, FaSearch } from "react-icons/fa";
 import { useColorModeValue } from "../../../components/ui/color-mode";
-import { FaSearch, FaCog, FaInfoCircle, FaChevronDown } from "react-icons/fa";
-import {
-  FaSeedling,
-  FaTree,
-  FaBuilding,
-  FaRocket,
-  FaUsers,
-  FaUser,
-  FaExchangeAlt,
-  FaAngellist,
-  FaFileAlt,
-  FaEyeSlash,
-} from "react-icons/fa";
+import { Tooltip } from "../../../components/ui/tooltip";
 import type { FilterState } from "../../../services/companies.service";
 
 // Custom Select component that mimics the compound structure you wanted
@@ -162,13 +149,9 @@ export const FilterSidebar = ({
       h="fit-content"
       position="sticky"
       top="80px"
-      shadow="lg"
     >
       <Card.Header pb={2}>
-        <HStack justify="space-between">
-          <Text fontSize="lg" fontWeight="bold" color={textColor}>
-            Filters
-          </Text>
+        <HStack justify="flex-end">
           {activeFilterCount > 0 && (
             <Badge
               colorPalette="blue"
@@ -214,7 +197,7 @@ export const FilterSidebar = ({
               value={filters.search}
               onChange={(e) => onFilterChange({ search: e.target.value })}
               borderRadius="md"
-              size="md"
+              size="sm"
             />
           </Field.Root>
 
@@ -222,12 +205,6 @@ export const FilterSidebar = ({
 
           {/* Categories */}
           <Box>
-            <HStack gap={2} mb={4}>
-              <FaCog />
-              <Text fontSize="sm" fontWeight="semibold" color="gray.600">
-                Categories
-              </Text>
-            </HStack>
             <Stack gap={4}>
               <Field.Root>
                 <Field.Label fontSize="xs" color="gray.500">
@@ -280,93 +257,85 @@ export const FilterSidebar = ({
 
           {/* Ranges */}
           <Box>
-            <HStack gap={2} mb={4}>
-              <FaInfoCircle />
-              <Text fontSize="sm" fontWeight="semibold" color="gray.600">
-                Ranges
-              </Text>
-            </HStack>
             <Stack gap={4}>
               <Field.Root>
                 <Field.Label fontSize="xs" color="gray.500">
                   Rank Range
                 </Field.Label>
-                <HStack>
-                  <NumberInput.Root
-                    size="sm"
-                    value={filters.minRank?.toString() || ""}
-                    onValueChange={(details) =>
-                      onFilterChange({ minRank: details.valueAsNumber || null })
-                    }
+                <Box px={2} w="100%">
+                  <Slider.Root
+                    width="100%"
                     min={1}
+                    max={10000}
+                    value={[filters.minRank || 1, filters.maxRank || 10000]}
+                    onValueChange={(details) => {
+                      const [min, max] = details.value;
+                      onFilterChange({
+                        minRank: min === 1 ? null : min,
+                        maxRank: max === 10000 ? null : max,
+                      });
+                    }}
                   >
-                    <NumberInput.ValueText />
-                    <NumberInput.Control>
-                      <NumberInput.IncrementTrigger />
-                      <NumberInput.DecrementTrigger />
-                    </NumberInput.Control>
-                  </NumberInput.Root>
-                  <Text fontSize="xs" color="gray.400">
-                    to
-                  </Text>
-                  <NumberInput.Root
-                    size="sm"
-                    value={filters.maxRank?.toString() || ""}
-                    onValueChange={(details) =>
-                      onFilterChange({ maxRank: details.valueAsNumber || null })
-                    }
-                    min={1}
-                  >
-                    <NumberInput.ValueText />
-                    <NumberInput.Control>
-                      <NumberInput.IncrementTrigger />
-                      <NumberInput.DecrementTrigger />
-                    </NumberInput.Control>
-                  </NumberInput.Root>
-                </HStack>
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Range />
+                      </Slider.Track>
+                      <Slider.Thumbs />
+                    </Slider.Control>
+                  </Slider.Root>
+                  <HStack justify="space-between" mt={2}>
+                    <Text fontSize="xs" color="gray.500">
+                      {filters.minRank || 1}
+                    </Text>
+                    <Text fontSize="xs" color="gray.500">
+                      {filters.maxRank || 10000}
+                    </Text>
+                  </HStack>
+                </Box>
               </Field.Root>
 
               <Field.Root>
                 <Field.Label fontSize="xs" color="gray.500">
-                  💰 Funding Amount (USD)
+                  Funding Amount (USD)
                 </Field.Label>
-                <HStack>
-                  <NumberInput.Root
-                    size="sm"
-                    value={filters.minFunding?.toString() || ""}
-                    onValueChange={(details) =>
-                      onFilterChange({
-                        minFunding: details.valueAsNumber || null,
-                      })
-                    }
+                <Box px={2} w="100%">
+                  <Slider.Root
+                    width="100%"
                     min={0}
-                  >
-                    <NumberInput.ValueText />
-                    <NumberInput.Control>
-                      <NumberInput.IncrementTrigger />
-                      <NumberInput.DecrementTrigger />
-                    </NumberInput.Control>
-                  </NumberInput.Root>
-                  <Text fontSize="xs" color="gray.400">
-                    to
-                  </Text>
-                  <NumberInput.Root
-                    size="sm"
-                    value={filters.maxFunding?.toString() || ""}
-                    onValueChange={(details) =>
+                    max={100000000}
+                    step={100000}
+                    value={[
+                      filters.minFunding || 0,
+                      filters.maxFunding || 100000000,
+                    ]}
+                    onValueChange={(details) => {
+                      const [min, max] = details.value;
                       onFilterChange({
-                        maxFunding: details.valueAsNumber || null,
-                      })
-                    }
-                    min={0}
+                        minFunding: min === 0 ? null : min,
+                        maxFunding: max === 100000000 ? null : max,
+                      });
+                    }}
                   >
-                    <NumberInput.ValueText />
-                    <NumberInput.Control>
-                      <NumberInput.IncrementTrigger />
-                      <NumberInput.DecrementTrigger />
-                    </NumberInput.Control>
-                  </NumberInput.Root>
-                </HStack>
+                    <Slider.Control>
+                      <Slider.Track>
+                        <Slider.Range />
+                      </Slider.Track>
+                      <Slider.Thumbs />
+                    </Slider.Control>
+                  </Slider.Root>
+                  <HStack justify="space-between" mt={2}>
+                    <Text fontSize="xs" color="gray.500">
+                      {filters.minFunding
+                        ? `$${(filters.minFunding / 1000000).toFixed(1)}M`
+                        : "$0"}
+                    </Text>
+                    <Text fontSize="xs" color="gray.500">
+                      {filters.maxFunding
+                        ? `$${(filters.maxFunding / 1000000).toFixed(1)}M`
+                        : "$100M"}
+                    </Text>
+                  </HStack>
+                </Box>
               </Field.Root>
             </Stack>
           </Box>
