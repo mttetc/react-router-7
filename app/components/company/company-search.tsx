@@ -101,7 +101,7 @@ export function CompanySearch({
                 >
                   <Badge
                     size="sm"
-                    colorPalette="blue"
+                    colorPalette="brand"
                     variant="solid"
                     cursor="pointer"
                     onClick={() => removeFilter(key as keyof CompanyFilters)}
@@ -145,7 +145,8 @@ export function CompanySearch({
             style={{
               padding: "8px",
               borderRadius: "6px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid",
+              borderColor: "gray.200",
               width: "100%",
               fontSize: "14px",
             }}
@@ -172,7 +173,8 @@ export function CompanySearch({
             style={{
               padding: "8px",
               borderRadius: "6px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid",
+              borderColor: "gray.200",
               width: "100%",
               fontSize: "14px",
             }}
@@ -245,7 +247,8 @@ export function CompanySearch({
             style={{
               padding: "8px",
               borderRadius: "6px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid",
+              borderColor: "gray.200",
               width: "100%",
               fontSize: "14px",
             }}

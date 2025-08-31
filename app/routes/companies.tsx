@@ -188,18 +188,31 @@ export default function CompanyFeed() {
   const activeFilterCount = useActiveFilterCount(filters);
 
   return (
-    <Box minH="100vh" bg={bgColor}>
+    <Box
+      minH="100vh"
+      bgImage="url(bg.png)"
+      bgSize="cover"
+      backgroundPosition="center"
+      backgroundAttachment="fixed"
+      pos="relative"
+      zIndex={0}
+      _before={{
+        content: '""',
+        pos: "absolute",
+        inset: 0,
+        bgColor: useColorModeValue(
+          "rgba(255, 255, 255, 0.8)",
+          "rgba(0, 0, 0, 0.7)"
+        ),
+        zIndex: -1,
+      }}
+    >
       <Header />
 
       <Container maxW="8xl" py={8}>
         <Grid templateColumns="320px 1fr" gap={8}>
           {/* Left Sidebar - Filters */}
-          <FilterSidebar
-            filters={filters}
-            onFilterChange={updateFilters}
-            onReset={resetFilters}
-            activeFilterCount={activeFilterCount}
-          />
+          <FilterSidebar filters={filters} onFilterChange={updateFilters} />
 
           {/* Right Content */}
           <Box overflow="hidden">

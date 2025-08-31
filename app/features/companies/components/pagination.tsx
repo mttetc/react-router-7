@@ -59,8 +59,6 @@ export const Pagination = ({
             </IconButton>
           </ChakraPagination.NextTrigger>
         </ButtonGroup>
-
-        <ChakraPagination.PageText ml={4} />
       </ChakraPagination.Root>
     </HStack>
   );

@@ -21,9 +21,9 @@ export const ActiveFilters = ({
   onRemoveFilter,
 }: ActiveFiltersProps) => {
   const activeFilters = useActiveFilters(filters);
-  const bgColor = useColorModeValue("blue.50", "blue.900");
-  const borderColor = useColorModeValue("blue.200", "blue.600");
-  const textColor = useColorModeValue("blue.700", "blue.200");
+  const bgColor = useColorModeValue("brand.50", "brand.900");
+  const borderColor = useColorModeValue("brand.200", "brand.600");
+  const textColor = useColorModeValue("brand.700", "brand.200");
 
   if (activeFilters.length === 0) return null;
 
@@ -61,7 +61,7 @@ export const ActiveFilters = ({
         <Text fontSize="sm" fontWeight="semibold" color={textColor}>
           🏷️ Active Filters
         </Text>
-        <Badge colorPalette="blue" borderRadius="full">
+        <Badge colorPalette="brand" borderRadius="full">
           {activeFilters.length}
         </Badge>
       </HStack>

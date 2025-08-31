@@ -8,6 +8,7 @@ import {
   Flex,
   Spacer,
   Breadcrumb,
+  Image,
 } from "@chakra-ui/react";
 import {
   ColorModeButton,
@@ -31,28 +32,38 @@ export const Header = () => {
     >
       <Container maxW="8xl" py={3}>
         <Flex align="center" justify="space-between">
-          <HStack gap={3}>
-            <Heading
-              size="md"
-              bgGradient="linear(to-r, blue.400, purple.500)"
-              bgClip="text"
-            >
-              🏢 Companies
-            </Heading>
-            <Tooltip
-              content="Over 5,000 companies in database"
-              positioning={{ placement: "bottom" }}
-            >
-              <Badge
-                colorPalette="blue"
-                borderRadius="full"
-                px={2}
-                py={1}
-                fontSize="xs"
+          <HStack gap={2} align="center">
+            <Image
+              src="https://www.tryspecter.com/specter.svg"
+              alt="Specter"
+              filter={useColorModeValue("none", "invert(1)")}
+            />
+            <HStack gap={3} align="baseline">
+              <Text
+                fontSize="sm"
+                color={useColorModeValue("gray.500", "gray.400")}
+                fontWeight="normal"
+                fontStyle="italic"
               >
-                5K+
-              </Badge>
-            </Tooltip>
+                lite
+              </Text>
+              <Tooltip
+                content="Over 5,000 companies in database"
+                positioning={{ placement: "bottom" }}
+              >
+                <Badge
+                  colorPalette="brand"
+                  borderRadius="full"
+                  px={3}
+                  py={1}
+                  fontSize="xs"
+                  fontWeight="semibold"
+                  shadow="sm"
+                >
+                  5K+
+                </Badge>
+              </Tooltip>
+            </HStack>
           </HStack>
 
           <HStack gap={2}>

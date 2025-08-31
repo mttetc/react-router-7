@@ -78,7 +78,8 @@ export const CompanyGrid = ({
               style={{
                 padding: "6px",
                 borderRadius: "4px",
-                border: "1px solid #e2e8f0",
+                border: "1px solid",
+                borderColor: "gray.200",
                 fontSize: "14px",
                 width: "120px",
               }}
@@ -96,7 +97,7 @@ export const CompanyGrid = ({
               >
                 <Button
                   variant={filters.sortOrder === "asc" ? "solid" : "outline"}
-                  colorPalette="blue"
+                  colorPalette="brand"
                   onClick={() => onFilterChange({ sortOrder: "asc" })}
                   px={2}
                   disabled={isLoading}
@@ -110,7 +111,7 @@ export const CompanyGrid = ({
               >
                 <Button
                   variant={filters.sortOrder === "desc" ? "solid" : "outline"}
-                  colorPalette="blue"
+                  colorPalette="brand"
                   onClick={() => onFilterChange({ sortOrder: "desc" })}
                   px={2}
                   disabled={isLoading}

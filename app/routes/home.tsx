@@ -49,7 +49,7 @@ export default function Home() {
             <Button variant="outline">Get Started</Button>
           </Link>
           <Link to="/companies">
-            <Button variant="solid" colorPalette="blue">
+            <Button variant="solid" colorPalette="brand">
               View Companies
             </Button>
           </Link>

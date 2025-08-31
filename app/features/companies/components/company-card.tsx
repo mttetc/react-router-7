@@ -68,7 +68,7 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
       _hover={{
         transform: "translateY(-2px)",
         shadow: "lg",
-        borderColor: "blue.300",
+        borderColor: "brand.300",
       }}
       cursor="pointer"
       overflow="hidden"
@@ -119,7 +119,7 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     fontSize="xs"
-                    color="blue.500"
+                    color="brand.500"
                     lineClamp={1}
                     _hover={{ textDecoration: "underline" }}
                     flex={1}
@@ -137,7 +137,7 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
                       aria-label="Visit website"
                       size="xs"
                       variant="ghost"
-                      colorPalette="blue"
+                      colorPalette="brand"
                     >
                       <FaExternalLinkAlt />
                     </IconButton>

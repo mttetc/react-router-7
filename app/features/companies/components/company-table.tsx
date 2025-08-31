@@ -112,7 +112,7 @@ const COLUMNS: TableColumn[] = [
             target="_blank"
             rel="noopener noreferrer"
             fontSize="xs"
-            color="blue.500"
+            color="brand.500"
             _hover={{ textDecoration: "underline" }}
           >
             {company.domain}

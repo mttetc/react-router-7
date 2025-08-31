@@ -55,8 +55,8 @@ const SelectRoot = ({
           textAlign="left"
           fontWeight="normal"
           borderColor={borderColor}
-          _hover={{ borderColor: "blue.400" }}
-          _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 1px #3182ce" }}
+          _hover={{ borderColor: "brand.400" }}
+          _focus={{ borderColor: "brand.400", boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)" }}
           w="full"
           justifyContent="space-between"
         >
@@ -82,8 +82,8 @@ const SelectRoot = ({
                   key={item.value}
                   value={item.value}
                   onClick={() => onValueChange(item.value)}
-                  bg={value === item.value ? "blue.50" : "transparent"}
-                  _hover={{ bg: "blue.50" }}
+                  bg={value === item.value ? "brand.50" : "transparent"}
+                  _hover={{ bg: "brand.50" }}
                 >
                   <HStack gap={2}>
                     <Text>{item.icon}</Text>
@@ -128,15 +128,11 @@ const fundingTypeItems: SelectItem[] = [
 interface FilterSidebarProps {
   filters: FilterState;
   onFilterChange: (newFilters: Partial<FilterState>) => void;
-  onReset: () => void;
-  activeFilterCount: number;
 }
 
 export const FilterSidebar = ({
   filters,
   onFilterChange,
-  onReset,
-  activeFilterCount,
 }: FilterSidebarProps) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
@@ -150,46 +146,14 @@ export const FilterSidebar = ({
       position="sticky"
       top="80px"
     >
-      <Card.Header pb={2}>
-        <HStack justify="flex-end">
-          {activeFilterCount > 0 && (
-            <Badge
-              colorPalette="blue"
-              borderRadius="full"
-              px={2}
-              title={`${activeFilterCount} active filters`}
-            >
-              {activeFilterCount}
-            </Badge>
-          )}
-        </HStack>
-        {activeFilterCount > 0 && (
-          <Tooltip
-            content="Clear all active filters and reset to default view"
-            positioning={{ placement: "top" }}
-          >
-            <Button
-              size="sm"
-              variant="outline"
-              colorPalette="red"
-              onClick={onReset}
-              w="full"
-              mt={3}
-            >
-              Reset All Filters
-            </Button>
-          </Tooltip>
-        )}
-      </Card.Header>
-
-      <Card.Body pt={2}>
+      <Card.Body>
         <Stack gap={6}>
           {/* Search */}
           <Field.Root>
             <Field.Label fontSize="sm" fontWeight="semibold" color="gray.600">
               <HStack gap={2}>
                 <FaSearch />
-                <Text>Smart Search</Text>
+                <Text>Search</Text>
               </HStack>
             </Field.Label>
             <Input
@@ -262,7 +226,7 @@ export const FilterSidebar = ({
                 <Field.Label fontSize="xs" color="gray.500">
                   Rank Range
                 </Field.Label>
-                <Box px={2} w="100%">
+                <Box w="100%">
                   <Slider.Root
                     width="100%"
                     min={1}
@@ -298,7 +262,7 @@ export const FilterSidebar = ({
                 <Field.Label fontSize="xs" color="gray.500">
                   Funding Amount (USD)
                 </Field.Label>
-                <Box px={2} w="100%">
+                <Box w="100%">
                   <Slider.Root
                     width="100%"
                     min={0}

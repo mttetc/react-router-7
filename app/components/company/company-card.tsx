@@ -104,7 +104,7 @@ export function CompanyCard({ company }: CompanyCardProps) {
         </HStack>
 
         {/* Domain */}
-        <Text color="blue.600" fontSize="sm" fontWeight="medium">
+        <Text color="brand.600" fontSize="sm" fontWeight="medium">
           {company.domain}
         </Text>
 
