@@ -5,9 +5,8 @@ import {
   Select,
   createListCollection,
 } from "@chakra-ui/react";
-import { useFormStatus } from "react-router";
+import { useFormStatus } from "react-dom";
 import type { SelectFieldProps } from "./types";
-import { debouncedSubmit } from "./utils";
 
 export function SelectField({
   name,
@@ -30,17 +29,20 @@ export function SelectField({
     ) as HTMLInputElement;
     if (hiddenInput) {
       hiddenInput.value = details.value[0] || "";
-      // Auto-submit form on change with debouncing
-      debouncedSubmit(hiddenInput.form);
+      // Auto-submit form immediately for select changes
+      hiddenInput.form?.requestSubmit();
     }
   };
 
+  const fieldId = `select-${name}`;
+
   return (
     <Field.Root>
-      <Field.Label fontSize="xs" color="gray.500">
+      <Field.Label fontSize="xs" color="gray.500" htmlFor={fieldId}>
         {label}
       </Field.Label>
       <Select.Root
+        id={fieldId}
         collection={collection}
         size="sm"
         value={defaultValue ? [defaultValue.toString()] : []}

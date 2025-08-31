@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useLocaleContext } from "@chakra-ui/react";
 import type { FilterState } from "../../../services/companies.service";
-import { useCurrency } from "../../../stores/currency.store";
+import { useCurrencyStore } from "../../../stores/currency.store";
 import {
   convertCurrency,
   getCurrencyName,
@@ -9,11 +9,13 @@ import {
 } from "../../../utils/currency.utils";
 
 export const useActiveFilters = (filters: FilterState) => {
-  const { getEffectiveCurrency } = useCurrency();
+  const currentCurrency = useCurrencyStore((state) =>
+    state.getEffectiveCurrency()
+  );
 
   // Helper function to format funding amounts in user's currency
   const formatFundingForDisplay = (amountUSD: number): string => {
-    const targetCurrency = getEffectiveCurrency();
+    const targetCurrency = currentCurrency;
     const convertedAmount = convertCurrency(amountUSD, targetCurrency);
 
     // Format with appropriate currency symbol
@@ -27,7 +29,9 @@ export const useActiveFilters = (filters: FilterState) => {
         targetCurrency
       )}`;
     }
-    return `${convertedAmount.toLocaleString()} ${getCurrencySymbol(
+    return `${convertedAmount
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} ${getCurrencySymbol(
       targetCurrency
     )}`;
   };
@@ -66,7 +70,7 @@ export const useActiveFilters = (filters: FilterState) => {
         label: `Max Funding: ${formatFundingForDisplay(filters.maxFunding)}`,
       });
     return active;
-  }, [filters, getEffectiveCurrency]);
+  }, [filters, currentCurrency]);
 };
 
 export const useActiveFilterCount = (filters: FilterState) => {
@@ -90,7 +94,7 @@ export const formatFundingWithLocale = (
   if (amount >= 1000) {
     return `$${(amount / 1000).toFixed(0)}K`;
   }
-  return `$${amount.toLocaleString(locale)}`;
+  return `$${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };
 
 // Legacy function for backward compatibility - will use detected locale
@@ -107,5 +111,5 @@ export const formatFunding = (amount: number | null): string => {
     typeof window !== "undefined" && window.navigator
       ? window.navigator.language
       : "en-US";
-  return `$${amount.toLocaleString(locale)}`;
+  return `$${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };

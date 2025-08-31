@@ -6,7 +6,7 @@ import {
   convertCurrency,
 } from "../../utils/currency.utils";
 import { ClientOnly } from "./client-only";
-import { useCurrency } from "../../stores/currency.store";
+import { useCurrencyStore } from "../../stores/currency.store";
 
 interface FormatCurrencyProps {
   /** Amount in USD (base currency) */
@@ -36,10 +36,12 @@ export function FormatCurrency({
   minimumFractionDigits,
   showCurrency = true,
 }: FormatCurrencyProps) {
-  const { getEffectiveCurrency } = useCurrency();
+  const currentCurrency = useCurrencyStore((state) =>
+    state.getEffectiveCurrency()
+  );
 
   // Determine currency based on store state or override
-  const targetCurrency = overrideCurrency || getEffectiveCurrency();
+  const targetCurrency = overrideCurrency || currentCurrency;
 
   // Convert from USD to target currency
   const convertedAmount = convertCurrency(value, targetCurrency);

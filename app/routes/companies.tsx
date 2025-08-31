@@ -8,12 +8,12 @@ import {
   useScrollArea,
 } from "@chakra-ui/react";
 
-import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  redirect,
   useLoaderData,
   useNavigation,
   useSearchParams,
-  redirect,
 } from "react-router";
 import { useColorModeValue } from "../components/ui/color-mode";
 import {
@@ -22,11 +22,11 @@ import {
 } from "../features/companies/forms/utils";
 
 // Services and hooks
-import { ActiveFilters } from "~/features/companies/components/active-filters";
+
 import { CompanyTable } from "~/features/companies/components/company-table";
-import { FilterForm } from "~/features/companies/forms";
 import { Header } from "~/features/companies/components/header";
 import { Pagination } from "~/features/companies/components/pagination";
+import { FilterForm } from "~/features/companies/forms";
 import {
   buildURLParams,
   type FilterState,
@@ -140,9 +140,8 @@ export async function loader({
 // Main component
 export default function CompanyFeed() {
   const loaderData = useLoaderData<LoaderData>();
-  const bgColor = useColorModeValue("gray.50", "gray.900");
   const navigation = useNavigation();
-  const [searchParams] = useSearchParams();
+  const [_, setSearchParams] = useSearchParams();
   const scrollArea = useScrollArea();
 
   // Get current state from loader data
@@ -162,7 +161,7 @@ export default function CompanyFeed() {
     // Navigate to new page
     const newPagination = { ...pagination, page };
     const params = buildURLParams(filters, newPagination);
-    window.location.href = `?${params.toString()}`;
+    setSearchParams(params);
   };
 
   // Simple filter reset (for active filters component)
@@ -180,7 +179,7 @@ export default function CompanyFeed() {
       sortOrder: "asc",
     };
     const params = buildURLParams(emptyFilters, { page: 1, limit: 12 });
-    window.location.href = `?${params.toString()}`;
+    setSearchParams(params);
   };
 
   const removeFilter = (key: keyof FilterState) => {
@@ -192,11 +191,13 @@ export default function CompanyFeed() {
       key === "maxFunding"
     ) {
       updatedFilters[key] = null;
+    } else if (key === "sortOrder") {
+      updatedFilters[key] = "asc";
     } else {
-      (updatedFilters as any)[key] = "";
+      updatedFilters[key] = "";
     }
     const params = buildURLParams(updatedFilters, { page: 1, limit: 12 });
-    window.location.href = `?${params.toString()}`;
+    setSearchParams(params);
   };
 
   return (
@@ -226,39 +227,37 @@ export default function CompanyFeed() {
       <ScrollArea.RootProvider value={scrollArea} flex="1">
         <ScrollArea.Viewport>
           <Container maxW="8xl" py={8}>
-            <Grid templateColumns="280px 1fr" gap={8}>
-              {/* Left Sidebar - Filters */}
+            <Grid templateColumns="320px 1fr" gap={8}>
+              {/* Left Sidebar - Modern Filters */}
               <Presence
                 present={true}
                 animationName={{
-                  _open: "slide-from-bottom, fade-in",
-                  _closed: "slide-to-bottom, fade-out",
+                  _open: "slide-from-left, fade-in",
+                  _closed: "slide-to-left, fade-out",
                 }}
                 animationDuration="moderate"
                 animationDelay="0.1s"
               >
-                <FilterForm filters={filters} action="/companies" />
+                <FilterForm
+                  filters={filters}
+                  action="/companies"
+                  onRemoveFilter={removeFilter}
+                  onResetAll={resetFilters}
+                />
               </Presence>
 
               {/* Right Content */}
               <Presence
                 present={true}
                 animationName={{
-                  _open: "slide-from-bottom, fade-in",
-                  _closed: "slide-to-bottom, fade-out",
+                  _open: "slide-from-right, fade-in",
+                  _closed: "slide-to-right, fade-out",
                 }}
                 animationDuration="moderate"
                 animationDelay="0.2s"
                 overflow="hidden"
               >
                 <Box overflow="hidden">
-                  {/* Active Filters */}
-                  <ActiveFilters
-                    filters={filters}
-                    onRemoveFilter={removeFilter}
-                    onResetAll={resetFilters}
-                  />
-
                   {/* Table Header */}
                   <Box mb={4}>
                     <Text fontSize="sm" color="gray.500">

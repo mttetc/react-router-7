@@ -118,25 +118,3 @@ export function validateFilters(filters: FilterState): {
     errors,
   };
 }
-
-/**
- * Debounced form submission utility
- */
-let submitTimeout: NodeJS.Timeout | null = null;
-
-export function debouncedSubmit(form: HTMLFormElement | null, delay = 300) {
-  if (!form) return;
-
-  if (submitTimeout) {
-    clearTimeout(submitTimeout);
-  }
-
-  submitTimeout = setTimeout(() => {
-    // Create a custom submit event to trigger form submission
-    const submitEvent = new Event("submit", {
-      bubbles: true,
-      cancelable: true,
-    });
-    form.dispatchEvent(submitEvent);
-  }, delay);
-}

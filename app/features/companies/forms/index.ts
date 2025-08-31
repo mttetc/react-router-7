@@ -3,6 +3,10 @@ export { FormField } from "./form-field";
 export { SelectField } from "./select-field";
 export { SliderField } from "./slider-field";
 export { FundingSliderField } from "./funding-slider-field";
+export { SmartSearch } from "./smart-search";
+export { QuickFilters } from "./quick-filters";
+export { ActiveFilters } from "./active-filters";
+export { DetailedFilters } from "./detailed-filters";
 
 export type {
   FormFieldProps,
@@ -17,5 +21,4 @@ export {
   parseFiltersFromFormData,
   filtersToFormData,
   validateFilters,
-  debouncedSubmit,
 } from "./utils";
