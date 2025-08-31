@@ -9,9 +9,7 @@ import {
 } from "../../../utils/currency.utils";
 
 export const useActiveFilters = (filters: FilterState) => {
-  const currentCurrency = useCurrencyStore((state) =>
-    state.getEffectiveCurrency()
-  );
+  const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   // Helper function to format funding amounts in user's currency
   const formatFundingForDisplay = (amountUSD: number): string => {

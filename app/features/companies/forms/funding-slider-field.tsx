@@ -19,9 +19,7 @@ interface FundingSliderFieldProps {
 
 export function FundingSliderField({ filters }: FundingSliderFieldProps) {
   const { pending } = useFormStatus();
-  const currentCurrency = useCurrencyStore((state) =>
-    state.getEffectiveCurrency()
-  );
+  const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   // Convert USD amounts to user's currency for display
   const convertToUserCurrency = (usdAmount: number) => {

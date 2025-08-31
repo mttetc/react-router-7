@@ -93,9 +93,7 @@ function QuickFiltersInner({
   formId = "filter-form",
 }: QuickFiltersProps) {
   const { pending } = useFormStatus();
-  const currentCurrency = useCurrencyStore((state) =>
-    state.getEffectiveCurrency()
-  );
+  const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   // Generate quick filters with currency-aware data
   const quickFilters: ProcessedQuickFilter[] = QUICK_FILTER_TEMPLATES.map(

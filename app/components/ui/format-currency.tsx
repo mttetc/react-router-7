@@ -36,9 +36,7 @@ export function FormatCurrency({
   minimumFractionDigits,
   showCurrency = true,
 }: FormatCurrencyProps) {
-  const currentCurrency = useCurrencyStore((state) =>
-    state.getEffectiveCurrency()
-  );
+  const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   // Determine currency based on store state or override
   const targetCurrency = overrideCurrency || currentCurrency;

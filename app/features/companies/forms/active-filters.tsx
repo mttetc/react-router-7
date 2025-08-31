@@ -132,7 +132,7 @@ export function ActiveFilters({
   onRemoveFilter,
   onResetAll,
 }: ActiveFiltersProps) {
-  const currency = useCurrencyStore((state) => state.getEffectiveCurrency());
+  const currency = useCurrencyStore((state) => state.selectedCurrency);
   const activeFilters = getActiveFilters(filters, currency);
 
   if (activeFilters.length === 0) {
