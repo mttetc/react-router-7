@@ -1,12 +1,11 @@
 "use client";
 
-import type { IconButtonProps, TextProps } from "@chakra-ui/react";
-import { IconButton, Skeleton, Text } from "@chakra-ui/react";
-import type { ThemeProviderProps } from "next-themes";
+import type { IconButtonProps, SpanProps } from "@chakra-ui/react";
+import { ClientOnly, IconButton, Skeleton, Span } from "@chakra-ui/react";
 import { ThemeProvider, useTheme } from "next-themes";
+import type { ThemeProviderProps } from "next-themes";
 import * as React from "react";
 import { LuMoon, LuSun } from "react-icons/lu";
-import { ClientOnly } from "./client-only";
 
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
@@ -15,8 +14,8 @@ export function ColorModeProvider(props: ColorModeProviderProps) {
     <ThemeProvider
       attribute="class"
       disableTransitionOnChange
-      enableSystem={false}
       defaultTheme="light"
+      enableSystem={false}
       storageKey="chakra-ui-color-mode"
       {...props}
     />
@@ -83,10 +82,10 @@ export const ColorModeButton = React.forwardRef<
   );
 });
 
-export const LightMode = React.forwardRef<HTMLParagraphElement, TextProps>(
+export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
   function LightMode(props, ref) {
     return (
-      <Text
+      <Span
         color="fg"
         display="contents"
         className="chakra-theme light"
@@ -99,10 +98,10 @@ export const LightMode = React.forwardRef<HTMLParagraphElement, TextProps>(
   }
 );
 
-export const DarkMode = React.forwardRef<HTMLParagraphElement, TextProps>(
+export const DarkMode = React.forwardRef<HTMLSpanElement, SpanProps>(
   function DarkMode(props, ref) {
     return (
-      <Text
+      <Span
         color="fg"
         display="contents"
         className="chakra-theme dark"

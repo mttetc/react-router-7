@@ -1,7 +1,7 @@
-"use client";
-
 import { ChakraProvider, LocaleProvider } from "@chakra-ui/react";
 import { ColorModeProvider, type ColorModeProviderProps } from "./color-mode";
+import { QueryProvider } from "./query-provider";
+import { NuqsProvider } from "./nuqs-provider";
 import { system } from "../../theme";
 
 export function Provider(props: ColorModeProviderProps) {
@@ -10,10 +10,14 @@ export function Provider(props: ColorModeProviderProps) {
   const ssrLocale = "en-US";
 
   return (
-    <LocaleProvider locale={ssrLocale}>
-      <ChakraProvider value={system}>
-        <ColorModeProvider {...props}>{props.children}</ColorModeProvider>
-      </ChakraProvider>
-    </LocaleProvider>
+    <NuqsProvider>
+      <LocaleProvider locale={ssrLocale}>
+        <ChakraProvider value={system}>
+          <QueryProvider>
+            <ColorModeProvider>{props.children}</ColorModeProvider>
+          </QueryProvider>
+        </ChakraProvider>
+      </LocaleProvider>
+    </NuqsProvider>
   );
 }

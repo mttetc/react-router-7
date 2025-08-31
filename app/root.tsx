@@ -9,8 +9,6 @@ import {
 
 import type { Route } from "./+types/root";
 import { Provider } from "./components/ui/provider";
-import { QueryProvider } from "./components/ui/query-provider";
-import { NuqsProvider } from "./components/ui/nuqs-provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -37,13 +35,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body suppressHydrationWarning>
-        <QueryProvider>
-          <Provider>
-            <NuqsProvider>{children}</NuqsProvider>
-            <ScrollRestoration />
-            <Scripts />
-          </Provider>
-        </QueryProvider>
+        <Provider>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </Provider>
       </body>
     </html>
   );

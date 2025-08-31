@@ -202,6 +202,25 @@ export const system = createSystem(defaultConfig, {
         cardHover: { value: "0 10px 15px -3px rgba(0, 0, 0, 0.07)" },
       },
     },
+    semanticTokens: {
+      colors: {
+        bg: {
+          value: { _light: "{colors.white}", _dark: "{colors.gray.900}" },
+        },
+        fg: {
+          value: { _light: "{colors.gray.900}", _dark: "{colors.gray.100}" },
+        },
+        border: {
+          value: { _light: "{colors.gray.200}", _dark: "{colors.gray.700}" },
+        },
+        "bg.subtle": {
+          value: { _light: "{colors.gray.50}", _dark: "{colors.gray.800}" },
+        },
+        "fg.subtle": {
+          value: { _light: "{colors.gray.600}", _dark: "{colors.gray.400}" },
+        },
+      },
+    },
   },
   // Global styles can be added via globalCss if needed
   // For now, we'll handle them via CSS or component-specific styles
