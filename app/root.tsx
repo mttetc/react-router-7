@@ -23,9 +23,15 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+// Use ChakraProvider with default theme for now
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  console.log("🏗️ [Layout] Layout component rendering", {
+    hasChildren: !!children,
+  });
+
   return (
-    <html lang="en" suppressHydrationWarning className="chakra-theme">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -47,6 +53,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  console.log("🚀 [Root] App component rendering");
   return <Outlet />;
 }
 

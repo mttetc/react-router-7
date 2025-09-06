@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLocaleContext } from "@chakra-ui/react";
-import type { FilterState } from "@/services/companies.service";
+import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
 import {
   convertCurrency,

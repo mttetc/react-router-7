@@ -19,7 +19,10 @@ import { Pagination } from "@/features/companies/components/pagination";
 import { FilterForm } from "@/features/companies/forms/filter-form";
 import { useCompaniesData } from "@/features/companies/hooks/use-companies-data";
 import { filtersSearchParams, loadFilters } from "@/lib/search-params";
-import { getCompanies } from "@/utils/companies-server";
+import {
+  getCompaniesServer,
+  parseCompaniesParamsFromURL,
+} from "@/lib/companies-server";
 import type { Company, PaginatedResult } from "@/types/companies";
 
 interface LoaderData {
@@ -36,26 +39,11 @@ export function meta() {
 export async function loader({
   request,
 }: LoaderFunctionArgs): Promise<LoaderData> {
-  // Use nuqs loader to parse filters from URL
-  const filters = loadFilters(request);
-  const companiesData = await getCompanies({
-    page: filters.page,
-    limit: filters.limit,
-    search: filters.search || undefined,
-    growth_stage: filters.growthStage || undefined,
-    customer_focus: filters.customerFocus || undefined,
-    last_funding_type: filters.fundingType || undefined,
-    min_rank: filters.minRank ?? undefined,
-    max_rank: filters.maxRank ?? undefined,
-    min_funding: filters.minFunding ?? undefined,
-    max_funding: filters.maxFunding ?? undefined,
-    sortBy: filters.sortBy || undefined,
-    sortOrder: filters.sortOrder as "asc" | "desc",
-  });
+  const url = new URL(request.url);
+  const params = parseCompaniesParamsFromURL(url.searchParams);
+  const companiesData = await getCompaniesServer(params);
 
-  return {
-    companiesData,
-  };
+  return { companiesData };
 }
 
 export default function CompanyFeed() {
@@ -95,26 +83,25 @@ export default function CompanyFeed() {
     limit,
   } = queryParams;
 
-  // Build filters object for useCompaniesData
-  const filters = {
-    search: search || "",
-    growthStage: growthStage || "",
-    customerFocus: customerFocus || "",
-    fundingType: fundingType || "",
-    minRank,
-    maxRank,
-    minFunding,
-    maxFunding,
-    sortBy: sortBy || "",
+  // Build params object for useCompaniesData
+  const params = {
+    page: page || 1,
+    limit: limit || 12,
+    search: search || undefined,
+    growth_stage: growthStage || undefined,
+    customer_focus: customerFocus || undefined,
+    last_funding_type: fundingType || undefined,
+    min_rank: minRank || undefined,
+    max_rank: maxRank || undefined,
+    min_funding: minFunding || undefined,
+    max_funding: maxFunding || undefined,
+    sortBy: sortBy || "rank",
     sortOrder: (sortOrder || "asc") as "asc" | "desc",
   };
 
-  const pagination = { page: page || 1, limit: limit || 12 };
-
   // Now useCompaniesData will refetch when URL changes
   const { data, isLoading, error } = useCompaniesData(
-    filters,
-    pagination,
+    params,
     loaderData.companiesData
   );
 

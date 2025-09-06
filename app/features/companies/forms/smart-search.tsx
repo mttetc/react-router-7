@@ -4,7 +4,7 @@ import { FaSearch, FaMagic } from "react-icons/fa";
 import { useDebounce } from "rooks";
 import { useQueryState } from "nuqs";
 import { filtersSearchParams } from "@/lib/search-params";
-import type { FilterState } from "@/services/companies.service";
+import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { convertCurrency, convertToUSD } from "@/utils/currency-utils";
 

@@ -12,7 +12,7 @@ import { useMemo } from "react";
 import { FaUndo } from "react-icons/fa";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { convertCurrency } from "@/utils/currency-utils";
-import type { FilterState } from "@/services/companies.service";
+import type { FilterState } from "@/lib/companies-client";
 import { getFilterColor } from "./filter-colors";
 import { getCurrentSearchInput } from "./smart-search";
 
