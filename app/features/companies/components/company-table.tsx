@@ -335,9 +335,11 @@ export const CompanyTable = ({
   filters,
   onFilterChange,
 }: CompanyTableProps) => {
+  // All hooks must be called at the top level, not conditionally
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const theadBg = useColorModeValue("brand.50", "brand.900");
   const theadTextColor = useColorModeValue("brand.700", "brand.200");
+  const emptyBgColor = useColorModeValue("gray.50", "gray.700");
 
   const handleSort = (sortBy: string) => {
     const newOrder =
@@ -408,8 +410,6 @@ export const CompanyTable = ({
   }
 
   if (companies.length === 0) {
-    const emptyBgColor = useColorModeValue("gray.50", "gray.700");
-
     return (
       <Box
         borderWidth={1}

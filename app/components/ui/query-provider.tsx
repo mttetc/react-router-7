@@ -42,18 +42,19 @@ export function QueryProvider({ children }: QueryProviderProps) {
                 return false; // Don't log, just silently fail
               }
               // Don't retry on 4xx client errors
-              if (errorMessage.includes('4')) {
+              if (errorMessage.includes("4")) {
                 return false;
               }
               return failureCount < 2; // Only retry once
             },
-            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+            retryDelay: (attemptIndex) =>
+              Math.min(1000 * 2 ** attemptIndex, 5000),
             // Prevent multiple simultaneous requests
-            networkMode: 'online',
+            networkMode: "online",
           },
           mutations: {
             retry: 1,
-            networkMode: 'online',
+            networkMode: "online",
           },
         },
       })
