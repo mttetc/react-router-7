@@ -7,21 +7,28 @@ import { ClientOnly } from "~/components/ui/client-only";
 import { DetailedFilters } from "./detailed-filters";
 import { useFilterState } from "~/hooks/use-filter-state";
 
-interface FilterFormProps {
-  // No props needed - components manage their own state via nuqs
-}
-
-export function FilterForm({}: FilterFormProps) {
-  const { filters, removeFilter, resetFilters } = useFilterState();
+export function FilterForm() {
+  const filterState = useFilterState();
+  const { filters, removeFilter, resetFilters } = filterState;
 
   return (
-    <Box width="100%">
+    <Box
+      bg="white"
+      borderRadius="lg"
+      shadow="sm"
+      border="1px solid"
+      borderColor="gray.200"
+      p={4}
+      h="fit-content"
+      maxH="100%"
+      overflow="hidden"
+    >
       <VStack gap={6} align="stretch">
         {/* Smart Search - Primary Interface */}
-        <SmartSearch />
+        <SmartSearch filterState={filterState} />
 
         {/* Quick Filters - Secondary Interface */}
-        <QuickFilters />
+        <QuickFilters filterState={filterState} />
 
         {/* Active Filters - Show what's applied */}
         <ClientOnly fallback={null}>
@@ -33,7 +40,7 @@ export function FilterForm({}: FilterFormProps) {
         </ClientOnly>
 
         {/* Advanced Filters - Collapsible for power users */}
-        <DetailedFilters />
+        <DetailedFilters filterState={filterState} />
       </VStack>
     </Box>
   );

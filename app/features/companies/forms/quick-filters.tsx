@@ -71,7 +71,7 @@ const QUICK_FILTER_TEMPLATES: QuickFilterBase[] = [
   {
     id: "top-100",
     labelKey: "🏆 Top 100",
-    filters: { maxRank: 100 },
+    filters: { minRank: 1, maxRank: 100 },
     color: "yellow",
   },
   {
@@ -84,11 +84,13 @@ const QUICK_FILTER_TEMPLATES: QuickFilterBase[] = [
 ];
 
 interface QuickFiltersProps {
-  // No props needed - component gets state from nuqs hooks
+  filterState: ReturnType<
+    typeof import("~/hooks/use-filter-state").useFilterState
+  >;
 }
 
-function QuickFiltersInner({}: QuickFiltersProps) {
-  const { filters, updateFilters } = useFilterState();
+function QuickFiltersInner({ filterState }: QuickFiltersProps) {
+  const { filters, updateFilters } = filterState;
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   // Generate quick filters with currency-aware data
@@ -191,7 +193,7 @@ function QuickFiltersInner({}: QuickFiltersProps) {
   );
 }
 
-export function QuickFilters({}: QuickFiltersProps) {
+export function QuickFilters({ filterState }: QuickFiltersProps) {
   return (
     <ClientOnly
       fallback={
@@ -212,7 +214,7 @@ export function QuickFilters({}: QuickFiltersProps) {
         </Wrap>
       }
     >
-      <QuickFiltersInner />
+      <QuickFiltersInner filterState={filterState} />
     </ClientOnly>
   );
 }

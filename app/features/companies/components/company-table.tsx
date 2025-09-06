@@ -1,26 +1,23 @@
-import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import {
   Avatar,
   Badge,
   Box,
-  Center,
   Link as ChakraLink,
   Flex,
+  For,
   HStack,
   ScrollArea,
   Skeleton,
   Table,
   Text,
   VStack,
-  Presence,
-  For,
-  useLocaleContext,
 } from "@chakra-ui/react";
-import { Tooltip } from "../../../components/ui/tooltip";
+import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { useColorModeValue } from "../../../components/ui/color-mode";
+import { FormatCurrencyCompact } from "../../../components/ui/format-currency";
+import { Tooltip } from "../../../components/ui/tooltip";
 import type { FilterState } from "../../../services/companies.service";
 import type { Company } from "../../../utils/companies.types";
-import { FormatCurrencyCompact } from "../../../components/ui/format-currency";
 
 // Column configuration
 interface TableColumn {
@@ -209,39 +206,32 @@ const COLUMNS: TableColumn[] = [
   },
 ];
 
+// Mapping des skeletons par colonne
+const SKELETON_MAP: Record<string, React.ReactNode> = {
+  rank: <Skeleton height="20px" width="50px" borderRadius="md" />,
+  company: (
+    <HStack gap={3}>
+      <Skeleton height="36px" width="36px" borderRadius="full" />
+      <VStack align="start" gap={1}>
+        <Skeleton height="16px" width="120px" />
+        <Skeleton height="14px" width="90px" />
+      </VStack>
+    </HStack>
+  ),
+  description: <Skeleton height="16px" width="200px" />,
+  stage: <Skeleton height="24px" width="80px" borderRadius="full" />,
+  focus: <Skeleton height="24px" width="50px" borderRadius="full" />,
+  funding: <Skeleton height="16px" width="80px" />,
+  fundingType: <Skeleton height="16px" width="70px" />,
+  createdAt: <Skeleton height="16px" width="85px" />,
+};
+
 const LoadingRow = () => (
   <Table.Row>
     <For each={COLUMNS}>
       {(column) => (
         <Table.Cell key={column.key} width={column.width}>
-          {column.key === "rank" && (
-            <Skeleton height="20px" width="40px" borderRadius="md" />
-          )}
-          {column.key === "company" && (
-            <HStack gap={3}>
-              <Skeleton height="28px" width="28px" borderRadius="full" />
-              <VStack align="start" gap={1}>
-                <Skeleton height="14px" width="100px" />
-                <Skeleton height="12px" width="70px" />
-              </VStack>
-            </HStack>
-          )}
-          {column.key === "description" && (
-            <Skeleton height="14px" width="180px" />
-          )}
-          {column.key === "stage" && (
-            <Skeleton height="18px" width="60px" borderRadius="md" />
-          )}
-          {column.key === "focus" && (
-            <Skeleton height="18px" width="45px" borderRadius="md" />
-          )}
-          {column.key === "funding" && <Skeleton height="14px" width="70px" />}
-          {column.key === "fundingType" && (
-            <Skeleton height="14px" width="90px" />
-          )}
-          {column.key === "createdAt" && (
-            <Skeleton height="14px" width="80px" />
-          )}
+          {SKELETON_MAP[column.key] || <Skeleton height="16px" width="60px" />}
         </Table.Cell>
       )}
     </For>
@@ -339,7 +329,6 @@ export const CompanyTable = ({
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const theadBg = useColorModeValue("brand.50", "brand.900");
   const theadTextColor = useColorModeValue("brand.700", "brand.200");
-  const emptyBgColor = useColorModeValue("gray.50", "gray.700");
 
   const handleSort = (sortBy: string) => {
     const newOrder =

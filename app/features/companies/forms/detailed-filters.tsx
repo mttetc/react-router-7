@@ -50,10 +50,16 @@ const fundingTypeOptions = [
 
 interface DetailedFiltersProps {
   defaultOpen?: boolean;
+  filterState: ReturnType<
+    typeof import("~/hooks/use-filter-state").useFilterState
+  >;
 }
 
-export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
-  const { filters } = useFilterState();
+export function DetailedFilters({
+  defaultOpen = false,
+  filterState,
+}: DetailedFiltersProps) {
+  const { filters } = filterState;
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const hasActiveAdvancedFilters = Boolean(

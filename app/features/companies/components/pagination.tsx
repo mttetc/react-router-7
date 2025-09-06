@@ -21,21 +21,27 @@ export const Pagination = ({
   onPageChange,
   isLoading,
 }: PaginationProps) => {
-  if (totalPages <= 1) return null;
+  // Always show pagination when there's data, even if only 1 page during loading
+  if (totalPages <= 1 && !isLoading) return null;
 
   // Calculate total count assuming 12 items per page (matching the limit in companies.tsx)
   const itemsPerPage = 12;
-  const totalCount = totalPages * itemsPerPage;
+  // Use fake count when loading to show pagination skeleton
+  const totalCount = isLoading ? itemsPerPage * 5 : totalPages * itemsPerPage;
 
   return (
-    <HStack justify="center" py={4} px={6}>
+    <HStack justify="center" py={2} px={6}>
       <ChakraPagination.Root
         count={totalCount}
         pageSize={itemsPerPage}
         page={currentPage}
         onPageChange={(details) => onPageChange(details.page)}
       >
-        <ButtonGroup variant="outline" size="sm" colorPalette="purple">
+        <ButtonGroup
+          variant="outline"
+          size="sm"
+          colorPalette={isLoading ? "gray" : "purple"}
+        >
           <ChakraPagination.PrevTrigger asChild>
             <IconButton disabled={isLoading}>
               <LuChevronLeft />

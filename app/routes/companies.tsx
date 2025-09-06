@@ -8,9 +8,9 @@ import {
   useScrollArea,
 } from "@chakra-ui/react";
 
+import { useEffect } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigation } from "react-router";
-import { useEffect } from "react";
 import { useColorModeValue } from "../components/ui/color-mode";
 
 // Services and hooks
@@ -19,8 +19,10 @@ import { CompanyTable } from "~/features/companies/components/company-table";
 import { Header } from "~/features/companies/components/header";
 import { Pagination } from "~/features/companies/components/pagination";
 import { FilterForm } from "~/features/companies/forms";
+import { useCompaniesData } from "~/features/companies/hooks/use-companies-data";
+import { useFilterState } from "~/hooks/use-filter-state";
+import { useQueryState, parseAsInteger } from "nuqs";
 import {
-  buildURLParams,
   type FilterState,
   type PaginationState,
   parseFiltersFromURL,
@@ -28,8 +30,6 @@ import {
 } from "../services/companies.service";
 import { getCompanies } from "../utils/companies.server";
 import type { Company, PaginatedResult } from "../utils/companies.types";
-import { useFilterState, usePaginationState } from "~/hooks/use-filter-state";
-import { useCompaniesData } from "~/features/companies/hooks/use-companies-data";
 
 // Components
 
@@ -44,7 +44,7 @@ interface LoaderData {
 }
 
 // ============================================================================
-// LOADER (SSR Support)
+// LOADER (Single source of truth for data fetching)
 // ============================================================================
 
 export async function loader({
@@ -57,58 +57,27 @@ export async function loader({
   const filters = parseFiltersFromURL(searchParams);
   const pagination = parsePaginationFromURL(searchParams);
 
-  console.log("🚀 [SSR] Fetching companies data:", {
+  console.log("🚀 [Loader] Fetching companies with params:", {
     filters,
     pagination,
   });
 
-  // Fetch companies data directly on the server (only for initial load)
-  const startTime = Date.now();
-
-  // Use the same parameter format as the client-side service
-  const serverParams = {
+  // Fetch companies data - preload pour le SSR
+  const companiesData = await getCompanies({
     page: pagination.page,
     limit: pagination.limit,
     search: filters.search || undefined,
-    growthStage: filters.growthStage || undefined,
-    customerFocus: filters.customerFocus || undefined,
-    fundingType: filters.fundingType || undefined,
-    minRank: filters.minRank || undefined,
-    maxRank: filters.maxRank || undefined,
-    minFunding: filters.minFunding || undefined,
-    maxFunding: filters.maxFunding || undefined,
+    growth_stage: filters.growthStage || undefined,
+    customer_focus: filters.customerFocus || undefined,
+    last_funding_type: filters.fundingType || undefined,
+    min_rank: filters.minRank || undefined,
+    max_rank: filters.maxRank || undefined,
+    min_funding: filters.minFunding || undefined,
+    max_funding: filters.maxFunding || undefined,
     sortBy: filters.sortBy || undefined,
     sortOrder: filters.sortOrder,
-  };
-
-  console.log("📋 [SSR] Server params:", serverParams);
-
-  // Convert to snake_case for the server function
-  const companiesData = await getCompanies({
-    page: serverParams.page,
-    limit: serverParams.limit,
-    search: serverParams.search,
-    growth_stage: serverParams.growthStage,
-    customer_focus: serverParams.customerFocus,
-    last_funding_type: serverParams.fundingType,
-    min_rank: serverParams.minRank,
-    max_rank: serverParams.maxRank,
-    min_funding: serverParams.minFunding,
-    max_funding: serverParams.maxFunding,
-    sortBy: serverParams.sortBy,
-    sortOrder: serverParams.sortOrder,
   });
 
-  const endTime = Date.now();
-  console.log(`✅ [SSR] Fetch completed in ${endTime - startTime}ms`);
-  console.log("📊 [SSR] Fetched data:", {
-    hasData: !!companiesData,
-    companiesCount: companiesData?.data?.length || 0,
-    totalPages: companiesData?.totalPages,
-    currentPage: companiesData?.page,
-  });
-
-  // Return the data directly to be used as initialData
   return {
     companiesData,
     filters,
@@ -126,15 +95,22 @@ export default function CompanyFeed() {
   const navigation = useNavigation();
   const scrollArea = useScrollArea();
 
-  // Get filter and pagination state from nuqs hooks
-  const { filters, updateFilters } = useFilterState();
-  const { pagination, goToPage, resetPagination } = usePaginationState();
+  // Get filter and pagination state from nuqs hooks (useFilterState has everything!)
+  const { filters, updateFilters, page, setPage } = useFilterState();
+  const [limit] = useQueryState("limit", parseAsInteger.withDefault(12));
 
-  // Use React Query to fetch data that responds to filter changes
+  const pagination = { page, limit };
+  const goToPage = async (newPage: number) => {
+    await setPage(newPage);
+  };
+
+  // Use React Query with server data as initial data
   const { data, isLoading, error } = useCompaniesData(
     filters,
     pagination,
-    undefined // Don't use initial data for now to test if React Query works
+    loaderData.companiesData,
+    loaderData.filters,
+    loaderData.pagination
   );
 
   // Check if we're navigating (for additional loading states)
@@ -148,12 +124,10 @@ export default function CompanyFeed() {
       totalPages: data?.totalPages,
       currentPage: data?.page,
       isLoading,
-      error: !!error,
+      error: error ? error.message : null,
+      errorDetails: error,
     });
   }, [data, isLoading, error]);
-
-  // Note: Pagination reset is now handled automatically in useFilterState
-  // when filters change, preventing race conditions and multiple API calls
 
   // Enhanced pagination handler with scroll
   const handlePageChange = async (page: number) => {
@@ -163,6 +137,11 @@ export default function CompanyFeed() {
     // Navigate to new page
     await goToPage(page);
   };
+
+  const bgColor = useColorModeValue(
+    "rgba(255, 255, 255, 0.8)",
+    "rgba(0, 0, 0, 0.7)"
+  );
 
   return (
     <Box
@@ -179,83 +158,107 @@ export default function CompanyFeed() {
         content: '""',
         pos: "absolute",
         inset: 0,
-        bgColor: useColorModeValue(
-          "rgba(255, 255, 255, 0.8)",
-          "rgba(0, 0, 0, 0.7)"
-        ),
+        bgColor,
         zIndex: -1,
       }}
     >
       <Header />
 
-      <ScrollArea.RootProvider value={scrollArea} flex="1">
-        <ScrollArea.Viewport>
-          <Container maxW="8xl" py={8}>
-            <Grid templateColumns="320px 1fr" gap={8}>
-              {/* Left Sidebar - Modern Filters */}
-              <Presence
-                present={true}
-                animationName={{
-                  _open: "slide-from-left, fade-in",
-                  _closed: "slide-to-left, fade-out",
-                }}
-                animationDuration="moderate"
-                animationDelay="0.1s"
-              >
-                <FilterForm />
-              </Presence>
+      <Container p={4} h="100%" minH={0}>
+        <Grid templateColumns="320px 1fr" gap={8} h="100%">
+          {/* Left Sidebar - Modern Filters */}
 
-              {/* Right Content */}
+          <ScrollArea.Root variant="hover">
+            <ScrollArea.Viewport>
+              <ScrollArea.Content>
+                <Presence
+                  present={true}
+                  animationName={{
+                    _open: "slide-from-left, fade-in",
+                    _closed: "slide-to-left, fade-out",
+                  }}
+                  animationDuration="moderate"
+                  animationDelay="0.1s"
+                >
+                  <FilterForm />
+                </Presence>
+              </ScrollArea.Content>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar />
+          </ScrollArea.Root>
+
+          {/* Right Content */}
+          <Box display="flex" flexDirection="column" overflow="hidden">
+            <Presence
+              present={!!data || isLoading || isNavigating}
+              animationName={{
+                _open: "slide-from-right, fade-in",
+                _closed: "slide-to-right, fade-out",
+              }}
+              animationDuration="moderate"
+              animationDelay="0.2s"
+            >
+              {/* Table Header - Fixed */}
+              <Box mb={4}>
+                <Text fontSize="sm" color="gray.500">
+                  {isLoading || isNavigating
+                    ? "Loading companies..."
+                    : error
+                    ? "Error loading companies"
+                    : `Showing ${data?.data?.length || 0} companies`}
+                </Text>
+              </Box>
+            </Presence>
+
+            {/* Company Table - Scrollable */}
+            <ScrollArea.Root variant="hover" flex="1">
+              <ScrollArea.Viewport>
+                <ScrollArea.Content>
+                  <Presence
+                    present={!!data || isLoading || isNavigating}
+                    animationName={{
+                      _open: "slide-from-right, fade-in",
+                      _closed: "slide-to-right, fade-out",
+                    }}
+                    animationDuration="moderate"
+                    animationDelay="0.3s"
+                  >
+                    <CompanyTable
+                      companies={data?.data || []}
+                      isLoading={isLoading || isNavigating}
+                      filters={filters}
+                      onFilterChange={updateFilters}
+                    />
+                  </Presence>
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar />
+            </ScrollArea.Root>
+
+            {/* Pagination - Fixed at bottom */}
+            {((data && data.total > 0) || isLoading || isNavigating) && (
               <Presence
-                present={true}
+                present
                 animationName={{
                   _open: "slide-from-right, fade-in",
                   _closed: "slide-to-right, fade-out",
                 }}
                 animationDuration="moderate"
-                animationDelay="0.2s"
-                overflow="hidden"
+                animationDelay="0.4s"
               >
-                <Box overflow="hidden">
-                  {/* Table Header */}
-                  <Box mb={4}>
-                    <Text fontSize="sm" color="gray.500">
-                      {isLoading || isNavigating
-                        ? "Loading companies..."
-                        : error
-                        ? "Error loading companies"
-                        : `Showing ${data?.data?.length || 0} companies`}
-                    </Text>
-                  </Box>
-
-                  {/* Company Table */}
-                  <CompanyTable
-                    companies={data?.data || []}
+                <Box mt={4}>
+                  <Pagination
+                    currentPage={data?.page || 1}
+                    totalPages={data?.totalPages || 1}
+                    onPageChange={handlePageChange}
                     isLoading={isLoading || isNavigating}
-                    filters={filters}
-                    onFilterChange={updateFilters} // Use nuqs updateFilters for sorting
                   />
-
-                  {/* Pagination - Only show if there are results */}
-                  {data && data.total > 0 && (
-                    <Box mt={8}>
-                      <Pagination
-                        currentPage={data.page}
-                        totalPages={data.totalPages}
-                        onPageChange={handlePageChange}
-                        isLoading={isLoading || isNavigating}
-                      />
-                    </Box>
-                  )}
                 </Box>
               </Presence>
-            </Grid>
-          </Container>
-        </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar>
-          <ScrollArea.Thumb />
-        </ScrollArea.Scrollbar>
-      </ScrollArea.RootProvider>
+            )}
+          </Box>
+        </Grid>
+      </Container>
     </Box>
   );
 }

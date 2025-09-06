@@ -34,7 +34,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body suppressHydrationWarning>
+      <body
+        suppressHydrationWarning
+        style={{ height: "100dvh", margin: 0, padding: 0 }}
+      >
         <Provider>
           {children}
           <ScrollRestoration />

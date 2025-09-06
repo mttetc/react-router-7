@@ -8,10 +8,12 @@ import {
   Text,
   Wrap,
 } from "@chakra-ui/react";
+import { useMemo } from "react";
 import { FaUndo } from "react-icons/fa";
 import { useCurrencyStore } from "~/stores/currency.store";
 import { convertCurrency } from "~/utils/currency.utils";
 import type { FilterState } from "../../../services/companies.service";
+import { getFilterColor } from "./filter-colors";
 
 interface ActiveFiltersProps {
   filters: FilterState;
@@ -42,7 +44,7 @@ function getActiveFilters(
       key: "search",
       label: "Search",
       value: `"${filters.search}"`,
-      color: "gray",
+      color: getFilterColor("search"),
     });
   }
 
@@ -58,7 +60,7 @@ function getActiveFilters(
       key: "growthStage",
       label: "Growth Stage",
       value: stageLabels[filters.growthStage] || filters.growthStage,
-      color: "green",
+      color: getFilterColor("growthStage", filters.growthStage),
     });
   }
 
@@ -73,7 +75,7 @@ function getActiveFilters(
       key: "customerFocus",
       label: "Customer Focus",
       value: focusLabels[filters.customerFocus] || filters.customerFocus,
-      color: "blue",
+      color: getFilterColor("customerFocus", filters.customerFocus),
     });
   }
 
@@ -82,7 +84,7 @@ function getActiveFilters(
       key: "fundingType",
       label: "Funding Type",
       value: filters.fundingType,
-      color: "purple",
+      color: getFilterColor("fundingType"),
     });
   }
 
@@ -101,7 +103,7 @@ function getActiveFilters(
       label: "Rank Range",
       value,
       type: "rank",
-      color: "yellow",
+      color: getFilterColor("rank"),
     });
   }
 
@@ -121,7 +123,7 @@ function getActiveFilters(
       minAmount: minConverted,
       maxAmount: maxConverted,
       currency,
-      color: "orange",
+      color: getFilterColor("funding"),
     });
   }
 
@@ -134,135 +136,121 @@ export function ActiveFilters({
   onResetAll,
 }: ActiveFiltersProps) {
   const currency = useCurrencyStore((state) => state.selectedCurrency);
-  const activeFilters = getActiveFilters(filters, currency);
+
+  // Memoize the expensive calculation to prevent unnecessary re-renders
+  const activeFilters = useMemo(() => {
+    return getActiveFilters(filters, currency);
+  }, [filters, currency]);
 
   if (activeFilters.length === 0) {
     return null;
   }
 
   return (
-    <Presence
-      present={true}
-      animationName={{
-        _open: "fade-in, scale-in",
-        _closed: "fade-out, scale-out",
-      }}
-      animationDuration="moderate"
+    <HStack
+      p={3}
+      bg="gray.50"
+      borderRadius="md"
+      justify="space-between"
+      align="center"
+      flexWrap="wrap"
+      gap={2}
     >
-      <HStack
-        p={3}
-        bg="gray.50"
-        borderRadius="md"
-        justify="space-between"
-        align="center"
-        flexWrap="wrap"
-        gap={2}
-      >
-        <HStack align="center" flexWrap="wrap" gap={1} flex={1}>
-          <Text fontSize="xs" fontWeight="medium" color="gray.600">
-            Active:
-          </Text>
+      <HStack align="center" flexWrap="wrap" gap={1} flex={1}>
+        <Text fontSize="xs" fontWeight="medium" color="gray.600">
+          Active:
+        </Text>
 
-          <Wrap gap={1}>
-            <For each={activeFilters}>
-              {(filter) => (
-                <Presence
-                  key={filter.key}
-                  present={true}
-                  display="flex"
-                  animationName={{
-                    _open: "fade-in, scale-in",
-                    _closed: "fade-out, scale-out",
-                  }}
-                  animationDuration="fast"
-                  animationDelay="0.05s"
+        <Wrap gap={1}>
+          <For each={activeFilters}>
+            {(filter) => (
+              <Presence
+                key={filter.key}
+                present={true}
+                display="flex"
+                animationName={{
+                  _open: "fade-in",
+                  _closed: "fade-out",
+                }}
+                animationDuration="fast"
+              >
+                <Tag.Root
+                  colorPalette={filter.color}
+                  variant="surface"
+                  size="sm"
                 >
-                  <Tag.Root
-                    colorPalette={filter.color}
-                    variant="solid"
-                    size="sm"
-                  >
-                    <Tag.Label>
-                      {filter.type === "funding" ? (
-                        <>
-                          {filter.minAmount && filter.maxAmount ? (
-                            <>
-                              <FormatNumber
-                                value={filter.minAmount}
-                                style="currency"
-                                currency={filter.currency}
-                                notation="compact"
-                                maximumFractionDigits={1}
-                              />
-                              {" - "}
-                              <FormatNumber
-                                value={filter.maxAmount}
-                                style="currency"
-                                currency={filter.currency}
-                                notation="compact"
-                                maximumFractionDigits={1}
-                              />
-                            </>
-                          ) : filter.minAmount ? (
-                            <>
-                              <FormatNumber
-                                value={filter.minAmount}
-                                style="currency"
-                                currency={filter.currency}
-                                notation="compact"
-                                maximumFractionDigits={1}
-                              />
-                              +
-                            </>
-                          ) : filter.maxAmount ? (
-                            <>
-                              Up to{" "}
-                              <FormatNumber
-                                value={filter.maxAmount}
-                                style="currency"
-                                currency={filter.currency}
-                                notation="compact"
-                                maximumFractionDigits={1}
-                              />
-                            </>
-                          ) : null}
-                        </>
-                      ) : (
-                        filter.value
-                      )}
-                    </Tag.Label>
+                  <Tag.Label>
+                    {filter.type === "funding" ? (
+                      <>
+                        {filter.minAmount && filter.maxAmount ? (
+                          <>
+                            <FormatNumber
+                              value={filter.minAmount}
+                              style="currency"
+                              currency={filter.currency}
+                              notation="compact"
+                              maximumFractionDigits={1}
+                            />
+                            {" - "}
+                            <FormatNumber
+                              value={filter.maxAmount}
+                              style="currency"
+                              currency={filter.currency}
+                              notation="compact"
+                              maximumFractionDigits={1}
+                            />
+                          </>
+                        ) : filter.minAmount ? (
+                          <>
+                            <FormatNumber
+                              value={filter.minAmount}
+                              style="currency"
+                              currency={filter.currency}
+                              notation="compact"
+                              maximumFractionDigits={1}
+                            />
+                            +
+                          </>
+                        ) : filter.maxAmount ? (
+                          <>
+                            Up to{" "}
+                            <FormatNumber
+                              value={filter.maxAmount}
+                              style="currency"
+                              currency={filter.currency}
+                              notation="compact"
+                              maximumFractionDigits={1}
+                            />
+                          </>
+                        ) : null}
+                      </>
+                    ) : (
+                      filter.value
+                    )}
+                  </Tag.Label>
+                  <Tag.EndElement>
                     <Tag.CloseTrigger
                       onClick={() => onRemoveFilter(filter.key)}
                       aria-label={`Remove ${filter.label} filter`}
                     />
-                  </Tag.Root>
-                </Presence>
-              )}
-            </For>
-          </Wrap>
-        </HStack>
-
-        <Presence
-          present={true}
-          animationName={{
-            _open: "fade-in, scale-in",
-            _closed: "fade-out, scale-out",
-          }}
-          animationDuration="fast"
-          animationDelay="0.1s"
-        >
-          <Button
-            size="xs"
-            variant="outline"
-            colorPalette="gray"
-            onClick={onResetAll}
-            flexShrink={0}
-          >
-            <FaUndo />
-            Clear all
-          </Button>
-        </Presence>
+                  </Tag.EndElement>
+                </Tag.Root>
+              </Presence>
+            )}
+          </For>
+        </Wrap>
       </HStack>
-    </Presence>
+
+      <Button
+        size="xs"
+        variant="outline"
+        colorPalette="gray"
+        onClick={onResetAll}
+        flexShrink={0}
+      >
+        <FaUndo />
+        Clear all
+      </Button>
+    </HStack>
   );
 }

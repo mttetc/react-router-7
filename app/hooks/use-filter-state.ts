@@ -4,6 +4,7 @@ import {
   parseAsInteger,
   parseAsString,
 } from "nuqs";
+import { useMemo } from "react";
 import type { FilterState } from "~/services/companies.service";
 
 /**
@@ -73,34 +74,33 @@ export function useFilterState() {
     updates: Partial<FilterState>,
     resetPage = true
   ) => {
-    // Batch filter updates with pagination reset to prevent multiple API calls
+    // Update filters first
+    await setFilters(updates);
+
+    // Then reset page if needed (separate update to avoid conflicts)
     if (resetPage && page !== 1) {
-      // Reset page to 1 when filters change, but do it in the same update cycle
-      await Promise.all([setFilters(updates), setPage(1)]);
-    } else {
-      // Just update filters without touching pagination
-      await setFilters(updates);
+      await setPage(1);
     }
   };
 
   // Reset all filters to default values
   const resetFilters = async () => {
-    // Reset both filters and pagination in the same batch
-    await Promise.all([
-      setFilters({
-        search: "",
-        growthStage: "",
-        customerFocus: "",
-        fundingType: "",
-        minRank: null,
-        maxRank: null,
-        minFunding: null,
-        maxFunding: null,
-        sortBy: "",
-        sortOrder: "asc",
-      }),
-      setPage(1),
-    ]);
+    // Reset filters first
+    await setFilters({
+      search: "",
+      growthStage: "",
+      customerFocus: "",
+      fundingType: "",
+      minRank: null,
+      maxRank: null,
+      minFunding: null,
+      maxFunding: null,
+      sortBy: "",
+      sortOrder: "asc",
+    });
+
+    // Then reset page
+    await setPage(1);
   };
 
   // Remove a specific filter
@@ -122,6 +122,23 @@ export function useFilterState() {
 
     await updateFilters(updates);
   };
+
+  // Memoize the filters object to prevent unnecessary re-renders
+  const memoizedFilters = useMemo(
+    () => filters,
+    [
+      filters.search,
+      filters.growthStage,
+      filters.customerFocus,
+      filters.fundingType,
+      filters.minRank,
+      filters.maxRank,
+      filters.minFunding,
+      filters.maxFunding,
+      filters.sortBy,
+      filters.sortOrder,
+    ]
+  );
 
   return {
     // Individual filter states and setters
@@ -151,7 +168,7 @@ export function useFilterState() {
     setPage,
 
     // Computed and utility functions
-    filters,
+    filters: memoizedFilters,
     updateFilters,
     resetFilters,
     removeFilter,
@@ -168,8 +185,8 @@ export function usePaginationState() {
     parseAsInteger.withDefault(12)
   );
 
-  // Get page state from the coordinated filter state
-  const { page, setPage } = useFilterState();
+  // Direct page state management to avoid circular dependency
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
   const pagination = { page, limit };
 

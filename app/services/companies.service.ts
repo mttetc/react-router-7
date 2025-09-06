@@ -1,7 +1,7 @@
 import type { Company, PaginatedResult } from "../utils/companies.types";
 
 // ============================================================================
-// TYPES
+// TYPES (pour compatibilité avec les hooks nuqs)
 // ============================================================================
 
 export interface FilterState {
@@ -23,63 +23,12 @@ export interface PaginationState {
 }
 
 // ============================================================================
-// API SERVICE
+// URL PARSING UTILITIES (pour le loader)
 // ============================================================================
 
-export class CompaniesService {
-  private static buildParams(
-    filters: FilterState,
-    pagination: PaginationState
-  ): URLSearchParams {
-    const params = new URLSearchParams();
-
-    if (filters.search) params.set("q", filters.search);
-    if (filters.growthStage) params.set("growth_stage", filters.growthStage);
-    if (filters.customerFocus)
-      params.set("customer_focus", filters.customerFocus);
-    if (filters.fundingType)
-      params.set("last_funding_type", filters.fundingType);
-
-    if (filters.minRank) params.set("min_rank", filters.minRank.toString());
-    if (filters.maxRank) params.set("max_rank", filters.maxRank.toString());
-    if (filters.minFunding)
-      params.set("min_funding", filters.minFunding.toString());
-    if (filters.maxFunding)
-      params.set("max_funding", filters.maxFunding.toString());
-
-    // Add sorting parameters
-    if (filters.sortBy) params.set("sortBy", filters.sortBy);
-    if (filters.sortOrder) params.set("sortOrder", filters.sortOrder);
-
-    params.set("page", pagination.page.toString());
-    params.set("limit", pagination.limit.toString());
-
-    return params;
-  }
-
-  static async fetchCompanies(
-    filters: FilterState,
-    pagination: PaginationState
-  ): Promise<PaginatedResult<Company>> {
-    // Use the React Router data route instead of separate API endpoint
-    const params = this.buildURLParams(filters, pagination);
-    const response = await fetch(`/companies.data?${params}`);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch companies");
-    }
-
-    return response.json();
-  }
-}
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-
-export const parseFiltersFromURL = (
+export function parseFiltersFromURL(
   searchParams: URLSearchParams
-): FilterState => {
+): FilterState {
   return {
     search: searchParams.get("search") || "",
     growthStage: searchParams.get("growthStage") || "",
@@ -91,7 +40,6 @@ export const parseFiltersFromURL = (
     maxRank: searchParams.get("maxRank")
       ? parseInt(searchParams.get("maxRank")!)
       : null,
-
     minFunding: searchParams.get("minFunding")
       ? parseInt(searchParams.get("minFunding")!)
       : null,
@@ -101,32 +49,42 @@ export const parseFiltersFromURL = (
     sortBy: (searchParams.get("sortBy") as "name" | "rank" | "funding") || "",
     sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "asc",
   };
-};
+}
 
-export const parsePaginationFromURL = (
+export function parsePaginationFromURL(
   searchParams: URLSearchParams
-): PaginationState => {
+): PaginationState {
   return {
     page: searchParams.get("page") ? parseInt(searchParams.get("page")!) : 1,
     limit: searchParams.get("limit")
       ? parseInt(searchParams.get("limit")!)
       : 12,
   };
-};
+}
 
-export const buildURLParams = (
+// ============================================================================
+// API FUNCTIONS
+// ============================================================================
+
+export async function fetchCompanies(
   filters: FilterState,
   pagination: PaginationState
-): URLSearchParams => {
+): Promise<PaginatedResult<Company>> {
+  console.log("🌐 [Service] fetchCompanies called with:", {
+    filters,
+    pagination,
+  });
+
+  // Construire les params à partir des valeurs passées
   const params = new URLSearchParams();
 
+  // Ajouter les filtres (seulement si ils ont des valeurs)
   if (filters.search) params.set("search", filters.search);
   if (filters.growthStage) params.set("growthStage", filters.growthStage);
   if (filters.customerFocus) params.set("customerFocus", filters.customerFocus);
   if (filters.fundingType) params.set("fundingType", filters.fundingType);
   if (filters.minRank) params.set("minRank", filters.minRank.toString());
   if (filters.maxRank) params.set("maxRank", filters.maxRank.toString());
-
   if (filters.minFunding)
     params.set("minFunding", filters.minFunding.toString());
   if (filters.maxFunding)
@@ -134,8 +92,27 @@ export const buildURLParams = (
   if (filters.sortBy && filters.sortBy !== "")
     params.set("sortBy", filters.sortBy);
   if (filters.sortOrder !== "asc") params.set("sortOrder", filters.sortOrder);
+
+  // Ajouter la pagination (seulement si pas par défaut)
   if (pagination.page !== 1) params.set("page", pagination.page.toString());
   if (pagination.limit !== 12) params.set("limit", pagination.limit.toString());
 
-  return params;
-};
+  const url = `/api/companies?${params}`;
+  console.log("🌐 [Service] Fetching URL:", url);
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    console.error(
+      "❌ [Service] Fetch failed:",
+      response.status,
+      response.statusText
+    );
+    throw new Error("Failed to fetch companies");
+  }
+
+  const companiesData = await response.json();
+  console.log("✅ [Service] Clean JSON response:", companiesData);
+
+  return companiesData;
+}

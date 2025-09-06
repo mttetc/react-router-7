@@ -37,6 +37,8 @@ export const Header = () => {
             <Image
               src="https://www.tryspecter.com/specter.svg"
               alt="Specter"
+              height="24px"
+              width="auto"
               filter={useColorModeValue("none", "invert(1)")}
             />
             <HStack gap={3} align="baseline">

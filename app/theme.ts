@@ -216,6 +216,12 @@ export const system = createSystem(defaultConfig, {
         "bg.subtle": {
           value: { _light: "{colors.gray.50}", _dark: "{colors.gray.800}" },
         },
+        "bg.emphasized": {
+          value: { _light: "{colors.gray.100}", _dark: "{colors.gray.700}" },
+        },
+        "bg.panel": {
+          value: { _light: "{colors.white}", _dark: "{colors.gray.800}" },
+        },
         "fg.subtle": {
           value: { _light: "{colors.gray.600}", _dark: "{colors.gray.400}" },
         },
