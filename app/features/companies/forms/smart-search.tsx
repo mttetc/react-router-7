@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Box, Input, HStack, Text, Badge, VStack, For } from "@chakra-ui/react";
 import { FaSearch, FaMagic } from "react-icons/fa";
 import { useDebounce } from "rooks";
@@ -7,6 +7,17 @@ import { filtersSearchParams } from "~/lib/search-params";
 import type { FilterState } from "../../../services/companies.service";
 import { useCurrencyStore } from "~/stores/currency.store";
 import { convertCurrency, convertToUSD } from "~/utils/currency.utils";
+
+// Export the search input value directly
+let currentSearchInput = "";
+let currentParsedFilters: any[] = [];
+export const getCurrentSearchInput = () => currentSearchInput;
+export const hasOnlyMagicFilters = () => {
+  if (!currentSearchInput.trim()) return false;
+  // If we have parsed filters and the remaining query after parsing is empty/minimal
+  const { remainingQuery } = parseSmartSearch(currentSearchInput, "USD"); // Use USD as default
+  return currentParsedFilters.length > 0 && !remainingQuery.trim();
+};
 
 const formatCurrencyLabel = (
   value: number,
@@ -31,8 +42,9 @@ interface ParsedFilter {
 
 const SEARCH_PATTERNS = [
   // Funding patterns - supports $1M, 5M+, etc. with currency conversion
+  // Negative lookbehind to avoid matching B2B, B2C patterns
   {
-    pattern: /\$?(\d+(?:\.\d+)?)\s*([kmb])[\+\-]?/gi,
+    pattern: /(?<![a-zA-Z])\$?(\d+(?:\.\d+)?)\s*([kmb])[\+\-]?/gi,
     type: "funding",
     extract: (match: RegExpMatchArray) => {
       const amount = parseFloat(match[1]);
@@ -177,6 +189,9 @@ function parseSmartSearch(
     });
   });
 
+  // Always include the remaining query as the search term
+  filters.search = remainingQuery.trim();
+
   return { filters, remainingQuery, parsedFilters };
 }
 
@@ -210,22 +225,36 @@ export function SmartSearch() {
 
   const [query, setQuery] = useState(search || "");
   const [parsedFilters, setParsedFilters] = useState<ParsedFilter[]>([]);
+  const [immediateSearchState, setImmediateSearchState] = useState(
+    search || ""
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
+  // Clear input when search is cleared via active filter removal
+  useEffect(() => {
+    if (!search && currentSearchInput) {
+      setQuery("");
+      currentSearchInput = "";
+      setParsedFilters([]);
+    }
+  }, [search]);
+
   const debouncedUpdateFilters = useDebounce(
-    async (filters: Partial<FilterState>, remainingQuery: string) => {
-      if (filters.search !== undefined) setSearch(remainingQuery || null);
-      if (filters.growthStage !== undefined)
-        setGrowthStage(filters.growthStage || null);
-      if (filters.customerFocus !== undefined)
-        setCustomerFocus(filters.customerFocus || null);
-      if (filters.fundingType !== undefined)
-        setFundingType(filters.fundingType || null);
-      if (filters.minRank !== undefined) setMinRank(filters.minRank);
-      if (filters.maxRank !== undefined) setMaxRank(filters.maxRank);
-      if (filters.minFunding !== undefined) setMinFunding(filters.minFunding);
-      if (filters.maxFunding !== undefined) setMaxFunding(filters.maxFunding);
+    async (allFilters: Partial<FilterState & { search: string }>) => {
+      if (allFilters.search !== undefined) setSearch(allFilters.search || null);
+      if (allFilters.growthStage !== undefined)
+        setGrowthStage(allFilters.growthStage || null);
+      if (allFilters.customerFocus !== undefined)
+        setCustomerFocus(allFilters.customerFocus || null);
+      if (allFilters.fundingType !== undefined)
+        setFundingType(allFilters.fundingType || null);
+      if (allFilters.minRank !== undefined) setMinRank(allFilters.minRank);
+      if (allFilters.maxRank !== undefined) setMaxRank(allFilters.maxRank);
+      if (allFilters.minFunding !== undefined)
+        setMinFunding(allFilters.minFunding);
+      if (allFilters.maxFunding !== undefined)
+        setMaxFunding(allFilters.maxFunding);
     },
     300
   );
@@ -233,22 +262,15 @@ export function SmartSearch() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
+    currentSearchInput = newQuery; // Always show what's in the input
 
     if (newQuery.trim() === "") {
       setParsedFilters([]);
-      debouncedUpdateFilters(
-        {
-          search: "",
-          growthStage: "",
-          customerFocus: "",
-          fundingType: "",
-          minFunding: null,
-          maxFunding: null,
-          minRank: null,
-          maxRank: null,
-        },
-        ""
-      );
+      currentParsedFilters = []; // Clear stored filters
+      // Only clear the search, keep other filters intact
+      debouncedUpdateFilters({
+        search: "",
+      });
     } else {
       const {
         filters,
@@ -256,8 +278,16 @@ export function SmartSearch() {
         parsedFilters: newParsedFilters,
       } = parseSmartSearch(newQuery, currentCurrency);
       setParsedFilters(newParsedFilters);
+      currentParsedFilters = newParsedFilters; // Store for hasOnlyMagicFilters check
 
-      debouncedUpdateFilters(filters, remainingQuery);
+      // Keep the original query in search if there are magic filters
+      const searchValue =
+        newParsedFilters.length > 0 ? newQuery : remainingQuery.trim();
+
+      debouncedUpdateFilters({
+        ...filters,
+        search: searchValue,
+      });
     }
   };
 
@@ -294,6 +324,8 @@ export function SmartSearch() {
         <FaSearch color="gray.400" size={14} />
         <Input
           ref={inputRef}
+          id="smart-search-input"
+          name="smart-search"
           placeholder="Search"
           value={query}
           onChange={handleChange}
@@ -306,6 +338,7 @@ export function SmartSearch() {
           p={0}
           h="auto"
           flex={1}
+          aria-label="Smart search for companies"
         />
         {parsedFilters.length > 0 && (
           <FaMagic

@@ -80,16 +80,29 @@ export function CurrencySelector() {
   };
 
   // Filter currencies based on search query
-  const filteredOtherCurrencies = useMemo(() => {
-    if (!searchQuery) return allOtherCurrencies;
+  const filteredCurrencies = useMemo(() => {
+    if (!searchQuery) {
+      return {
+        popular: popularCurrencies,
+        others: allOtherCurrencies,
+        showPopularSection: true,
+      };
+    }
 
     const query = searchQuery.toLowerCase();
-    return allOtherCurrencies.filter(
+    const allCurrencies = [...popularCurrencies, ...allOtherCurrencies];
+    const filtered = allCurrencies.filter(
       (currency) =>
         currency.value.toLowerCase().includes(query) ||
         currency.label.toLowerCase().includes(query) ||
         currency.symbol.toLowerCase().includes(query)
     );
+
+    return {
+      popular: [],
+      others: filtered,
+      showPopularSection: false,
+    };
   }, [searchQuery]);
 
   const currentCurrency = getCurrentCurrencyInfo();
@@ -130,53 +143,65 @@ export function CurrencySelector() {
           <Menu.Content minW="280px" maxH="400px" overflowY="auto">
             <VStack align="stretch" p={3} gap={3}>
               <Input
+                id="currency-search-input"
+                name="currency-search"
                 placeholder="Search currencies..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 size="sm"
+                _focus={{ outline: "none", boxShadow: "none" }}
+                aria-label="Search currencies"
               />
             </VStack>
 
             <Menu.Separator />
 
-            <Menu.ItemGroup>
-              <Menu.ItemGroupLabel>Popular Currencies</Menu.ItemGroupLabel>
-              <For each={popularCurrencies}>
-                {(currency) => (
-                  <Menu.Item
-                    key={currency.value}
-                    value={currency.value}
-                    onClick={() => handleCurrencySelect(currency)}
-                    bg={
-                      selectedCurrency === currency.value
-                        ? "blue.50"
-                        : undefined
-                    }
-                  >
-                    <HStack gap={3} w="full">
-                      <Text fontSize="lg">{currency.flag}</Text>
-                      <VStack align="start" gap={0} flex={1}>
-                        <Text fontSize="sm" fontWeight="medium">
-                          {currency.value}
-                        </Text>
-                        <Text fontSize="xs" color="gray.500">
-                          {currency.label}
-                        </Text>
-                      </VStack>
-                      <Text fontSize="sm" color="gray.400">
-                        {currency.symbol}
-                      </Text>
-                    </HStack>
-                  </Menu.Item>
-                )}
-              </For>
-            </Menu.ItemGroup>
+            {filteredCurrencies.showPopularSection && (
+              <>
+                <Menu.ItemGroup>
+                  <Menu.ItemGroupLabel>Popular Currencies</Menu.ItemGroupLabel>
+                  <For each={filteredCurrencies.popular}>
+                    {(currency) => (
+                      <Menu.Item
+                        key={currency.value}
+                        value={currency.value}
+                        onClick={() => handleCurrencySelect(currency)}
+                        bg={
+                          selectedCurrency === currency.value
+                            ? "blue.50"
+                            : undefined
+                        }
+                      >
+                        <HStack gap={3} w="full">
+                          <Text fontSize="lg">{currency.flag}</Text>
+                          <VStack align="start" gap={0} flex={1}>
+                            <Text fontSize="sm" fontWeight="medium">
+                              {currency.value}
+                            </Text>
+                            <Text fontSize="xs" color="gray.500">
+                              {currency.label}
+                            </Text>
+                          </VStack>
+                          <Text fontSize="sm" color="gray.400">
+                            {currency.symbol}
+                          </Text>
+                        </HStack>
+                      </Menu.Item>
+                    )}
+                  </For>
+                </Menu.ItemGroup>
 
-            <Menu.Separator />
+                <Menu.Separator />
+              </>
+            )}
 
             <Menu.ItemGroup>
-              <Menu.ItemGroupLabel>Other Currencies</Menu.ItemGroupLabel>
-              <For each={filteredOtherCurrencies}>
+              <Menu.ItemGroupLabel>
+                {filteredCurrencies.showPopularSection
+                  ? "Other Currencies"
+                  : "Search Results"}
+              </Menu.ItemGroupLabel>
+              <For each={filteredCurrencies.others}>
                 {(currency) => (
                   <Menu.Item
                     key={currency.value}

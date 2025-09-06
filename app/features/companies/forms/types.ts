@@ -1,5 +1,3 @@
-import type { FilterState } from "../../../services/companies.service";
-
 export interface FormFieldProps {
   name: string;
   label: string;

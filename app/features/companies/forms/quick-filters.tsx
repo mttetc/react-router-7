@@ -7,7 +7,7 @@ import {
   Tag,
   For,
 } from "@chakra-ui/react";
-import { useQueryState } from "nuqs";
+import { useQueryStates } from "nuqs";
 import { filtersSearchParams } from "~/lib/search-params";
 import type { FilterState } from "../../../services/companies.service";
 import { useCurrencyStore } from "~/stores/currency.store";
@@ -85,45 +85,26 @@ const QUICK_FILTER_TEMPLATES: QuickFilterBase[] = [
 ];
 
 function QuickFiltersInner() {
-  const [growthStage, setGrowthStage] = useQueryState(
-    "growthStage",
-    filtersSearchParams.growthStage
-  );
-  const [customerFocus, setCustomerFocus] = useQueryState(
-    "customerFocus",
-    filtersSearchParams.customerFocus
-  );
-  const [fundingType, setFundingType] = useQueryState(
-    "fundingType",
-    filtersSearchParams.fundingType
-  );
-  const [minRank, setMinRank] = useQueryState(
-    "minRank",
-    filtersSearchParams.minRank
-  );
-  const [maxRank, setMaxRank] = useQueryState(
-    "maxRank",
-    filtersSearchParams.maxRank
-  );
-  const [minFunding, setMinFunding] = useQueryState(
-    "minFunding",
-    filtersSearchParams.minFunding
-  );
-  const [maxFunding, setMaxFunding] = useQueryState(
-    "maxFunding",
-    filtersSearchParams.maxFunding
-  );
+  const [filters, setFilters] = useQueryStates({
+    growthStage: filtersSearchParams.growthStage,
+    customerFocus: filtersSearchParams.customerFocus,
+    fundingType: filtersSearchParams.fundingType,
+    minRank: filtersSearchParams.minRank,
+    maxRank: filtersSearchParams.maxRank,
+    minFunding: filtersSearchParams.minFunding,
+    maxFunding: filtersSearchParams.maxFunding,
+  });
 
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
-  const filters = {
-    growthStage: growthStage || "",
-    customerFocus: customerFocus || "",
-    fundingType: fundingType || "",
-    minRank,
-    maxRank,
-    minFunding,
-    maxFunding,
+  const currentFilters = {
+    growthStage: filters.growthStage || "",
+    customerFocus: filters.customerFocus || "",
+    fundingType: filters.fundingType || "",
+    minRank: filters.minRank,
+    maxRank: filters.maxRank,
+    minFunding: filters.minFunding,
+    maxFunding: filters.maxFunding,
   };
 
   // Generate quick filters with currency-aware data
@@ -158,36 +139,25 @@ function QuickFiltersInner() {
     const isCurrentlyActive = isFilterActive(quickFilter);
 
     if (isCurrentlyActive) {
+      // Clear the filters - batch update all at once
+      const updates: any = {};
       Object.keys(quickFilter.filters).forEach((key) => {
-        const filterKey = key as keyof FilterState;
-        if (filterKey === "growthStage") setGrowthStage(null);
-        else if (filterKey === "customerFocus") setCustomerFocus(null);
-        else if (filterKey === "fundingType") setFundingType(null);
-        else if (filterKey === "minRank") setMinRank(null);
-        else if (filterKey === "maxRank") setMaxRank(null);
-        else if (filterKey === "minFunding") setMinFunding(null);
-        else if (filterKey === "maxFunding") setMaxFunding(null);
+        updates[key] = null;
       });
+      setFilters(updates);
     } else {
+      // Apply the filters - batch update all at once
+      const updates: any = {};
       Object.entries(quickFilter.filters).forEach(([key, value]) => {
-        const filterKey = key as keyof FilterState;
-        if (filterKey === "growthStage")
-          setGrowthStage((value as string) || null);
-        else if (filterKey === "customerFocus")
-          setCustomerFocus((value as string) || null);
-        else if (filterKey === "fundingType")
-          setFundingType((value as string) || null);
-        else if (filterKey === "minRank") setMinRank(value as number);
-        else if (filterKey === "maxRank") setMaxRank(value as number);
-        else if (filterKey === "minFunding") setMinFunding(value as number);
-        else if (filterKey === "maxFunding") setMaxFunding(value as number);
+        updates[key] = value;
       });
+      setFilters(updates);
     }
   };
 
   const isFilterActive = (quickFilter: ProcessedQuickFilter): boolean => {
     return Object.entries(quickFilter.filters).every(([key, value]) => {
-      const currentValue = (filters as any)[key];
+      const currentValue = (currentFilters as any)[key];
       return currentValue === value;
     });
   };

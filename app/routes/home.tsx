@@ -14,7 +14,7 @@ import { Link } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
+    { title: "Specter lite" },
     { name: "description", content: "Welcome to React Router!" },
   ];
 }

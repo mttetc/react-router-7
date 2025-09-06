@@ -8,23 +8,30 @@ import {
   useScrollArea,
 } from "@chakra-ui/react";
 
-import React, { useEffect } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useNavigation, useLocation } from "react-router";
+import { useLoaderData, useNavigation } from "react-router";
 import { useColorModeValue } from "../components/ui/color-mode";
+import { useCallback } from "react";
 
+import { useQueryState } from "nuqs";
 import { CompanyTable } from "~/features/companies/components/company-table";
 import { Header } from "~/features/companies/components/header";
 import { Pagination } from "~/features/companies/components/pagination";
-import { FilterForm } from "~/features/companies/forms";
+import { FilterForm } from "~/features/companies/forms/filter-form";
 import { useCompaniesData } from "~/features/companies/hooks/use-companies-data";
-import { loadFilters, filtersSearchParams } from "~/lib/search-params";
-import { useQueryState } from "nuqs";
+import { filtersSearchParams, loadFilters } from "~/lib/search-params";
 import { getCompanies } from "../utils/companies.server";
 import type { Company, PaginatedResult } from "../utils/companies.types";
 
 interface LoaderData {
   companiesData: PaginatedResult<Company>;
+}
+
+export function meta() {
+  return [
+    { title: "Specter lite - Companies" },
+    { name: "description", content: "Browse and filter companies" },
+  ];
 }
 
 export async function loader({
@@ -111,10 +118,16 @@ export default function CompanyFeed() {
 
   const isNavigating = navigation.state === "loading";
 
-  const handlePageChange = async (page: number) => {
-    scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
-    setPage(page);
-  };
+  const handlePageChange = useCallback(
+    async (page: number) => {
+      scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
+      // Use setTimeout to break out of the current transition and prevent cascade
+      setTimeout(() => {
+        setPage(page);
+      }, 0);
+    },
+    [scrollArea, setPage]
+  );
 
   const bgColor = useColorModeValue(
     "rgba(255, 255, 255, 0.8)",
@@ -174,7 +187,7 @@ export default function CompanyFeed() {
               animationDuration="moderate"
               animationDelay="0.2s"
             >
-              <Box mb={4}>
+              <Box mb={2}>
                 <Text fontSize="sm" color="gray.500">
                   {isLoading || isNavigating
                     ? "Loading companies..."

@@ -79,15 +79,15 @@ export function SliderField({
   };
 
   const fieldId = `slider-${name}`;
+  const labelId = `${fieldId}-label`;
 
   return (
     <Field.Root>
-      <Field.Label fontSize="xs" color="gray.500" htmlFor={fieldId}>
+      <Text fontSize="xs" color="gray.500" id={labelId} as="label">
         {label}
-      </Field.Label>
+      </Text>
       <Box w="100%" role="group">
         <Slider.Root
-          id={fieldId}
           width="100%"
           min={min}
           max={max}
@@ -97,6 +97,7 @@ export function SliderField({
           value={[...localValues]}
           onValueChange={handleValueChange}
           disabled={disabled}
+          aria-labelledby={[labelId]}
         >
           <Slider.Control>
             <Slider.Track>

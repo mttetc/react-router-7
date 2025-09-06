@@ -1,8 +1,9 @@
 import { Box, VStack } from "@chakra-ui/react";
 import { useQueryState } from "nuqs";
 import { filtersSearchParams } from "~/lib/search-params";
+import { useMemo } from "react";
 
-import { SmartSearch } from "./smart-search";
+import { SmartSearch, getCurrentSearchInput } from "./smart-search";
 import { QuickFilters } from "./quick-filters";
 import { ActiveFilters } from "./active-filters";
 import { ClientOnly } from "~/components/ui/client-only";
@@ -52,20 +53,36 @@ export function FilterForm() {
   const [page, setPage] = useQueryState("page", filtersSearchParams.page);
   const [limit, setLimit] = useQueryState("limit", filtersSearchParams.limit);
 
-  const filters = {
-    search: search || "",
-    growthStage: growthStage || "",
-    customerFocus: customerFocus || "",
-    fundingType: fundingType || "",
-    minRank,
-    maxRank,
-    minFunding,
-    maxFunding,
-    sortBy: sortBy || "",
-    sortOrder: (sortOrder || "asc") as "asc" | "desc",
-    page: page || 1,
-    limit: limit || 12,
-  };
+  // Use useMemo to prevent infinite re-renders from getCurrentSearchInput()
+  const filters = useMemo(
+    () => ({
+      search: getCurrentSearchInput(),
+      growthStage: growthStage || "",
+      customerFocus: customerFocus || "",
+      fundingType: fundingType || "",
+      minRank,
+      maxRank,
+      minFunding,
+      maxFunding,
+      sortBy: sortBy || "",
+      sortOrder: (sortOrder || "asc") as "asc" | "desc",
+      page: page || 1,
+      limit: limit || 12,
+    }),
+    [
+      growthStage,
+      customerFocus,
+      fundingType,
+      minRank,
+      maxRank,
+      minFunding,
+      maxFunding,
+      sortBy,
+      sortOrder,
+      page,
+      limit,
+    ]
+  );
 
   const removeFilter = (key: keyof typeof filters) => {
     if (key === "search") setSearch(null);
@@ -83,7 +100,7 @@ export function FilterForm() {
   };
 
   const resetFilters = () => {
-    setSearch(null);
+    // Only reset active filters, keep search intact
     setGrowthStage(null);
     setCustomerFocus(null);
     setFundingType(null);

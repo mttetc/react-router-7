@@ -36,14 +36,13 @@ export function SelectField({
         {label}
       </Field.Label>
       <Select.Root
-        id={fieldId}
         collection={collection}
         size="sm"
         value={currentValue ? [currentValue.toString()] : []}
         onValueChange={handleValueChange}
         disabled={disabled}
       >
-        <Select.HiddenSelect />
+        <Select.HiddenSelect id={fieldId} />
         <Select.Control>
           <Select.Trigger>
             <Select.ValueText placeholder={placeholder} />

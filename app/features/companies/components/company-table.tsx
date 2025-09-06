@@ -125,19 +125,20 @@ const COLUMNS: TableColumn[] = [
     label: "Description",
     width: "250px",
     render: (company) => (
-      <Text
-        fontSize="sm"
-        color="gray.600"
-        lineClamp={1}
-        cursor="help"
-        maxWidth="230px"
-        overflow="hidden"
-        whiteSpace="nowrap"
-        textOverflow="ellipsis"
-        title={company.description}
-      >
-        {company.description}
-      </Text>
+      <Tooltip content={company.description} disabled={!company.description}>
+        <Text
+          fontSize="sm"
+          color="gray.600"
+          lineClamp={1}
+          cursor="help"
+          maxWidth="230px"
+          overflow="hidden"
+          whiteSpace="nowrap"
+          textOverflow="ellipsis"
+        >
+          {company.description}
+        </Text>
+      </Tooltip>
     ),
   },
   {
@@ -436,30 +437,26 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
   }
 
   return (
-    <Box
+    <ScrollArea.Root
       borderWidth={1}
       borderColor={borderColor}
       borderRadius="lg"
       bg="white"
       maxWidth="100%"
     >
-      <ScrollArea.Root>
-        <ScrollArea.Viewport>
-          <Table.Root variant="outline" size="sm" minWidth="1100px">
-            {renderTableHeader()}
-            <Table.Body>
-              <For each={companies}>
-                {(company, index) => (
-                  <CompanyRow key={company.id} company={company} />
-                )}
-              </For>
-            </Table.Body>
-          </Table.Root>
-        </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar orientation="horizontal">
-          <ScrollArea.Thumb />
-        </ScrollArea.Scrollbar>
-      </ScrollArea.Root>
-    </Box>
+      <ScrollArea.Viewport>
+        <Table.Root variant="outline" size="sm" minWidth="1100px">
+          {renderTableHeader()}
+          <Table.Body>
+            <For each={companies}>
+              {(company) => <CompanyRow key={company.id} company={company} />}
+            </For>
+          </Table.Body>
+        </Table.Root>
+      </ScrollArea.Viewport>
+      <ScrollArea.Scrollbar orientation="horizontal">
+        <ScrollArea.Thumb />
+      </ScrollArea.Scrollbar>
+    </ScrollArea.Root>
   );
 };

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQueryState } from "nuqs";
 import {
   Box,
   Button,
@@ -18,6 +19,7 @@ import {
   growthStageParser,
   customerFocusParser,
   fundingTypeParser,
+  filtersSearchParams,
 } from "~/lib/search-params";
 
 // Data for select options
@@ -58,8 +60,40 @@ interface DetailedFiltersProps {
 export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
-  // For now, we'll simplify this - we can add back the active state detection later
-  const hasActiveAdvancedFilters = false;
+  // Get current filter values to detect active state
+  const [growthStage] = useQueryState(
+    "growthStage",
+    filtersSearchParams.growthStage
+  );
+  const [customerFocus] = useQueryState(
+    "customerFocus",
+    filtersSearchParams.customerFocus
+  );
+  const [fundingType] = useQueryState(
+    "fundingType",
+    filtersSearchParams.fundingType
+  );
+  const [minRank] = useQueryState("minRank", filtersSearchParams.minRank);
+  const [maxRank] = useQueryState("maxRank", filtersSearchParams.maxRank);
+  const [minFunding] = useQueryState(
+    "minFunding",
+    filtersSearchParams.minFunding
+  );
+  const [maxFunding] = useQueryState(
+    "maxFunding",
+    filtersSearchParams.maxFunding
+  );
+
+  // Check if any advanced filters are active
+  const hasActiveAdvancedFilters = !!(
+    growthStage ||
+    customerFocus ||
+    fundingType ||
+    minRank ||
+    maxRank ||
+    minFunding ||
+    maxFunding
+  );
 
   return (
     <Box>

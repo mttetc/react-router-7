@@ -70,21 +70,22 @@ export function FundingSliderField() {
   };
 
   const fieldId = `slider-fundingRange`;
+  const labelId = `${fieldId}-label`;
 
   return (
     <Field.Root>
-      <Field.Label
+      <Text
         fontSize="sm"
         fontWeight="semibold"
         color="gray.600"
-        htmlFor={fieldId}
+        id={labelId}
+        as="label"
       >
         Funding Amount ({currentCurrency})
-      </Field.Label>
+      </Text>
 
-      <Box role="group" aria-labelledby={fieldId} w="100%">
+      <Box role="group" aria-labelledby={labelId} w="100%">
         <Slider.Root
-          id={fieldId}
           width="100%"
           min={0}
           max={maxSliderValue}
@@ -93,6 +94,7 @@ export function FundingSliderField() {
           colorPalette="purple"
           value={[...localValues]}
           onValueChange={handleValueChange}
+          aria-labelledby={[labelId]}
         >
           <Slider.Control>
             <Slider.Track>

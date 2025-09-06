@@ -14,6 +14,7 @@ import { useCurrencyStore } from "~/stores/currency.store";
 import { convertCurrency } from "~/utils/currency.utils";
 import type { FilterState } from "../../../services/companies.service";
 import { getFilterColor } from "./filter-colors";
+import { getCurrentSearchInput } from "./smart-search";
 
 interface ActiveFiltersProps {
   filters: FilterState;
@@ -39,14 +40,8 @@ function getActiveFilters(
 ): ActiveFilter[] {
   const active: ActiveFilter[] = [];
 
-  if (filters.search) {
-    active.push({
-      key: "search",
-      label: "Search",
-      value: `"${filters.search}"`,
-      color: getFilterColor("search"),
-    });
-  }
+  // Only show search filter if it contains magic filters
+  // Regular search terms are not shown as active filters for cleaner UI
 
   if (filters.growthStage) {
     const stageLabels: Record<string, string> = {
