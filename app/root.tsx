@@ -31,8 +31,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {/* Load extension error suppression script first, before anything else */}
-        <script src="/suppress-extension-errors.js" />
         <Meta />
         <Links />
       </head>

@@ -22,16 +22,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    const errorMessage = error.message || "";
-    // Filter out browser extension connection errors to reduce noise
-    if (
-      !errorMessage.includes("Could not establish connection") &&
-      !errorMessage.includes("Receiving end does not exist") &&
-      !errorMessage.includes("Extension context invalidated") &&
-      !errorMessage.includes("chrome-extension://")
-    ) {
-      console.error("🚨 Error Boundary caught an error:", error, errorInfo);
-    }
+    console.error("🚨 Error Boundary caught an error:", error, errorInfo);
   }
 
   render() {

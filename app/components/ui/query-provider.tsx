@@ -30,17 +30,6 @@ export function QueryProvider({ children }: QueryProviderProps) {
             refetchOnReconnect: true, // Refetch when reconnecting
             retry: (failureCount, error) => {
               const errorMessage = error?.message || "";
-              // Don't retry on browser extension connection errors
-              if (
-                errorMessage.includes("Could not establish connection") ||
-                errorMessage.includes("Receiving end does not exist") ||
-                errorMessage.includes("Extension context invalidated") ||
-                errorMessage.includes("chrome-extension://") ||
-                errorMessage.includes("moz-extension://") ||
-                errorMessage.includes("safari-extension://")
-              ) {
-                return false; // Don't log, just silently fail
-              }
               // Don't retry on 4xx client errors
               if (errorMessage.includes("4")) {
                 return false;
