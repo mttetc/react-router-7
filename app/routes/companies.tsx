@@ -10,7 +10,6 @@ import {
 
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigation } from "react-router";
-import { useColorModeValue } from "../components/ui/color-mode";
 import { useCallback } from "react";
 
 import { useQueryStates } from "nuqs";
@@ -130,11 +129,6 @@ export default function CompanyFeed() {
     [scrollArea, setQueryParams]
   );
 
-  const bgColor = useColorModeValue(
-    "rgba(255, 255, 255, 0.8)",
-    "rgba(0, 0, 0, 0.7)"
-  );
-
   return (
     <Box
       height="100dvh"
@@ -150,7 +144,7 @@ export default function CompanyFeed() {
         content: '""',
         pos: "absolute",
         inset: 0,
-        bgColor,
+        bgColor: "rgba(255, 255, 255, 0.8)",
         zIndex: -1,
       }}
     >
@@ -178,7 +172,13 @@ export default function CompanyFeed() {
           </ScrollArea.Root>
 
           {/* Right Content */}
-          <Box display="flex" flexDirection="column" overflow="hidden">
+          <Box
+            display="flex"
+            flexDirection="column"
+            overflow="hidden"
+            minH="min-content"
+            maxH="100%"
+          >
             <Presence
               present={!!data || isLoading || isNavigating}
               animationName={{
@@ -199,7 +199,13 @@ export default function CompanyFeed() {
               </Box>
             </Presence>
 
-            <ScrollArea.Root variant="hover" flex="1">
+            <ScrollArea.Root
+              variant="hover"
+              flex="1"
+              h="100%"
+              maxH="min-content"
+              minH="0"
+            >
               <ScrollArea.Viewport>
                 <ScrollArea.Content>
                   <Presence

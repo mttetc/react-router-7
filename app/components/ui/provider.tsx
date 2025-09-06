@@ -1,12 +1,11 @@
 import { ChakraProvider, LocaleProvider } from "@chakra-ui/react";
-import { ColorModeProvider, type ColorModeProviderProps } from "./color-mode";
 import { QueryProvider } from "./query-provider";
 import { ErrorBoundary } from "./error-boundary";
 import { GlobalErrorHandler } from "./error-handler";
 import { system } from "../../theme";
 import { NuqsProvider } from "./nuqs-provider";
 
-export function Provider(props: ColorModeProviderProps) {
+export function Provider(props: { children: React.ReactNode }) {
   // Fixed locale prevents SSR hydration mismatches
   const ssrLocale = "en-US";
 
@@ -16,9 +15,7 @@ export function Provider(props: ColorModeProviderProps) {
       <NuqsProvider>
         <LocaleProvider locale={ssrLocale}>
           <ChakraProvider value={system}>
-            <QueryProvider>
-              <ColorModeProvider>{props.children}</ColorModeProvider>
-            </QueryProvider>
+            <QueryProvider>{props.children}</QueryProvider>
           </ChakraProvider>
         </LocaleProvider>
       </NuqsProvider>

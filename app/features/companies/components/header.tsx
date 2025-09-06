@@ -10,22 +10,15 @@ import {
   Breadcrumb,
   Image,
 } from "@chakra-ui/react";
-import {
-  ColorModeButton,
-  useColorModeValue,
-} from "../../../components/ui/color-mode";
 import { Tooltip } from "../../../components/ui/tooltip";
 import { CurrencySelector } from "../../../components/ui/currency-selector";
 
 export const Header = () => {
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-
   return (
     <Box
-      bg={bgColor}
+      bg="white"
       borderBottom="1px"
-      borderColor={borderColor}
+      borderColor="gray.200"
       position="sticky"
       top="0"
       zIndex="sticky"
@@ -39,12 +32,12 @@ export const Header = () => {
               alt="Specter"
               height="24px"
               width="auto"
-              filter={useColorModeValue("none", "invert(1)")}
+              filter="none"
             />
             <HStack gap={3} align="baseline">
               <Text
                 fontSize="sm"
-                color={useColorModeValue("brand.500", "brand.400")}
+                color="brand.500"
                 fontWeight="normal"
                 fontStyle="italic"
               >
@@ -85,12 +78,6 @@ export const Header = () => {
                 positioning={{ placement: "bottom" }}
               >
                 <CurrencySelector />
-              </Tooltip>
-              <Tooltip
-                content="Toggle between light and dark mode"
-                positioning={{ placement: "bottom" }}
-              >
-                <ColorModeButton size="xs" />
               </Tooltip>
             </HStack>
           </HStack>

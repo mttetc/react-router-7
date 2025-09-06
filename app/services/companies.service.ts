@@ -50,7 +50,9 @@ export function parseFiltersFromURL(
     minFunding: parseNumberParam(searchParams.get("minFunding")),
     maxFunding: parseNumberParam(searchParams.get("maxFunding")),
     sortBy: parseStringParam(searchParams.get("sortBy")),
-    sortOrder: (parseStringParam(searchParams.get("sortOrder")) as "asc" | "desc") || "asc",
+    sortOrder:
+      (parseStringParam(searchParams.get("sortOrder")) as "asc" | "desc") ||
+      "asc",
   };
 }
 
@@ -59,7 +61,7 @@ export function parsePaginationFromURL(
 ): PaginationState {
   const page = parseNumberParam(searchParams.get("page")) || 1;
   const limit = parseNumberParam(searchParams.get("limit")) || 12;
-  
+
   return {
     page: page > 0 ? page : 1,
     limit: limit > 0 ? limit : 12,
@@ -74,11 +76,6 @@ export async function fetchCompanies(
   filters: FilterState,
   pagination: PaginationState
 ): Promise<PaginatedResult<Company>> {
-  console.log("🌐 [Service] fetchCompanies called with:", {
-    filters,
-    pagination,
-  });
-
   // Construire les params à partir des valeurs passées
   const params = new URLSearchParams();
 
@@ -102,7 +99,6 @@ export async function fetchCompanies(
   if (pagination.limit !== 12) params.set("limit", pagination.limit.toString());
 
   const url = `/api/companies?${params}`;
-  console.log("🌐 [Service] Fetching URL:", url);
 
   const response = await fetch(url);
 
@@ -116,7 +112,6 @@ export async function fetchCompanies(
   }
 
   const companiesData = await response.json();
-  console.log("✅ [Service] Clean JSON response:", companiesData);
 
   return companiesData;
 }

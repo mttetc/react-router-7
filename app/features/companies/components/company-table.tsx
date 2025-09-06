@@ -13,7 +13,6 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
-import { useColorModeValue } from "../../../components/ui/color-mode";
 import { FormatCurrencyCompact } from "../../../components/ui/format-currency";
 import { Tooltip } from "../../../components/ui/tooltip";
 import { useQueryState } from "nuqs";
@@ -241,8 +240,6 @@ const LoadingRow = () => (
 );
 
 const CompanyRow = ({ company }: { company: Company }) => {
-  const hoverBg = useColorModeValue("gray.50", "gray.700");
-
   const formatDate = (date: Date | null | string) => {
     if (!date) return "N/A";
     const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -261,7 +258,7 @@ const CompanyRow = ({ company }: { company: Company }) => {
   };
 
   return (
-    <Table.Row _hover={{ bg: hoverBg }}>
+    <Table.Row _hover={{ bg: "gray.50" }}>
       <For each={COLUMNS}>
         {(column) => (
           <Table.Cell key={column.key} width={column.width}>
@@ -289,7 +286,6 @@ const SortableHeader = ({
   textColor?: string;
 }) => {
   const isActive = currentSort === sortKey;
-  const hoverBg = useColorModeValue("brand.100", "brand.800");
   const nextOrder = isActive && currentOrder === "asc" ? "desc" : "asc";
   const tooltipText = `Click to sort by ${children} ${
     nextOrder === "asc" ? "ascending" : "descending"
@@ -300,7 +296,7 @@ const SortableHeader = ({
       <Table.ColumnHeader
         cursor="pointer"
         onClick={() => onSort(sortKey)}
-        _hover={{ bg: hoverBg }}
+        _hover={{ bg: "brand.100" }}
         position="relative"
         color={textColor}
       >
@@ -323,9 +319,6 @@ const SortableHeader = ({
 
 export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
   // All hooks must be called at the top level, not conditionally
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const theadBg = useColorModeValue("brand.50", "brand.900");
-  const theadTextColor = useColorModeValue("brand.700", "brand.200");
 
   // Use nuqs directly for sorting
   const [sortBy, setSortBy] = useQueryState(
@@ -345,7 +338,7 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
   };
 
   const renderTableHeader = () => (
-    <Table.Header bg={theadBg}>
+    <Table.Header bg="brand.50">
       <Table.Row>
         <For each={COLUMNS}>
           {(column) => {
@@ -357,7 +350,7 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
                   currentSort={sortBy}
                   currentOrder={sortOrder}
                   onSort={handleSort}
-                  textColor={theadTextColor}
+                  textColor="brand.700"
                 >
                   {column.label}
                 </SortableHeader>
@@ -367,7 +360,7 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
               <Table.ColumnHeader
                 key={column.key}
                 width={column.width}
-                color={theadTextColor}
+                color="brand.700"
               >
                 {column.label}
               </Table.ColumnHeader>
@@ -382,7 +375,7 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
     return (
       <Box
         borderWidth={1}
-        borderColor={borderColor}
+        borderColor="gray.200"
         borderRadius="lg"
         bg="white"
         maxWidth="100%"
@@ -410,7 +403,7 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
     return (
       <Box
         borderWidth={1}
-        borderColor={borderColor}
+        borderColor="gray.200"
         borderRadius="lg"
         bg="white"
         p={12}
@@ -439,7 +432,7 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
   return (
     <ScrollArea.Root
       borderWidth={1}
-      borderColor={borderColor}
+      borderColor="gray.200"
       borderRadius="lg"
       bg="white"
       maxWidth="100%"
