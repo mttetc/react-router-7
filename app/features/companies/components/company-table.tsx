@@ -16,7 +16,8 @@ import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { useColorModeValue } from "../../../components/ui/color-mode";
 import { FormatCurrencyCompact } from "../../../components/ui/format-currency";
 import { Tooltip } from "../../../components/ui/tooltip";
-import type { FilterState } from "../../../services/companies.service";
+import { useQueryState } from "nuqs";
+import { filtersSearchParams } from "~/lib/search-params";
 import type { Company } from "../../../utils/companies.types";
 
 // Column configuration
@@ -38,8 +39,6 @@ interface CellHelpers {
 interface CompanyTableProps {
   companies: Company[];
   isLoading: boolean;
-  filters: FilterState;
-  onFilterChange: (newFilters: Partial<FilterState>) => void;
 }
 
 // Utility functions
@@ -197,6 +196,8 @@ const COLUMNS: TableColumn[] = [
   {
     key: "createdAt",
     label: "Added",
+    sortable: true,
+    sortKey: "createdAt",
     width: "120px",
     render: (company, helpers) => (
       <Text fontSize="sm" color="gray.600">
@@ -319,21 +320,27 @@ const SortableHeader = ({
   );
 };
 
-export const CompanyTable = ({
-  companies,
-  isLoading,
-  filters,
-  onFilterChange,
-}: CompanyTableProps) => {
+export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
   // All hooks must be called at the top level, not conditionally
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const theadBg = useColorModeValue("brand.50", "brand.900");
   const theadTextColor = useColorModeValue("brand.700", "brand.200");
 
-  const handleSort = (sortBy: string) => {
+  // Use nuqs directly for sorting
+  const [sortBy, setSortBy] = useQueryState(
+    "sortBy",
+    filtersSearchParams.sortBy
+  );
+  const [sortOrder, setSortOrder] = useQueryState(
+    "sortOrder",
+    filtersSearchParams.sortOrder
+  );
+
+  const handleSort = (newSortBy: string) => {
     const newOrder =
-      filters.sortBy === sortBy && filters.sortOrder === "asc" ? "desc" : "asc";
-    onFilterChange({ sortBy, sortOrder: newOrder });
+      sortBy === newSortBy && sortOrder === "asc" ? "desc" : "asc";
+    setSortBy(newSortBy || null);
+    setSortOrder(newOrder);
   };
 
   const renderTableHeader = () => (
@@ -346,8 +353,8 @@ export const CompanyTable = ({
                 <SortableHeader
                   key={column.key}
                   sortKey={column.sortKey!}
-                  currentSort={filters.sortBy}
-                  currentOrder={filters.sortOrder}
+                  currentSort={sortBy}
+                  currentOrder={sortOrder}
                   onSort={handleSort}
                   textColor={theadTextColor}
                 >

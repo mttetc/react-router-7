@@ -2,12 +2,12 @@ import { useState, useRef, useCallback } from "react";
 import { Box, Input, HStack, Text, Badge, VStack, For } from "@chakra-ui/react";
 import { FaSearch, FaMagic } from "react-icons/fa";
 import { useDebounce } from "rooks";
+import { useQueryState } from "nuqs";
+import { filtersSearchParams } from "~/lib/search-params";
 import type { FilterState } from "../../../services/companies.service";
-import { useFilterState } from "~/hooks/use-filter-state";
 import { useCurrencyStore } from "~/stores/currency.store";
 import { convertCurrency, convertToUSD } from "~/utils/currency.utils";
 
-// Helper function to format currency amounts for labels
 const formatCurrencyLabel = (
   value: number,
   type: "min" | "max",
@@ -22,12 +22,6 @@ const formatCurrencyLabel = (
   return `${type === "min" ? "Min" : "Max"} ${formatted}`;
 };
 
-interface SmartSearchProps {
-  filterState: ReturnType<
-    typeof import("~/hooks/use-filter-state").useFilterState
-  >;
-}
-
 interface ParsedFilter {
   type: string;
   value: string;
@@ -35,9 +29,8 @@ interface ParsedFilter {
   color: string;
 }
 
-// Smart search patterns
 const SEARCH_PATTERNS = [
-  // Funding patterns - works with or without $ symbol
+  // Funding patterns - supports $1M, 5M+, etc. with currency conversion
   {
     pattern: /\$?(\d+(?:\.\d+)?)\s*([kmb])[\+\-]?/gi,
     type: "funding",
@@ -56,13 +49,11 @@ const SEARCH_PATTERNS = [
     },
   },
 
-  // Growth stage patterns
   {
     pattern: /\b(early|seed|growing|late|exit)\s*(stage)?\b/gi,
     type: "growthStage",
   },
 
-  // Customer focus patterns
   {
     pattern: /\b(b2b|b2c|business|consumer)\b/gi,
     type: "customerFocus",
@@ -72,7 +63,6 @@ const SEARCH_PATTERNS = [
     },
   },
 
-  // Funding type patterns
   {
     pattern: /\b(series\s*[a-z]|seed|angel|grant|debt|convertible|ipo)\b/gi,
     type: "fundingType",
@@ -89,7 +79,6 @@ const SEARCH_PATTERNS = [
     },
   },
 
-  // Rank patterns
   { pattern: /\b(?:rank|position|top)\s*(\d+)/gi, type: "rank" },
 ];
 
@@ -118,11 +107,9 @@ function parseSmartSearch(
         value = mappedValue || value;
       }
 
-      // Apply filters based on type
       switch (type) {
         case "funding":
-          // Convert from user's currency to USD for filtering (data is stored in USD)
-          // User types "1M" in EUR, we need to convert 1M EUR to USD
+          // Convert user currency to USD since backend data is in USD
           const usdAmount = convertToUSD(value, currentCurrency);
 
           if (query.includes("+") || query.includes("above")) {
@@ -193,20 +180,52 @@ function parseSmartSearch(
   return { filters, remainingQuery, parsedFilters };
 }
 
-export function SmartSearch({ filterState }: SmartSearchProps) {
-  const { search, updateFilters, resetFilters } = filterState;
-  const [query, setQuery] = useState(search);
+export function SmartSearch() {
+  const [search, setSearch] = useQueryState(
+    "search",
+    filtersSearchParams.search
+  );
+  const [, setGrowthStage] = useQueryState(
+    "growthStage",
+    filtersSearchParams.growthStage
+  );
+  const [, setCustomerFocus] = useQueryState(
+    "customerFocus",
+    filtersSearchParams.customerFocus
+  );
+  const [, setFundingType] = useQueryState(
+    "fundingType",
+    filtersSearchParams.fundingType
+  );
+  const [, setMinRank] = useQueryState("minRank", filtersSearchParams.minRank);
+  const [, setMaxRank] = useQueryState("maxRank", filtersSearchParams.maxRank);
+  const [, setMinFunding] = useQueryState(
+    "minFunding",
+    filtersSearchParams.minFunding
+  );
+  const [, setMaxFunding] = useQueryState(
+    "maxFunding",
+    filtersSearchParams.maxFunding
+  );
+
+  const [query, setQuery] = useState(search || "");
   const [parsedFilters, setParsedFilters] = useState<ParsedFilter[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
-  // Debounced function to update filters
   const debouncedUpdateFilters = useDebounce(
     async (filters: Partial<FilterState>, remainingQuery: string) => {
-      await updateFilters({
-        ...filters,
-        search: remainingQuery,
-      });
+      if (filters.search !== undefined) setSearch(remainingQuery || null);
+      if (filters.growthStage !== undefined)
+        setGrowthStage(filters.growthStage || null);
+      if (filters.customerFocus !== undefined)
+        setCustomerFocus(filters.customerFocus || null);
+      if (filters.fundingType !== undefined)
+        setFundingType(filters.fundingType || null);
+      if (filters.minRank !== undefined) setMinRank(filters.minRank);
+      if (filters.maxRank !== undefined) setMaxRank(filters.maxRank);
+      if (filters.minFunding !== undefined) setMinFunding(filters.minFunding);
+      if (filters.maxFunding !== undefined) setMaxFunding(filters.maxFunding);
     },
     300
   );
@@ -216,12 +235,10 @@ export function SmartSearch({ filterState }: SmartSearchProps) {
     setQuery(newQuery);
 
     if (newQuery.trim() === "") {
-      // If input is empty, clear all smart search filters
       setParsedFilters([]);
       debouncedUpdateFilters(
         {
           search: "",
-          // Clear smart search related filters
           growthStage: "",
           customerFocus: "",
           fundingType: "",
@@ -233,7 +250,6 @@ export function SmartSearch({ filterState }: SmartSearchProps) {
         ""
       );
     } else {
-      // Parse smart search
       const {
         filters,
         remainingQuery,
@@ -241,14 +257,12 @@ export function SmartSearch({ filterState }: SmartSearchProps) {
       } = parseSmartSearch(newQuery, currentCurrency);
       setParsedFilters(newParsedFilters);
 
-      // Update filters with debounce
       debouncedUpdateFilters(filters, remainingQuery);
     }
   };
 
   return (
     <VStack align="stretch" gap={2}>
-      {/* Explanatory text */}
       <VStack align="start" gap={1}>
         <HStack gap={2}>
           <FaMagic size={12} color="purple.500" />
@@ -263,7 +277,6 @@ export function SmartSearch({ filterState }: SmartSearchProps) {
         </Text>
       </VStack>
 
-      {/* Search input */}
       <HStack
         borderWidth={1}
         borderColor="gray.300"
@@ -303,7 +316,6 @@ export function SmartSearch({ filterState }: SmartSearchProps) {
         )}
       </HStack>
 
-      {/* Detected filters display */}
       {parsedFilters.length > 0 && (
         <HStack flexWrap="wrap" gap={1}>
           <Text fontSize="xs" color="gray.500">

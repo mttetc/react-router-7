@@ -7,11 +7,12 @@ import {
   Tag,
   For,
 } from "@chakra-ui/react";
+import { useQueryState } from "nuqs";
+import { filtersSearchParams } from "~/lib/search-params";
 import type { FilterState } from "../../../services/companies.service";
 import { useCurrencyStore } from "~/stores/currency.store";
 import { convertCurrency, getCurrencySymbol } from "~/utils/currency.utils";
 import { ClientOnly } from "~/components/ui/client-only";
-import { useFilterState } from "~/hooks/use-filter-state";
 
 interface QuickFilterBase {
   id: string;
@@ -83,15 +84,47 @@ const QUICK_FILTER_TEMPLATES: QuickFilterBase[] = [
   },
 ];
 
-interface QuickFiltersProps {
-  filterState: ReturnType<
-    typeof import("~/hooks/use-filter-state").useFilterState
-  >;
-}
+function QuickFiltersInner() {
+  const [growthStage, setGrowthStage] = useQueryState(
+    "growthStage",
+    filtersSearchParams.growthStage
+  );
+  const [customerFocus, setCustomerFocus] = useQueryState(
+    "customerFocus",
+    filtersSearchParams.customerFocus
+  );
+  const [fundingType, setFundingType] = useQueryState(
+    "fundingType",
+    filtersSearchParams.fundingType
+  );
+  const [minRank, setMinRank] = useQueryState(
+    "minRank",
+    filtersSearchParams.minRank
+  );
+  const [maxRank, setMaxRank] = useQueryState(
+    "maxRank",
+    filtersSearchParams.maxRank
+  );
+  const [minFunding, setMinFunding] = useQueryState(
+    "minFunding",
+    filtersSearchParams.minFunding
+  );
+  const [maxFunding, setMaxFunding] = useQueryState(
+    "maxFunding",
+    filtersSearchParams.maxFunding
+  );
 
-function QuickFiltersInner({ filterState }: QuickFiltersProps) {
-  const { filters, updateFilters } = filterState;
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
+
+  const filters = {
+    growthStage: growthStage || "",
+    customerFocus: customerFocus || "",
+    fundingType: fundingType || "",
+    minRank,
+    maxRank,
+    minFunding,
+    maxFunding,
+  };
 
   // Generate quick filters with currency-aware data
   const quickFilters: ProcessedQuickFilter[] = QUICK_FILTER_TEMPLATES.map(
@@ -125,27 +158,30 @@ function QuickFiltersInner({ filterState }: QuickFiltersProps) {
     const isCurrentlyActive = isFilterActive(quickFilter);
 
     if (isCurrentlyActive) {
-      // Clear the filter if it's currently active
-      const clearUpdates: Partial<FilterState> = {};
       Object.keys(quickFilter.filters).forEach((key) => {
         const filterKey = key as keyof FilterState;
-        if (
-          filterKey === "minRank" ||
-          filterKey === "maxRank" ||
-          filterKey === "minFunding" ||
-          filterKey === "maxFunding"
-        ) {
-          clearUpdates[filterKey] = null;
-        } else if (filterKey === "sortOrder") {
-          clearUpdates[filterKey] = "asc";
-        } else {
-          clearUpdates[filterKey] = "";
-        }
+        if (filterKey === "growthStage") setGrowthStage(null);
+        else if (filterKey === "customerFocus") setCustomerFocus(null);
+        else if (filterKey === "fundingType") setFundingType(null);
+        else if (filterKey === "minRank") setMinRank(null);
+        else if (filterKey === "maxRank") setMaxRank(null);
+        else if (filterKey === "minFunding") setMinFunding(null);
+        else if (filterKey === "maxFunding") setMaxFunding(null);
       });
-      await updateFilters(clearUpdates);
     } else {
-      // Apply the filter
-      await updateFilters(quickFilter.filters);
+      Object.entries(quickFilter.filters).forEach(([key, value]) => {
+        const filterKey = key as keyof FilterState;
+        if (filterKey === "growthStage")
+          setGrowthStage((value as string) || null);
+        else if (filterKey === "customerFocus")
+          setCustomerFocus((value as string) || null);
+        else if (filterKey === "fundingType")
+          setFundingType((value as string) || null);
+        else if (filterKey === "minRank") setMinRank(value as number);
+        else if (filterKey === "maxRank") setMaxRank(value as number);
+        else if (filterKey === "minFunding") setMinFunding(value as number);
+        else if (filterKey === "maxFunding") setMaxFunding(value as number);
+      });
     }
   };
 
@@ -193,7 +229,7 @@ function QuickFiltersInner({ filterState }: QuickFiltersProps) {
   );
 }
 
-export function QuickFilters({ filterState }: QuickFiltersProps) {
+export function QuickFilters() {
   return (
     <ClientOnly
       fallback={
@@ -214,7 +250,7 @@ export function QuickFilters({ filterState }: QuickFiltersProps) {
         </Wrap>
       }
     >
-      <QuickFiltersInner filterState={filterState} />
+      <QuickFiltersInner />
     </ClientOnly>
   );
 }

@@ -10,6 +10,7 @@ export interface FormFieldProps {
 export interface SelectFieldProps extends FormFieldProps {
   options: Array<{ value: string; label: string }>;
   placeholder?: string;
+  parser: any; // nuqs parser
 }
 
 export interface SliderFieldProps extends FormFieldProps {

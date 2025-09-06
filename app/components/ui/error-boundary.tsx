@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <Box p={6} textAlign="center">
-          <VStack spacing={4}>
+          <VStack gap={4}>
             <Text fontSize="xl" fontWeight="bold" color="red.500">
               Something went wrong
             </Text>

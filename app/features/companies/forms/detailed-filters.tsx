@@ -11,11 +11,14 @@ import {
 } from "@chakra-ui/react";
 import { FaChevronDown, FaChevronUp, FaCog } from "react-icons/fa";
 import { ClientOnly } from "~/components/ui/client-only";
-import type { FilterState } from "~/services/companies.service";
 import { SelectField } from "./select-field";
 import { SliderField } from "./slider-field";
 import { FundingSliderField } from "./funding-slider-field";
-import { useFilterState } from "~/hooks/use-filter-state";
+import {
+  growthStageParser,
+  customerFocusParser,
+  fundingTypeParser,
+} from "~/lib/search-params";
 
 // Data for select options
 const growthStageOptions = [
@@ -50,27 +53,13 @@ const fundingTypeOptions = [
 
 interface DetailedFiltersProps {
   defaultOpen?: boolean;
-  filterState: ReturnType<
-    typeof import("~/hooks/use-filter-state").useFilterState
-  >;
 }
 
-export function DetailedFilters({
-  defaultOpen = false,
-  filterState,
-}: DetailedFiltersProps) {
-  const { filters } = filterState;
+export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
-  const hasActiveAdvancedFilters = Boolean(
-    filters.growthStage ||
-      filters.customerFocus ||
-      filters.fundingType ||
-      filters.minRank ||
-      filters.maxRank ||
-      filters.minFunding ||
-      filters.maxFunding
-  );
+  // For now, we'll simplify this - we can add back the active state detection later
+  const hasActiveAdvancedFilters = false;
 
   return (
     <Box>
@@ -112,7 +101,7 @@ export function DetailedFilters({
                     label="Growth Stage"
                     options={growthStageOptions}
                     placeholder="All stages"
-                    defaultValue={filters.growthStage}
+                    parser={growthStageParser}
                   />
 
                   <SelectField
@@ -120,7 +109,7 @@ export function DetailedFilters({
                     label="Customer Focus"
                     options={customerFocusOptions}
                     placeholder="All customer types"
-                    defaultValue={filters.customerFocus}
+                    parser={customerFocusParser}
                   />
 
                   <SelectField
@@ -128,7 +117,7 @@ export function DetailedFilters({
                     label="Funding Type"
                     options={fundingTypeOptions}
                     placeholder="All funding types"
-                    defaultValue={filters.fundingType}
+                    parser={fundingTypeParser}
                   />
                 </Stack>
               </Box>
@@ -153,8 +142,8 @@ export function DetailedFilters({
                     max={5000}
                     minName="minRank"
                     maxName="maxRank"
-                    minDefaultValue={filters.minRank || 1}
-                    maxDefaultValue={filters.maxRank || 5000}
+                    minDefaultValue={1}
+                    maxDefaultValue={5000}
                   />
 
                   <ClientOnly
@@ -167,8 +156,8 @@ export function DetailedFilters({
                         step={100000}
                         minName="minFunding"
                         maxName="maxFunding"
-                        minDefaultValue={filters.minFunding || 0}
-                        maxDefaultValue={filters.maxFunding || 100000000}
+                        minDefaultValue={0}
+                        maxDefaultValue={100000000}
                         currency="USD"
                       />
                     }

@@ -1,14 +1,13 @@
 import { ChakraProvider, LocaleProvider } from "@chakra-ui/react";
 import { ColorModeProvider, type ColorModeProviderProps } from "./color-mode";
 import { QueryProvider } from "./query-provider";
-import { NuqsProvider } from "./nuqs-provider";
 import { ErrorBoundary } from "./error-boundary";
 import { GlobalErrorHandler } from "./error-handler";
 import { system } from "../../theme";
+import { NuqsProvider } from "./nuqs-provider";
 
 export function Provider(props: ColorModeProviderProps) {
-  // Always use en-US for SSR to prevent hydration mismatches
-  // Client-side components will handle locale detection with ClientOnly wrapper
+  // Fixed locale prevents SSR hydration mismatches
   const ssrLocale = "en-US";
 
   return (

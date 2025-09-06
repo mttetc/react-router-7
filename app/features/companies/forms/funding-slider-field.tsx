@@ -7,40 +7,30 @@ import {
   FormatNumber,
 } from "@chakra-ui/react";
 import { useCallback } from "react";
+import { useQueryState, parseAsInteger } from "nuqs";
 import { useCurrencyStore } from "~/stores/currency.store";
 import { convertCurrency, convertToUSD } from "~/utils/currency.utils";
-import type { FilterState } from "~/services/companies.service";
 import { useSyncArrayState } from "~/hooks/use-sync-state";
-import { useFilterState } from "~/hooks/use-filter-state";
 
-interface FundingSliderFieldProps {
-  // No props needed - gets state from nuqs
-}
-
-export function FundingSliderField({}: FundingSliderFieldProps) {
-  const { filters, updateFilters } = useFilterState();
+export function FundingSliderField() {
+  const [minFunding, setMinFunding] = useQueryState(
+    "minFunding",
+    parseAsInteger
+  );
+  const [maxFunding, setMaxFunding] = useQueryState(
+    "maxFunding",
+    parseAsInteger
+  );
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
-  // Convert USD amounts to user's currency for display
-  const convertToUserCurrency = (usdAmount: number) => {
-    return convertCurrency(usdAmount, currentCurrency);
-  };
-
-  // Convert user currency amounts back to USD for API
-  const convertUserCurrencyToUSD = (userCurrencyAmount: number) => {
-    return convertToUSD(userCurrencyAmount, currentCurrency);
-  };
-
-  // Convert slider values (USD) to display values (user currency)
-  const minFundingDisplay = filters.minFunding
-    ? convertToUserCurrency(filters.minFunding)
+  const minFundingDisplay = minFunding
+    ? convertCurrency(minFunding, currentCurrency)
     : 0;
-  const maxFundingDisplay = filters.maxFunding
-    ? convertToUserCurrency(filters.maxFunding)
-    : convertToUserCurrency(100000000);
-  const maxSliderValue = convertToUserCurrency(100000000);
+  const maxFundingDisplay = maxFunding
+    ? convertCurrency(maxFunding, currentCurrency)
+    : convertCurrency(100000000, currentCurrency);
+  const maxSliderValue = convertCurrency(100000000, currentCurrency);
 
-  // Sync state hook for smooth slider interaction with debounced updates
   const [localValues, setLocalValues] = useSyncArrayState({
     initialValue: [minFundingDisplay, maxFundingDisplay] as const,
     externalValue: [minFundingDisplay, maxFundingDisplay] as const,
@@ -48,17 +38,17 @@ export function FundingSliderField({}: FundingSliderFieldProps) {
       async (values: readonly [number, number]) => {
         const [minVal, maxVal] = values;
 
-        // Convert user currency values back to USD for the API
-        const minUSD = minVal === 0 ? null : convertUserCurrencyToUSD(minVal);
+        const minUSD =
+          minVal === 0 ? null : convertToUSD(minVal, currentCurrency);
         const maxUSD =
-          maxVal === maxSliderValue ? null : convertUserCurrencyToUSD(maxVal);
+          maxVal === maxSliderValue
+            ? null
+            : convertToUSD(maxVal, currentCurrency);
 
-        await updateFilters({
-          minFunding: minUSD,
-          maxFunding: maxUSD,
-        });
+        setMinFunding(minUSD);
+        setMaxFunding(maxUSD);
       },
-      [convertUserCurrencyToUSD, maxSliderValue, updateFilters]
+      [maxSliderValue, setMinFunding, setMaxFunding, currentCurrency]
     ),
     debounceMs: 300,
   });
@@ -98,7 +88,7 @@ export function FundingSliderField({}: FundingSliderFieldProps) {
           width="100%"
           min={0}
           max={maxSliderValue}
-          step={convertToUserCurrency(100000)}
+          step={convertCurrency(100000, currentCurrency)}
           cursor="pointer"
           colorPalette="purple"
           value={[...localValues]}

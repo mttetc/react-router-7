@@ -8,134 +8,112 @@ import {
   useScrollArea,
 } from "@chakra-ui/react";
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useNavigation } from "react-router";
+import { useLoaderData, useNavigation, useLocation } from "react-router";
 import { useColorModeValue } from "../components/ui/color-mode";
-
-// Services and hooks
 
 import { CompanyTable } from "~/features/companies/components/company-table";
 import { Header } from "~/features/companies/components/header";
 import { Pagination } from "~/features/companies/components/pagination";
 import { FilterForm } from "~/features/companies/forms";
 import { useCompaniesData } from "~/features/companies/hooks/use-companies-data";
-import { useFilterState } from "~/hooks/use-filter-state";
-import { useQueryState, parseAsInteger } from "nuqs";
-import {
-  type FilterState,
-  type PaginationState,
-  parseFiltersFromURL,
-  parsePaginationFromURL,
-} from "../services/companies.service";
+import { loadFilters, filtersSearchParams } from "~/lib/search-params";
+import { useQueryState } from "nuqs";
 import { getCompanies } from "../utils/companies.server";
 import type { Company, PaginatedResult } from "../utils/companies.types";
 
-// Components
-
-// ============================================================================
-// TYPES
-// ============================================================================
-
 interface LoaderData {
   companiesData: PaginatedResult<Company>;
-  filters: FilterState;
-  pagination: PaginationState;
 }
-
-// ============================================================================
-// LOADER (Single source of truth for data fetching)
-// ============================================================================
 
 export async function loader({
   request,
 }: LoaderFunctionArgs): Promise<LoaderData> {
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-
-  // Parse filters and pagination from URL
-  const filters = parseFiltersFromURL(searchParams);
-  const pagination = parsePaginationFromURL(searchParams);
-
-  console.log("🚀 [Loader] Fetching companies with params:", {
-    filters,
-    pagination,
-  });
-
-  // Fetch companies data - preload pour le SSR
+  // Use nuqs loader to parse filters from URL
+  const filters = loadFilters(request);
   const companiesData = await getCompanies({
-    page: pagination.page,
-    limit: pagination.limit,
+    page: filters.page,
+    limit: filters.limit,
     search: filters.search || undefined,
     growth_stage: filters.growthStage || undefined,
     customer_focus: filters.customerFocus || undefined,
     last_funding_type: filters.fundingType || undefined,
-    min_rank: filters.minRank || undefined,
-    max_rank: filters.maxRank || undefined,
-    min_funding: filters.minFunding || undefined,
-    max_funding: filters.maxFunding || undefined,
+    min_rank: filters.minRank ?? undefined,
+    max_rank: filters.maxRank ?? undefined,
+    min_funding: filters.minFunding ?? undefined,
+    max_funding: filters.maxFunding ?? undefined,
     sortBy: filters.sortBy || undefined,
-    sortOrder: filters.sortOrder,
+    sortOrder: filters.sortOrder as "asc" | "desc",
   });
 
   return {
     companiesData,
-    filters,
-    pagination,
   };
 }
 
-// ============================================================================
-// MAIN COMPONENT
-// ============================================================================
-
-// Main component
 export default function CompanyFeed() {
   const loaderData = useLoaderData<LoaderData>();
   const navigation = useNavigation();
   const scrollArea = useScrollArea();
 
-  // Get filter and pagination state from nuqs hooks (useFilterState has everything!)
-  const { filters, updateFilters, page, setPage } = useFilterState();
-  const [limit] = useQueryState("limit", parseAsInteger.withDefault(12));
+  // Read all filters from nuqs
+  const [search] = useQueryState("search", filtersSearchParams.search);
+  const [growthStage] = useQueryState(
+    "growthStage",
+    filtersSearchParams.growthStage
+  );
+  const [customerFocus] = useQueryState(
+    "customerFocus",
+    filtersSearchParams.customerFocus
+  );
+  const [fundingType] = useQueryState(
+    "fundingType",
+    filtersSearchParams.fundingType
+  );
+  const [minRank] = useQueryState("minRank", filtersSearchParams.minRank);
+  const [maxRank] = useQueryState("maxRank", filtersSearchParams.maxRank);
+  const [minFunding] = useQueryState(
+    "minFunding",
+    filtersSearchParams.minFunding
+  );
+  const [maxFunding] = useQueryState(
+    "maxFunding",
+    filtersSearchParams.maxFunding
+  );
+  const [sortBy] = useQueryState("sortBy", filtersSearchParams.sortBy);
+  const [sortOrder] = useQueryState("sortOrder", filtersSearchParams.sortOrder);
+  const [page, setPage] = useQueryState("page", filtersSearchParams.page);
+  const [limit] = useQueryState("limit", filtersSearchParams.limit);
 
-  const pagination = { page, limit };
-  const goToPage = async (newPage: number) => {
-    await setPage(newPage);
+  // Build filters object for useCompaniesData
+  const filters = {
+    search: search || "",
+    growthStage: growthStage || "",
+    customerFocus: customerFocus || "",
+    fundingType: fundingType || "",
+    minRank,
+    maxRank,
+    minFunding,
+    maxFunding,
+    sortBy: sortBy || "",
+    sortOrder: (sortOrder || "asc") as "asc" | "desc",
   };
 
-  // Use React Query with server data as initial data
+  const pagination = { page: page || 1, limit: limit || 12 };
+
+  // Now useCompaniesData will refetch when URL changes
   const { data, isLoading, error } = useCompaniesData(
     filters,
     pagination,
-    loaderData.companiesData,
-    loaderData.filters,
-    loaderData.pagination
+    loaderData.companiesData
   );
 
-  // Check if we're navigating (for additional loading states)
   const isNavigating = navigation.state === "loading";
 
-  // Debug: Log data changes
-  useEffect(() => {
-    console.log("📊 [Companies] Data updated:", {
-      hasData: !!data,
-      companiesCount: data?.data?.length || 0,
-      totalPages: data?.totalPages,
-      currentPage: data?.page,
-      isLoading,
-      error: error ? error.message : null,
-      errorDetails: error,
-    });
-  }, [data, isLoading, error]);
-
-  // Enhanced pagination handler with scroll
   const handlePageChange = async (page: number) => {
-    // Scroll to top when changing pages
     scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
-
-    // Navigate to new page
-    await goToPage(page);
+    setPage(page);
   };
 
   const bgColor = useColorModeValue(
@@ -166,8 +144,6 @@ export default function CompanyFeed() {
 
       <Container p={4} h="100%" minH={0}>
         <Grid templateColumns="320px 1fr" gap={8} h="100%">
-          {/* Left Sidebar - Modern Filters */}
-
           <ScrollArea.Root variant="hover">
             <ScrollArea.Viewport>
               <ScrollArea.Content>
@@ -198,7 +174,6 @@ export default function CompanyFeed() {
               animationDuration="moderate"
               animationDelay="0.2s"
             >
-              {/* Table Header - Fixed */}
               <Box mb={4}>
                 <Text fontSize="sm" color="gray.500">
                   {isLoading || isNavigating
@@ -210,7 +185,6 @@ export default function CompanyFeed() {
               </Box>
             </Presence>
 
-            {/* Company Table - Scrollable */}
             <ScrollArea.Root variant="hover" flex="1">
               <ScrollArea.Viewport>
                 <ScrollArea.Content>
@@ -226,8 +200,6 @@ export default function CompanyFeed() {
                     <CompanyTable
                       companies={data?.data || []}
                       isLoading={isLoading || isNavigating}
-                      filters={filters}
-                      onFilterChange={updateFilters}
                     />
                   </Presence>
                 </ScrollArea.Content>
@@ -235,7 +207,6 @@ export default function CompanyFeed() {
               <ScrollArea.Scrollbar />
             </ScrollArea.Root>
 
-            {/* Pagination - Fixed at bottom */}
             {((data && data.total > 0) || isLoading || isNavigating) && (
               <Presence
                 present

@@ -7,9 +7,9 @@ import {
   FormatNumber,
 } from "@chakra-ui/react";
 import { useCallback } from "react";
+import { useQueryState, parseAsInteger } from "nuqs";
 import type { SliderFieldProps } from "./types";
 import { useSyncArrayState } from "~/hooks/use-sync-state";
-import { useFilterState } from "~/hooks/use-filter-state";
 
 interface SliderFieldComponentProps extends SliderFieldProps {
   minName: string;
@@ -32,26 +32,18 @@ export function SliderField({
   maxDefaultValue = max,
   disabled = false,
 }: SliderFieldComponentProps) {
-  const { filters, updateFilters } = useFilterState();
-
-  // Get current values from nuqs state
-  const currentMinValue = (filters as any)[minName] || min;
-  const currentMaxValue = (filters as any)[maxName] || max;
-
-  // Sync state hook for smooth slider interaction with debounced updates
+  const [currentMinValue, setMinValue] = useQueryState(minName, parseAsInteger);
+  const [currentMaxValue, setMaxValue] = useQueryState(maxName, parseAsInteger);
   const [localValues, setLocalValues] = useSyncArrayState({
-    initialValue: [currentMinValue, currentMaxValue] as const,
-    externalValue: [currentMinValue, currentMaxValue] as const,
+    initialValue: [currentMinValue ?? min, currentMaxValue ?? max] as const,
+    externalValue: [currentMinValue ?? min, currentMaxValue ?? max] as const,
     onSync: useCallback(
       async (values: readonly [number, number]) => {
         const [minVal, maxVal] = values;
-
-        await updateFilters({
-          [minName]: minVal === min ? null : minVal,
-          [maxName]: maxVal === max ? null : maxVal,
-        } as Partial<typeof filters>);
+        setMinValue(minVal === min ? null : minVal);
+        setMaxValue(maxVal === max ? null : maxVal);
       },
-      [minName, maxName, min, max, updateFilters]
+      [minName, maxName, min, max, setMinValue, setMaxValue]
     ),
     debounceMs: 300,
   });

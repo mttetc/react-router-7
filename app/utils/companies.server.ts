@@ -80,18 +80,26 @@ export async function getCompanies(
     where.last_funding_type = last_funding_type;
   }
 
-  if (min_rank !== undefined || max_rank !== undefined) {
+  if (
+    (min_rank !== undefined && min_rank !== null) ||
+    (max_rank !== undefined && max_rank !== null)
+  ) {
     where.rank = {};
-    if (min_rank !== undefined) where.rank.gte = min_rank;
-    if (max_rank !== undefined) where.rank.lte = max_rank;
+    if (min_rank !== undefined && min_rank !== null) where.rank.gte = min_rank;
+    if (max_rank !== undefined && max_rank !== null) where.rank.lte = max_rank;
   }
 
-  if (min_funding !== undefined || max_funding !== undefined) {
+  if (
+    (min_funding !== undefined && min_funding !== null) ||
+    (max_funding !== undefined && max_funding !== null)
+  ) {
     where.last_funding_amount = {
       not: null, // Exclude companies with null funding amounts when any funding filter is applied
     };
-    if (min_funding !== undefined) where.last_funding_amount.gte = min_funding;
-    if (max_funding !== undefined) where.last_funding_amount.lte = max_funding;
+    if (min_funding !== undefined && min_funding !== null)
+      where.last_funding_amount.gte = min_funding;
+    if (max_funding !== undefined && max_funding !== null)
+      where.last_funding_amount.lte = max_funding;
   }
 
   // When sorting by funding, exclude companies with null funding amounts
@@ -115,6 +123,9 @@ export async function getCompanies(
         break;
       case "funding":
         orderBy = { last_funding_amount: sortOrder };
+        break;
+      case "createdAt":
+        orderBy = { createdAt: sortOrder };
         break;
       default:
         orderBy = { rank: "asc" };

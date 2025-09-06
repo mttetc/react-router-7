@@ -26,39 +26,43 @@ export interface PaginationState {
 // URL PARSING UTILITIES (pour le loader)
 // ============================================================================
 
+const parseStringParam = (value: string | null): string => {
+  if (!value || value === "undefined" || value === "null") return "";
+  return value;
+};
+
+const parseNumberParam = (value: string | null): number | null => {
+  if (!value || value === "undefined" || value === "null") return null;
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? null : parsed;
+};
+
 export function parseFiltersFromURL(
   searchParams: URLSearchParams
 ): FilterState {
   return {
-    search: searchParams.get("search") || "",
-    growthStage: searchParams.get("growthStage") || "",
-    customerFocus: searchParams.get("customerFocus") || "",
-    fundingType: searchParams.get("fundingType") || "",
-    minRank: searchParams.get("minRank")
-      ? parseInt(searchParams.get("minRank")!)
-      : null,
-    maxRank: searchParams.get("maxRank")
-      ? parseInt(searchParams.get("maxRank")!)
-      : null,
-    minFunding: searchParams.get("minFunding")
-      ? parseInt(searchParams.get("minFunding")!)
-      : null,
-    maxFunding: searchParams.get("maxFunding")
-      ? parseInt(searchParams.get("maxFunding")!)
-      : null,
-    sortBy: (searchParams.get("sortBy") as "name" | "rank" | "funding") || "",
-    sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "asc",
+    search: parseStringParam(searchParams.get("search")),
+    growthStage: parseStringParam(searchParams.get("growthStage")),
+    customerFocus: parseStringParam(searchParams.get("customerFocus")),
+    fundingType: parseStringParam(searchParams.get("fundingType")),
+    minRank: parseNumberParam(searchParams.get("minRank")),
+    maxRank: parseNumberParam(searchParams.get("maxRank")),
+    minFunding: parseNumberParam(searchParams.get("minFunding")),
+    maxFunding: parseNumberParam(searchParams.get("maxFunding")),
+    sortBy: parseStringParam(searchParams.get("sortBy")),
+    sortOrder: (parseStringParam(searchParams.get("sortOrder")) as "asc" | "desc") || "asc",
   };
 }
 
 export function parsePaginationFromURL(
   searchParams: URLSearchParams
 ): PaginationState {
+  const page = parseNumberParam(searchParams.get("page")) || 1;
+  const limit = parseNumberParam(searchParams.get("limit")) || 12;
+  
   return {
-    page: searchParams.get("page") ? parseInt(searchParams.get("page")!) : 1,
-    limit: searchParams.get("limit")
-      ? parseInt(searchParams.get("limit")!)
-      : 12,
+    page: page > 0 ? page : 1,
+    limit: limit > 0 ? limit : 12,
   };
 }
 

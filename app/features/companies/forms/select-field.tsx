@@ -5,8 +5,8 @@ import {
   Select,
   createListCollection,
 } from "@chakra-ui/react";
+import { useQueryState } from "nuqs";
 import type { SelectFieldProps } from "./types";
-import { useFilterState } from "~/hooks/use-filter-state";
 
 export function SelectField({
   name,
@@ -15,21 +15,17 @@ export function SelectField({
   defaultValue = "",
   placeholder = "Select an option",
   disabled = false,
+  parser,
 }: SelectFieldProps) {
-  const { filters, updateFilters } = useFilterState();
+  const [currentValue, setCurrentValue] = useQueryState(name, parser);
 
   const collection = createListCollection({
     items: options,
   });
 
-  // Get current value from nuqs state
-  const currentValue = (filters as any)[name] || "";
-
-  const handleValueChange = async (details: { value: string[] }) => {
+  const handleValueChange = (details: { value: string[] }) => {
     const newValue = details.value[0] || "";
-    await updateFilters({
-      [name]: newValue,
-    } as Partial<typeof filters>);
+    setCurrentValue(newValue || null);
   };
 
   const fieldId = `select-${name}`;
