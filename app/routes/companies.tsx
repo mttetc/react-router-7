@@ -65,24 +65,39 @@ export async function loader({
   // Fetch companies data directly on the server (only for initial load)
   const startTime = Date.now();
 
+  // Use the same parameter format as the client-side service
   const serverParams = {
     page: pagination.page,
     limit: pagination.limit,
     search: filters.search || undefined,
-    growth_stage: filters.growthStage || undefined,
-    customer_focus: filters.customerFocus || undefined,
-    last_funding_type: filters.fundingType || undefined,
-    min_rank: filters.minRank || undefined,
-    max_rank: filters.maxRank || undefined,
-    min_funding: filters.minFunding || undefined,
-    max_funding: filters.maxFunding || undefined,
+    growthStage: filters.growthStage || undefined,
+    customerFocus: filters.customerFocus || undefined,
+    fundingType: filters.fundingType || undefined,
+    minRank: filters.minRank || undefined,
+    maxRank: filters.maxRank || undefined,
+    minFunding: filters.minFunding || undefined,
+    maxFunding: filters.maxFunding || undefined,
     sortBy: filters.sortBy || undefined,
     sortOrder: filters.sortOrder,
   };
 
   console.log("📋 [SSR] Server params:", serverParams);
 
-  const companiesData = await getCompanies(serverParams);
+  // Convert to snake_case for the server function
+  const companiesData = await getCompanies({
+    page: serverParams.page,
+    limit: serverParams.limit,
+    search: serverParams.search,
+    growth_stage: serverParams.growthStage,
+    customer_focus: serverParams.customerFocus,
+    last_funding_type: serverParams.fundingType,
+    min_rank: serverParams.minRank,
+    max_rank: serverParams.maxRank,
+    min_funding: serverParams.minFunding,
+    max_funding: serverParams.maxFunding,
+    sortBy: serverParams.sortBy,
+    sortOrder: serverParams.sortOrder,
+  });
 
   const endTime = Date.now();
   console.log(`✅ [SSR] Fetch completed in ${endTime - startTime}ms`);

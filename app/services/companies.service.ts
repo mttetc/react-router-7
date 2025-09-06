@@ -61,8 +61,9 @@ export class CompaniesService {
     filters: FilterState,
     pagination: PaginationState
   ): Promise<PaginatedResult<Company>> {
-    const params = this.buildParams(filters, pagination);
-    const response = await fetch(`/api/companies?${params}`);
+    // Use the React Router data route instead of separate API endpoint
+    const params = this.buildURLParams(filters, pagination);
+    const response = await fetch(`/companies.data?${params}`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch companies");

@@ -169,6 +169,7 @@ export function ActiveFilters({
                 <Presence
                   key={filter.key}
                   present={true}
+                  display="flex"
                   animationName={{
                     _open: "fade-in, scale-in",
                     _closed: "fade-out, scale-out",

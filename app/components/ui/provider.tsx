@@ -2,6 +2,8 @@ import { ChakraProvider, LocaleProvider } from "@chakra-ui/react";
 import { ColorModeProvider, type ColorModeProviderProps } from "./color-mode";
 import { QueryProvider } from "./query-provider";
 import { NuqsProvider } from "./nuqs-provider";
+import { ErrorBoundary } from "./error-boundary";
+import { GlobalErrorHandler } from "./error-handler";
 import { system } from "../../theme";
 
 export function Provider(props: ColorModeProviderProps) {
@@ -10,14 +12,17 @@ export function Provider(props: ColorModeProviderProps) {
   const ssrLocale = "en-US";
 
   return (
-    <NuqsProvider>
-      <LocaleProvider locale={ssrLocale}>
-        <ChakraProvider value={system}>
-          <QueryProvider>
-            <ColorModeProvider>{props.children}</ColorModeProvider>
-          </QueryProvider>
-        </ChakraProvider>
-      </LocaleProvider>
-    </NuqsProvider>
+    <ErrorBoundary>
+      <GlobalErrorHandler />
+      <NuqsProvider>
+        <LocaleProvider locale={ssrLocale}>
+          <ChakraProvider value={system}>
+            <QueryProvider>
+              <ColorModeProvider>{props.children}</ColorModeProvider>
+            </QueryProvider>
+          </ChakraProvider>
+        </LocaleProvider>
+      </NuqsProvider>
+    </ErrorBoundary>
   );
 }

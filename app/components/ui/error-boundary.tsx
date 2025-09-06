@@ -22,15 +22,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    const errorMessage = error.message || '';
+    const errorMessage = error.message || "";
     // Filter out browser extension connection errors to reduce noise
     if (
-      !errorMessage.includes('Could not establish connection') &&
-      !errorMessage.includes('Receiving end does not exist') &&
-      !errorMessage.includes('Extension context invalidated') &&
-      !errorMessage.includes('chrome-extension://')
+      !errorMessage.includes("Could not establish connection") &&
+      !errorMessage.includes("Receiving end does not exist") &&
+      !errorMessage.includes("Extension context invalidated") &&
+      !errorMessage.includes("chrome-extension://")
     ) {
-      console.error('🚨 Error Boundary caught an error:', error, errorInfo);
+      console.error("🚨 Error Boundary caught an error:", error, errorInfo);
     }
   }
 
@@ -47,10 +47,12 @@ export class ErrorBoundary extends Component<Props, State> {
               Something went wrong
             </Text>
             <Text color="gray.600">
-              {this.state.error?.message || 'An unexpected error occurred'}
+              {this.state.error?.message || "An unexpected error occurred"}
             </Text>
             <Button
-              onClick={() => this.setState({ hasError: false, error: undefined })}
+              onClick={() =>
+                this.setState({ hasError: false, error: undefined })
+              }
               colorScheme="blue"
             >
               Try again
