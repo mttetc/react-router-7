@@ -42,12 +42,19 @@ export function useSyncState<T>({
   // Track if we're currently syncing to avoid infinite loops
   const isSyncingRef = useRef(false);
 
+  // Track previous external value to detect changes
+  const prevExternalValueRef = useRef<T>(initialValue);
+
   // Update local state when external value changes (from other sources)
   useEffect(() => {
-    if (!isSyncingRef.current && !isEqual(localValue, externalValue)) {
+    if (
+      !isSyncingRef.current &&
+      !isEqual(prevExternalValueRef.current, externalValue)
+    ) {
       setLocalValue(externalValue);
+      prevExternalValueRef.current = externalValue;
     }
-  }, [externalValue, localValue, isEqual]);
+  }, [externalValue, isEqual]);
 
   // Debounced sync function
   const syncToExternal = useCallback(
@@ -57,6 +64,8 @@ export function useSyncState<T>({
       // Reset sync flag after a brief delay to allow external state to update
       setTimeout(() => {
         isSyncingRef.current = false;
+        // Update the ref to the synced value to prevent unnecessary updates
+        prevExternalValueRef.current = value;
       }, 50);
     },
     [onSync]
