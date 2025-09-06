@@ -13,7 +13,7 @@ import { useLoaderData, useNavigation } from "react-router";
 import { useColorModeValue } from "../components/ui/color-mode";
 import { useCallback } from "react";
 
-import { useQueryState } from "nuqs";
+import { useQueryStates } from "nuqs";
 import { CompanyTable } from "~/features/companies/components/company-table";
 import { Header } from "~/features/companies/components/header";
 import { Pagination } from "~/features/companies/components/pagination";
@@ -65,33 +65,36 @@ export default function CompanyFeed() {
   const scrollArea = useScrollArea();
 
   // Read all filters from nuqs
-  const [search] = useQueryState("search", filtersSearchParams.search);
-  const [growthStage] = useQueryState(
-    "growthStage",
-    filtersSearchParams.growthStage
-  );
-  const [customerFocus] = useQueryState(
-    "customerFocus",
-    filtersSearchParams.customerFocus
-  );
-  const [fundingType] = useQueryState(
-    "fundingType",
-    filtersSearchParams.fundingType
-  );
-  const [minRank] = useQueryState("minRank", filtersSearchParams.minRank);
-  const [maxRank] = useQueryState("maxRank", filtersSearchParams.maxRank);
-  const [minFunding] = useQueryState(
-    "minFunding",
-    filtersSearchParams.minFunding
-  );
-  const [maxFunding] = useQueryState(
-    "maxFunding",
-    filtersSearchParams.maxFunding
-  );
-  const [sortBy] = useQueryState("sortBy", filtersSearchParams.sortBy);
-  const [sortOrder] = useQueryState("sortOrder", filtersSearchParams.sortOrder);
-  const [page, setPage] = useQueryState("page", filtersSearchParams.page);
-  const [limit] = useQueryState("limit", filtersSearchParams.limit);
+  const [queryParams, setQueryParams] = useQueryStates({
+    search: filtersSearchParams.search,
+    growthStage: filtersSearchParams.growthStage,
+    customerFocus: filtersSearchParams.customerFocus,
+    fundingType: filtersSearchParams.fundingType,
+    minRank: filtersSearchParams.minRank,
+    maxRank: filtersSearchParams.maxRank,
+    minFunding: filtersSearchParams.minFunding,
+    maxFunding: filtersSearchParams.maxFunding,
+    sortBy: filtersSearchParams.sortBy,
+    sortOrder: filtersSearchParams.sortOrder,
+    page: filtersSearchParams.page,
+    limit: filtersSearchParams.limit,
+  });
+
+  // Extract individual values for easier access
+  const {
+    search,
+    growthStage,
+    customerFocus,
+    fundingType,
+    minRank,
+    maxRank,
+    minFunding,
+    maxFunding,
+    sortBy,
+    sortOrder,
+    page,
+    limit,
+  } = queryParams;
 
   // Build filters object for useCompaniesData
   const filters = {
@@ -119,14 +122,12 @@ export default function CompanyFeed() {
   const isNavigating = navigation.state === "loading";
 
   const handlePageChange = useCallback(
-    async (page: number) => {
+    async (newPage: number) => {
       scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
-      // Use setTimeout to break out of the current transition and prevent cascade
-      setTimeout(() => {
-        setPage(page);
-      }, 0);
+      // Use the batched setter to avoid multiple state updates
+      setQueryParams({ page: newPage });
     },
-    [scrollArea, setPage]
+    [scrollArea, setQueryParams]
   );
 
   const bgColor = useColorModeValue(
