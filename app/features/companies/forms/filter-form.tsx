@@ -1,12 +1,12 @@
 import { Box, VStack } from "@chakra-ui/react";
 import { useQueryState } from "nuqs";
-import { filtersSearchParams } from "~/lib/search-params";
+import { filtersSearchParams } from "@/lib/search-params";
 import { useMemo } from "react";
 
 import { SmartSearch, getCurrentSearchInput } from "./smart-search";
 import { QuickFilters } from "./quick-filters";
 import { ActiveFilters } from "./active-filters";
-import { ClientOnly } from "~/components/ui/client-only";
+import { ClientOnly } from "@/components/ui/client-only";
 import { DetailedFilters } from "./detailed-filters";
 
 export function FilterForm() {

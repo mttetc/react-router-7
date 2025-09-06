@@ -13,14 +13,14 @@ import { useLoaderData, useNavigation } from "react-router";
 import { useCallback } from "react";
 
 import { useQueryStates } from "nuqs";
-import { CompanyTable } from "~/features/companies/components/company-table";
-import { Header } from "~/features/companies/components/header";
-import { Pagination } from "~/features/companies/components/pagination";
-import { FilterForm } from "~/features/companies/forms/filter-form";
-import { useCompaniesData } from "~/features/companies/hooks/use-companies-data";
-import { filtersSearchParams, loadFilters } from "~/lib/search-params";
-import { getCompanies } from "../utils/companies.server";
-import type { Company, PaginatedResult } from "../utils/companies.types";
+import { CompanyTable } from "@/features/companies/components/company-table";
+import { Header } from "@/features/companies/components/header";
+import { Pagination } from "@/features/companies/components/pagination";
+import { FilterForm } from "@/features/companies/forms/filter-form";
+import { useCompaniesData } from "@/features/companies/hooks/use-companies-data";
+import { filtersSearchParams, loadFilters } from "@/lib/search-params";
+import { getCompanies } from "@/utils/companies-server";
+import type { Company, PaginatedResult } from "@/types/companies";
 
 interface LoaderData {
   companiesData: PaginatedResult<Company>;

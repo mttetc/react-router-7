@@ -1,4 +1,4 @@
-import { prisma } from "./prisma.server";
+import { prisma } from "./prisma-server";
 
 export interface Company {
   id: string;

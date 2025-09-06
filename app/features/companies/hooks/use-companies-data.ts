@@ -4,8 +4,8 @@ import {
   fetchCompanies,
   type FilterState,
   type PaginationState,
-} from "../../../services/companies.service";
-import type { Company, PaginatedResult } from "../../../utils/companies.types";
+} from "@/services/companies.service";
+import type { Company, PaginatedResult } from "@/types/companies";
 
 const companiesKeys = {
   all: ["companies"] as const,

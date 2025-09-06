@@ -8,10 +8,18 @@ import {
 } from "@chakra-ui/react";
 import { useCallback } from "react";
 import { useQueryState, parseAsInteger } from "nuqs";
-import type { SliderFieldProps } from "./types";
-import { useSyncArrayState } from "~/hooks/use-sync-state";
+import type { SliderFieldProps } from "@/types/forms";
+import { useSyncArrayState } from "@/hooks/use-sync-state";
 
-interface SliderFieldComponentProps extends SliderFieldProps {
+interface SliderFieldComponentProps {
+  name: string;
+  label: string;
+  min: number;
+  max: number;
+  step?: number;
+  formatValue?: (value: number) => string;
+  currency?: string;
+  disabled?: boolean;
   minName: string;
   maxName: string;
   minDefaultValue?: number;

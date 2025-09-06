@@ -8,9 +8,9 @@ import {
 } from "@chakra-ui/react";
 import { useCallback } from "react";
 import { useQueryState, parseAsInteger } from "nuqs";
-import { useCurrencyStore } from "~/stores/currency.store";
-import { convertCurrency, convertToUSD } from "~/utils/currency.utils";
-import { useSyncArrayState } from "~/hooks/use-sync-state";
+import { useCurrencyStore } from "@/stores/currency.store";
+import { convertCurrency, convertToUSD } from "@/utils/currency-utils";
+import { useSyncArrayState } from "@/hooks/use-sync-state";
 
 export function FundingSliderField() {
   const [minFunding, setMinFunding] = useQueryState(

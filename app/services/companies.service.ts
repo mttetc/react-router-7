@@ -1,4 +1,4 @@
-import type { Company, PaginatedResult } from "../utils/companies.types";
+import type { Company, PaginatedResult } from "@/types/companies";
 
 // ============================================================================
 // TYPES (pour compatibilité avec les hooks nuqs)

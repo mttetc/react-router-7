@@ -13,11 +13,11 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
-import { FormatCurrencyCompact } from "../../../components/ui/format-currency";
-import { Tooltip } from "../../../components/ui/tooltip";
+import { FormatCurrencyCompact } from "@/components/ui/format-currency";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useQueryState } from "nuqs";
-import { filtersSearchParams } from "~/lib/search-params";
-import type { Company } from "../../../utils/companies.types";
+import { filtersSearchParams } from "@/lib/search-params";
+import type { Company } from "@/types/companies";
 
 // Column configuration
 interface TableColumn {

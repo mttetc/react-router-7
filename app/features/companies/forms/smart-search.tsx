@@ -3,10 +3,10 @@ import { Box, Input, HStack, Text, Badge, VStack, For } from "@chakra-ui/react";
 import { FaSearch, FaMagic } from "react-icons/fa";
 import { useDebounce } from "rooks";
 import { useQueryState } from "nuqs";
-import { filtersSearchParams } from "~/lib/search-params";
-import type { FilterState } from "../../../services/companies.service";
-import { useCurrencyStore } from "~/stores/currency.store";
-import { convertCurrency, convertToUSD } from "~/utils/currency.utils";
+import { filtersSearchParams } from "@/lib/search-params";
+import type { FilterState } from "@/services/companies.service";
+import { useCurrencyStore } from "@/stores/currency.store";
+import { convertCurrency, convertToUSD } from "@/utils/currency-utils";
 
 // Export the search input value directly
 let currentSearchInput = "";

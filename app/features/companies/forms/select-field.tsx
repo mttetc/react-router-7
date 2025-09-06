@@ -6,7 +6,7 @@ import {
   createListCollection,
 } from "@chakra-ui/react";
 import { useQueryState } from "nuqs";
-import type { SelectFieldProps } from "./types";
+import type { SelectFieldProps } from "@/types/forms";
 
 export function SelectField({
   name,
@@ -54,7 +54,11 @@ export function SelectField({
         <Portal>
           <Select.Positioner>
             <Select.Content>
-              <For each={collection.items}>
+              <For
+                each={
+                  collection.items as Array<{ value: string; label: string }>
+                }
+              >
                 {(item) => (
                   <Select.Item key={item.value} item={item}>
                     <Select.ItemText>{item.label}</Select.ItemText>

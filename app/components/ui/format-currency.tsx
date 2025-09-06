@@ -4,9 +4,9 @@ import { FormatNumber, useLocaleContext } from "@chakra-ui/react";
 import {
   getCurrencyFromLocale,
   convertCurrency,
-} from "../../utils/currency.utils";
+} from "@/utils/currency-utils";
 import { ClientOnly } from "./client-only";
-import { useCurrencyStore } from "../../stores/currency.store";
+import { useCurrencyStore } from "@/stores/currency.store";
 
 interface FormatCurrencyProps {
   /** Amount in USD (base currency) */

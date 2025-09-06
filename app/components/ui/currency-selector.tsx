@@ -14,8 +14,8 @@ import {
 
 import { LuChevronDown, LuGlobe } from "react-icons/lu";
 import { useState, useMemo } from "react";
-import { useCurrencyStore } from "../../stores/currency.store";
-import { getCurrencyName } from "../../utils/currency.utils";
+import { useCurrencyStore } from "@/stores/currency.store";
+import { getCurrencyName } from "@/utils/currency-utils";
 import { toaster } from "./toaster";
 
 // Most popular currencies (top 4)

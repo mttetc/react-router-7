@@ -1,17 +1,15 @@
 import {
-  Box,
-  Container,
-  Heading,
-  Text,
-  HStack,
   Badge,
-  Flex,
-  Spacer,
+  Box,
   Breadcrumb,
+  Container,
+  Flex,
+  HStack,
   Image,
+  Text,
 } from "@chakra-ui/react";
-import { Tooltip } from "../../../components/ui/tooltip";
-import { CurrencySelector } from "../../../components/ui/currency-selector";
+import { CurrencySelector } from "@/components/ui/currency-selector";
+import { Tooltip } from "@/components/ui/tooltip";
 
 export const Header = () => {
   return (

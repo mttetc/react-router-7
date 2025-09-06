@@ -1,9 +1,9 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { getCompanies } from "../utils/companies.server";
+import { getCompanies } from "@/utils/companies-server";
 import {
   parseFiltersFromURL,
   parsePaginationFromURL,
-} from "../services/companies.service";
+} from "@/services/companies.service";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);

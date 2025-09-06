@@ -8,11 +8,14 @@ import {
   For,
 } from "@chakra-ui/react";
 import { useQueryStates } from "nuqs";
-import { filtersSearchParams } from "~/lib/search-params";
-import type { FilterState } from "../../../services/companies.service";
-import { useCurrencyStore } from "~/stores/currency.store";
-import { convertCurrency, getCurrencySymbol } from "~/utils/currency.utils";
-import { ClientOnly } from "~/components/ui/client-only";
+import { filtersSearchParams } from "@/lib/search-params";
+import type { FilterState } from "@/services/companies.service";
+import { useCurrencyStore } from "@/stores/currency.store";
+import {
+  convertCurrency,
+  getCurrencySymbol,
+} from "@/utils/currency-utils";
+import { ClientOnly } from "@/components/ui/client-only";
 
 interface QuickFilterBase {
   id: string;

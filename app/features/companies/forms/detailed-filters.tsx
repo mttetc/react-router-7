@@ -11,7 +11,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FaChevronDown, FaChevronUp, FaCog } from "react-icons/fa";
-import { ClientOnly } from "~/components/ui/client-only";
+import { ClientOnly } from "@/components/ui/client-only";
 import { SelectField } from "./select-field";
 import { SliderField } from "./slider-field";
 import { FundingSliderField } from "./funding-slider-field";
@@ -20,7 +20,7 @@ import {
   customerFocusParser,
   fundingTypeParser,
   filtersSearchParams,
-} from "~/lib/search-params";
+} from "@/lib/search-params";
 
 // Data for select options
 const growthStageOptions = [
