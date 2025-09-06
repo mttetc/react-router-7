@@ -7,6 +7,34 @@ export function GlobalErrorHandler() {
     // Store original console.error
     const originalConsoleError = console.error;
     
+    // Intercept Chrome extension runtime messages to prevent connection errors
+    if (typeof window !== 'undefined' && window.chrome?.runtime) {
+      const originalSendMessage = window.chrome.runtime.sendMessage;
+      if (originalSendMessage) {
+        window.chrome.runtime.sendMessage = function(...args: any[]) {
+          try {
+            return originalSendMessage.apply(this, args);
+          } catch (error) {
+            // Silently ignore extension connection errors
+            return Promise.resolve();
+          }
+        };
+      }
+    }
+    
+    // Also intercept any chrome.tabs.sendMessage if available
+    if (typeof window !== 'undefined' && window.chrome?.tabs?.sendMessage) {
+      const originalTabsSendMessage = window.chrome.tabs.sendMessage;
+      window.chrome.tabs.sendMessage = function(...args: any[]) {
+        try {
+          return originalTabsSendMessage.apply(this, args);
+        } catch (error) {
+          // Silently ignore extension connection errors
+          return Promise.resolve();
+        }
+      };
+    }
+    
     // Override console.error to filter extension errors
     console.error = (...args: any[]) => {
       const message = args.join(' ');
@@ -111,19 +139,47 @@ export function GlobalErrorHandler() {
       }
     };
 
+    // Add a more aggressive error handler that catches everything
+    const handleAllErrors = (event: any) => {
+      const error = event.error || event.reason || event;
+      const message = error?.message || String(error);
+      
+      if (
+        message.includes("Could not establish connection") ||
+        message.includes("Receiving end does not exist") ||
+        message.includes("Extension context invalidated") ||
+        message.includes("chrome-extension://") ||
+        message.includes("moz-extension://") ||
+        message.includes("safari-extension://") ||
+        message.includes("inject.js") ||
+        /extension.*connection/i.test(message) ||
+        /connection.*extension/i.test(message)
+      ) {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+        event.stopImmediatePropagation?.();
+        return false;
+      }
+    };
+
+    // Add multiple event listeners to catch all possible error sources
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
     window.addEventListener("error", handleError);
+    window.addEventListener("unhandledrejection", handleAllErrors, true); // Capture phase
+    window.addEventListener("error", handleAllErrors, true); // Capture phase
+    document.addEventListener("error", handleAllErrors, true); // Document errors
 
     return () => {
       // Restore original functions
       console.error = originalConsoleError;
       window.fetch = originalFetch;
       
-      window.removeEventListener(
-        "unhandledrejection",
-        handleUnhandledRejection
-      );
+      // Remove all event listeners
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
       window.removeEventListener("error", handleError);
+      window.removeEventListener("unhandledrejection", handleAllErrors, true);
+      window.removeEventListener("error", handleAllErrors, true);
+      document.removeEventListener("error", handleAllErrors, true);
     };
   }, []);
 
