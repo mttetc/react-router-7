@@ -1,200 +1,338 @@
-# Welcome!
+# 🚀 React Router v7 - Company Management App
 
-## Getting Started
+A modern, full-stack company management application built with React Router v7, featuring advanced filtering, search capabilities, and responsive design.
 
-### Installation
+## 🏗️ Architecture & Tech Stack
 
-Install the dependencies:
+### **Frontend Framework**
 
-```bash
-nvm use
+- **React Router v7** - Latest version with SSR support
+- **React 19** - Latest React with concurrent features
+- **TypeScript** - Full type safety
+- **Vite** - Fast build tool and dev server
+
+### **UI & Styling**
+
+- **Chakra UI v3** - Modern component library
+- **Emotion** - CSS-in-JS styling
+- **Framer Motion** - Smooth animations
+- **React Icons** - Comprehensive icon set
+
+### **State Management**
+
+- **TanStack Query v5** - Server state management
+- **Zustand** - Lightweight client state
+- **nuqs** - URL state synchronization
+
+### **Backend & Database**
+
+- **Prisma** - Type-safe database ORM
+- **Node.js** - Server runtime
+- **React Router Server** - SSR capabilities
+
+### **Development Tools**
+
+- **Vitest** - Fast unit testing
+- **Testing Library** - Component testing
+- **ESLint** - Code linting
+- **TypeScript** - Type checking
+
+## 📦 Key Dependencies
+
+```json
+{
+  "dependencies": {
+    "@chakra-ui/react": "^3.26.0",
+    "@react-router/node": "^7.5.3",
+    "@react-router/serve": "^7.5.3",
+    "@tanstack/react-query": "^5.85.5",
+    "framer-motion": "^12.10.4",
+    "nuqs": "^2.6.0",
+    "react": "^19.1.0",
+    "react-router": "^7.5.3",
+    "zod": "^4.1.5",
+    "zustand": "^5.0.8"
+  }
+}
 ```
 
-```bash
-npm install
-```
+## 🏛️ Project Architecture
 
-### Development
-
-Start the development server with HMR:
-
-```bash
-npm run dev
-```
-
-Your application will be available at `http://localhost:5173`.
-
-Open in your browser and follow the instructions
-
-(An engineer will provide you with an env file)
-
----
-
-# 📁 Organisation des Dossiers - État Final
-
-## ✅ **Nettoyage Effectué**
-
-### **Fichiers Supprimés (Doublons) :**
-
-- ❌ `app/features/companies/forms/mobile-slider-field.tsx` (doublon)
-- ❌ `app/features/companies/forms/mobile-smart-search.tsx` (doublon)
-- ❌ `app/types/companies.ts` (dupliqué dans schemas.ts)
-- ❌ `app/types/filters.ts` (dupliqué dans schemas.ts)
-- ❌ `app/types/currency.ts` (dupliqué dans schemas.ts)
-- ❌ `app/types/common.ts` (dupliqué dans schemas.ts)
-
-### **Imports Corrigés :**
-
-- ✅ 10 fichiers mis à jour pour utiliser `@/types/schemas`
-- ✅ Conflits de noms résolus avec alias de types
-- ✅ TypeScript compile sans erreurs
-
-## 🏗️ **Structure Finale Optimisée**
+### **Feature-Based Structure**
 
 ```
 app/
-├── components/ui/              # Composants UI réutilisables
-│   ├── client-only.tsx
-│   ├── currency-selector.tsx
-│   ├── error-boundary.tsx
-│   ├── error-handler.tsx
-│   ├── format-currency.tsx
-│   ├── nuqs-provider.tsx
-│   ├── provider.tsx
-│   ├── query-provider.tsx
-│   ├── toaster.tsx
-│   └── tooltip.tsx
+├── components/ui/              # Reusable UI components
+│   ├── client-only.tsx        # Client-side only wrapper
+│   ├── currency-selector.tsx  # Currency selection
+│   ├── error-boundary.tsx     # Error handling
+│   └── ...
 │
-├── features/companies/         # Feature complète
-│   ├── api/                  # API calls spécifiques
+├── features/companies/         # Companies feature module
+│   ├── api/                   # API layer
 │   │   ├── companies-client.ts
 │   │   └── companies-server.ts
-│   ├── types/               # Types spécifiques aux companies
-│   │   ├── schemas.ts       # CompanySchema, FilterStateSchema, etc.
-│   │   └── forms.ts         # FilterFormData, etc.
-│   ├── components/            # Composants spécifiques
-│   │   ├── company-card.tsx
+│   ├── components/            # Feature-specific components
 │   │   ├── company-table.tsx
 │   │   ├── filter-field.tsx
-│   │   ├── filter-section.tsx
-│   │   ├── filter-toggle-button.tsx
-│   │   ├── header.tsx
-│   │   ├── mobile-filter-drawer.tsx
-│   │   ├── mobile-layout.tsx
-│   │   ├── pagination-button.tsx
 │   │   ├── pagination.tsx
-│   │   ├── sortable-header.tsx
-│   │   ├── table-company-row.tsx
-│   │   ├── table-empty-state.tsx
-│   │   ├── table-loading-row.tsx
-│   │   └── table-loading-state.tsx
-│   │
-│   ├── constants/             # Constantes
-│   │   └── filter-options.ts
-│   │
-│   ├── forms/                 # Formulaires
-│   │   ├── active-filters.tsx
-│   │   ├── detailed-filters.tsx
-│   │   ├── filter-colors.ts
+│   │   └── ...
+│   ├── forms/                 # Form components
 │   │   ├── filter-form.tsx
-│   │   ├── funding-slider-field.tsx
-│   │   ├── quick-filters.tsx
-│   │   ├── select-field.tsx
-│   │   ├── slider-field.tsx
 │   │   ├── smart-search.tsx
-│   │   └── mobile/            # Composants mobiles
-│   │       ├── mobile-active-filters.tsx
-│   │       ├── mobile-detailed-filters.tsx
-│   │       ├── mobile-filter-form.tsx
-│   │       ├── mobile-funding-slider-field.tsx
-│   │       ├── mobile-quick-filters.tsx
-│   │       ├── mobile-select-field.tsx
-│   │       ├── mobile-slider-field.tsx
-│   │       └── mobile-smart-search.tsx
-│   │
-│   ├── hooks/                 # Hooks métier
-│   │   ├── use-companies-data.ts
-│   │   └── use-companies-mutations.ts
-│   │
-│   └── utils/                 # Utilitaires
-│       ├── company-utils.ts
-│       ├── filter-form-utils.ts
+│   │   └── mobile/            # Mobile-specific forms
+│   ├── hooks/                 # Custom hooks
+│   │   └── use-companies-data.ts
+│   ├── types/                 # Type definitions
+│   │   ├── schemas.ts         # Zod schemas
+│   │   └── forms.ts           # Form types
+│   └── utils/                 # Utility functions
 │       ├── filter-utils.ts
-│       ├── pagination-utils.ts
-│       ├── smart-search-utils.ts
 │       ├── table-utils.tsx
-│       └── validation.ts
+│       └── ...
 │
-├── hooks/                     # Hooks globaux
-│   └── use-sync-state.ts
+├── lib/                       # Shared libraries
+│   ├── prisma-server.ts       # Database connection
+│   ├── query-client.ts        # React Query setup
+│   └── search-params.ts       # URL params handling
 │
-├── lib/                       # Logique métier globale
-│   ├── search-params.ts
-│   ├── prisma-server.ts
-│   └── query-client.ts
+├── routes/                    # React Router routes
+│   ├── api.companies.ts       # API routes
+│   ├── companies.tsx          # Companies page
+│   └── home.tsx               # Home page
 │
-├── routes/                    # Routes React Router
-│   ├── api.companies.ts
-│   ├── companies.tsx
-│   └── home.tsx
-│
-├── stores/                    # State management global
-│   ├── currency.store.ts
-│   └── currency-utils.ts
-│
-├── types/                     # Types globaux
-│   └── common.ts             # Types partagés (Currency, FormField, etc.)
-│
-├── utils/                     # Utilitaires globaux
-│   └── error-handling.ts
-│
-├── root.tsx
-├── routes.ts
-└── theme.ts
+└── stores/                    # Global state
+    ├── currency.store.ts      # Currency state
+    └── currency-utils.ts      # Currency helpers
 ```
 
-## 🎯 **Principes d'Organisation**
+### **Key Features**
 
-### **1. Feature-Based Architecture**
+#### 🔍 **Advanced Search & Filtering**
 
-- ✅ Chaque feature dans son propre dossier
-- ✅ Composants, hooks, utils groupés par feature
-- ✅ Séparation claire des responsabilités
+- **Smart Search** - Intelligent company search
+- **Multi-criteria Filters** - Industry, funding, location
+- **URL State Sync** - Filters persist in URL
+- **Mobile-optimized** - Touch-friendly interface
 
-### **2. Séparation des Types**
+#### 📊 **Data Management**
 
-- ✅ `schemas.ts` : Types principaux + validation Zod
-- ✅ `forms.ts` : Types spécifiques aux formulaires
-- ✅ Plus de duplication de types
+- **Server-side Rendering** - Fast initial load
+- **Client-side Hydration** - Interactive after load
+- **Optimistic Updates** - Smooth UX
+- **Error Boundaries** - Graceful error handling
 
-### **3. Composants Mobiles**
+#### 📱 **Responsive Design**
 
-- ✅ Dossier `mobile/` dédié dans `forms/`
-- ✅ Pas de doublons entre desktop et mobile
-- ✅ Organisation claire par variant
+- **Mobile-first** - Optimized for mobile
+- **Progressive Enhancement** - Works without JS
+- **Touch Gestures** - Native mobile feel
+- **Adaptive Layouts** - Desktop and mobile variants
 
-### **4. Imports Cohérents**
+## 🚀 Getting Started
 
-- ✅ Tous les types depuis `@/types/schemas`
-- ✅ Alias de types pour éviter les conflits
-- ✅ TypeScript compile sans erreurs
+### Prerequisites
 
-## ✅ **Vérifications Passées**
+- Node.js 20+
+- npm or yarn
+- Git
 
-- ✅ **TypeScript** : `npx tsc --noEmit` - 0 erreurs
-- ✅ **Linting** : Aucune erreur de linting
-- ✅ **Imports** : Tous les imports corrigés
-- ✅ **Doublons** : Tous les fichiers dupliqués supprimés
-- ✅ **Organisation** : Structure claire et logique
+### Installation
 
-## 🎉 **Résultat**
+1. **Clone the repository**
 
-L'application est maintenant **parfaitement organisée** avec :
+   ```bash
+   git clone <repository-url>
+   cd reactrouter
+   ```
 
-- 🗂️ **Structure claire** et logique
-- 🚫 **Aucun doublon** de fichiers ou types
-- 🔗 **Imports cohérents** partout
-- ✅ **TypeScript** qui compile sans erreurs
-- 📚 **Documentation** complète
+2. **Install dependencies**
 
-**Organisation : 10/10** 🏆
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your configuration
+   ```
+
+4. **Start development server**
+
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   ```
+   http://localhost:5173
+   ```
+
+### Available Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run test         # Run tests
+npm run test:ui      # Run tests with UI
+npm run lint         # Lint code
+npm run typecheck    # Type check
+```
+
+## 🧪 Testing
+
+### Test Structure
+
+```
+__tests__/
+├── accessibility/    # A11y tests
+├── behavior/        # User behavior tests
+├── components/      # Component tests
+└── utils/          # Test utilities
+```
+
+### Running Tests
+
+```bash
+npm run test         # Run all tests
+npm run test:ui      # Interactive test UI
+npm run test:run     # Run tests once
+```
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+#### Method 1: Vercel CLI
+
+```bash
+npm i -g vercel
+vercel login
+vercel
+```
+
+#### Method 2: Web Interface
+
+1. Go to [vercel.com](https://vercel.com)
+2. Connect your GitHub account
+3. Import your repository
+4. Click "Deploy"
+
+### Configuration
+
+- **Build Command**: `npm run build`
+- **Output Directory**: `build/client`
+- **Install Command**: `npm install`
+
+### Environment Variables
+
+Add your environment variables in:
+
+- Vercel Dashboard > Settings > Environment Variables
+- Or via CLI: `vercel env add`
+
+## 🔧 Configuration
+
+### React Router Config
+
+```typescript
+// react-router.config.ts
+export default {
+  ssr: true, // Server-side rendering enabled
+} satisfies Config;
+```
+
+### Vercel Config
+
+```json
+// vercel.json
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "build/client",
+  "framework": null,
+  "functions": {
+    "build/server/index.js": {
+      "runtime": "nodejs20.x"
+    }
+  }
+}
+```
+
+## 📊 Performance Features
+
+- **Server-Side Rendering** - Fast initial page load
+- **Code Splitting** - Lazy loading of components
+- **Image Optimization** - WebP format with lazy loading
+- **Bundle Optimization** - Tree shaking and minification
+- **CDN Distribution** - Global content delivery
+- **Edge Functions** - Serverless API routes
+
+## 🎨 Design System
+
+### Color Palette
+
+- **Primary**: Chakra UI default theme
+- **Custom**: Purple accent for funding sliders
+- **Semantic**: Success, warning, error states
+
+### Typography
+
+- **Font**: System fonts for performance
+- **Scale**: Consistent sizing with Chakra UI
+- **Responsive**: Mobile-optimized text sizes
+
+### Components
+
+- **Reusable**: UI components in `/components/ui`
+- **Feature-specific**: Business logic in `/features`
+- **Mobile variants**: Separate mobile components
+- **Accessible**: ARIA labels and keyboard navigation
+
+## 🔒 Security
+
+- **Type Safety** - Full TypeScript coverage
+- **Input Validation** - Zod schema validation
+- **XSS Protection** - React's built-in protection
+- **CSRF Protection** - Server-side validation
+- **Environment Variables** - Secure configuration
+
+## 📈 Monitoring & Analytics
+
+- **Error Tracking** - Error boundaries and logging
+- **Performance Monitoring** - Core Web Vitals
+- **User Analytics** - Optional integration ready
+- **Build Monitoring** - Vercel deployment insights
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+### Code Style
+
+- Use TypeScript for all code
+- Follow ESLint configuration
+- Write meaningful commit messages
+- Add JSDoc comments for complex functions
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For support and questions:
+
+- Create an issue in the repository
+- Check the documentation
+- Review the code examples
+
+---
+
+**Built with ❤️ using React Router v7**
