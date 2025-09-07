@@ -5,7 +5,6 @@ import {
   Presence,
   ScrollArea,
   Text,
-  useMediaQuery,
   useScrollArea,
 } from "@chakra-ui/react";
 
@@ -53,11 +52,7 @@ export default function CompanyFeed() {
   const loaderData = useLoaderData<LoaderData>();
   const navigation = useNavigation();
   const scrollArea = useScrollArea();
-  const [isMobile] = useMediaQuery(["(max-width: 768px)"], { ssr: false });
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
-
-  // Debug: log breakpoint detection
-  console.log("🔍 isMobile:", isMobile);
 
   // Read all filters from nuqs
   const [queryParams, setQueryParams] = useQueryStates({
@@ -117,16 +112,12 @@ export default function CompanyFeed() {
 
   const handlePageChange = useCallback(
     async (newPage: number) => {
-      if (isMobile) {
-        // On mobile, scroll to top of page
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        // On desktop, scroll to top of scroll area
-        scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
-      }
+      // On mobile, scroll to top of page (handled by CSS media queries)
+      // On desktop, scroll to top of scroll area
+      scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
       setQueryParams({ page: newPage });
     },
-    [scrollArea, setQueryParams, isMobile]
+    [scrollArea, setQueryParams]
   );
 
   // Calculate active filters count for mobile
@@ -167,13 +158,13 @@ export default function CompanyFeed() {
       }}
     >
       <Header
-        onFilterToggle={isMobile ? handleFilterToggle : undefined}
+        onFilterToggle={handleFilterToggle}
         activeFiltersCount={activeFiltersCount}
         isFilterOpen={isFilterDrawerOpen}
       />
 
-      {/* Mobile Layout */}
-      {isMobile ? (
+      {/* Mobile Layout - hidden on desktop (md and up) */}
+      <Box hideFrom="md" h="100%" minH={0}>
         <MobileLayout
           companies={data?.data || []}
           isLoading={isLoading || isNavigating}
@@ -181,8 +172,10 @@ export default function CompanyFeed() {
           currentPage={data?.page || 1}
           onPageChange={handlePageChange}
         />
-      ) : (
-        /* Desktop Layout */
+      </Box>
+
+      {/* Desktop Layout - hidden on mobile (below md) */}
+      <Box hideBelow="md" h="100%" minH={0}>
         <Container p={4} h="100%" minH={0}>
           <Grid templateColumns="320px 1fr" gap={8} h="100%">
             <ScrollArea.Root variant="hover">
@@ -191,11 +184,10 @@ export default function CompanyFeed() {
                   <Presence
                     present={true}
                     animationName={{
-                      _open: "slide-from-left, fade-in",
-                      _closed: "slide-to-left, fade-out",
+                      _open: "fade-in",
+                      _closed: "fade-out",
                     }}
                     animationDuration="moderate"
-                    animationDelay="0.1s"
                   >
                     <FilterForm />
                   </Presence>
@@ -215,11 +207,10 @@ export default function CompanyFeed() {
               <Presence
                 present={!!data || isLoading || isNavigating}
                 animationName={{
-                  _open: "slide-from-right, fade-in",
-                  _closed: "slide-to-right, fade-out",
+                  _open: "fade-in",
+                  _closed: "fade-out",
                 }}
                 animationDuration="moderate"
-                animationDelay="0.2s"
               >
                 <Box mb={2}>
                   <Text fontSize="sm" color="gray.500">
@@ -244,11 +235,10 @@ export default function CompanyFeed() {
                     <Presence
                       present={!!data || isLoading || isNavigating}
                       animationName={{
-                        _open: "slide-from-right, fade-in",
-                        _closed: "slide-to-right, fade-out",
+                        _open: "fade-in",
+                        _closed: "fade-out",
                       }}
                       animationDuration="moderate"
-                      animationDelay="0.3s"
                     >
                       <CompanyTable
                         companies={data?.data || []}
@@ -265,11 +255,10 @@ export default function CompanyFeed() {
                 <Presence
                   present
                   animationName={{
-                    _open: "slide-from-right, fade-in",
-                    _closed: "slide-to-right, fade-out",
+                    _open: "fade-in",
+                    _closed: "fade-out",
                   }}
                   animationDuration="moderate"
-                  animationDelay="0.4s"
                 >
                   <Box mt={4}>
                     <Pagination
@@ -284,16 +273,16 @@ export default function CompanyFeed() {
             </Box>
           </Grid>
         </Container>
-      )}
+      </Box>
 
-      {/* Mobile Filter Drawer */}
-      {isMobile && (
+      {/* Mobile Filter Drawer - only show on mobile */}
+      <Box hideFrom="md">
         <MobileFilterDrawer
           isOpen={isFilterDrawerOpen}
           onClose={() => setIsFilterDrawerOpen(false)}
           activeFiltersCount={activeFiltersCount}
         />
-      )}
+      </Box>
     </Box>
   );
 }

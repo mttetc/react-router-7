@@ -9,6 +9,11 @@ import { QuickFilters } from "./quick-filters";
 import { ActiveFilters } from "./active-filters";
 import { ClientOnly } from "@/components/ui/client-only";
 import { DetailedFilters } from "./detailed-filters";
+import {
+  createFilterRemovalHandler,
+  createFilterResetHandler,
+  createFiltersObject,
+} from "../utils/filter-form-utils";
 
 interface FilterFormProps {
   isInDrawer?: boolean;
@@ -78,22 +83,39 @@ export function FilterForm({ isInDrawer = false }: FilterFormProps) {
   const [page, setPage] = useQueryState("page", filtersSearchParams.page);
   const [limit, setLimit] = useQueryState("limit", filtersSearchParams.limit);
 
+  // Create filter setters object
+  const filterSetters = {
+    search: setSearch,
+    growthStage: setGrowthStage,
+    customerFocus: setCustomerFocus,
+    fundingType: setFundingType,
+    minRank: setMinRank,
+    maxRank: setMaxRank,
+    minFunding: setMinFunding,
+    maxFunding: setMaxFunding,
+    sortBy: setSortBy,
+    sortOrder: setSortOrder,
+    page: setPage,
+    limit: setLimit,
+  };
+
   // Use useMemo to prevent infinite re-renders from getCurrentSearchInput()
   const filters = useMemo(
-    () => ({
-      search: getCurrentSearchInput(),
-      growthStage: growthStage || "",
-      customerFocus: customerFocus || "",
-      fundingType: fundingType || "",
-      minRank,
-      maxRank,
-      minFunding,
-      maxFunding,
-      sortBy: sortBy || "",
-      sortOrder: (sortOrder || "asc") as "asc" | "desc",
-      page: page || 1,
-      limit: limit || 12,
-    }),
+    () =>
+      createFiltersObject(
+        getCurrentSearchInput(),
+        growthStage,
+        customerFocus,
+        fundingType,
+        minRank,
+        maxRank,
+        minFunding,
+        maxFunding,
+        sortBy,
+        sortOrder,
+        page,
+        limit
+      ),
     [
       growthStage,
       customerFocus,
@@ -109,35 +131,8 @@ export function FilterForm({ isInDrawer = false }: FilterFormProps) {
     ]
   );
 
-  const removeFilter = (key: keyof typeof filters) => {
-    if (key === "search") setSearch(null);
-    else if (key === "growthStage") setGrowthStage(null);
-    else if (key === "customerFocus") setCustomerFocus(null);
-    else if (key === "fundingType") setFundingType(null);
-    else if (key === "minRank") setMinRank(null);
-    else if (key === "maxRank") setMaxRank(null);
-    else if (key === "minFunding") setMinFunding(null);
-    else if (key === "maxFunding") setMaxFunding(null);
-    else if (key === "sortBy") setSortBy(null);
-    else if (key === "sortOrder") setSortOrder("asc");
-    else if (key === "page") setPage(1);
-    else if (key === "limit") setLimit(12);
-  };
-
-  const resetFilters = () => {
-    // Only reset active filters, keep search intact
-    setGrowthStage(null);
-    setCustomerFocus(null);
-    setFundingType(null);
-    setMinRank(null);
-    setMaxRank(null);
-    setMinFunding(null);
-    setMaxFunding(null);
-    setSortBy(null);
-    setSortOrder("asc");
-    setPage(1);
-    setLimit(12);
-  };
+  const removeFilter = createFilterRemovalHandler(filterSetters);
+  const resetFilters = createFilterResetHandler(filterSetters);
 
   return (
     <Box

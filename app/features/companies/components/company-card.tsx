@@ -9,6 +9,15 @@ import {
 } from "@chakra-ui/react";
 import type { Company } from "@/types/companies";
 import { FormatCurrency } from "@/components/ui/format-currency";
+import {
+  getGrowthStageColor,
+  getCustomerFocusColor,
+  formatFundingAmount,
+  formatFundingType,
+  formatDate,
+  getPositionBackground,
+  getPositionBorderColor,
+} from "../utils/company-utils";
 
 interface CompanyCardProps {
   company: Company;
@@ -21,86 +30,6 @@ export function CompanyCard({
   position,
   currentPage,
 }: CompanyCardProps) {
-  const getGrowthStageColor = (stage: string | null) => {
-    switch (stage?.toLowerCase()) {
-      case "early":
-        return "green";
-      case "seed":
-        return "yellow";
-      case "growing":
-        return "blue";
-      case "late":
-        return "purple";
-      case "exit":
-        return "red";
-      default:
-        return "gray";
-    }
-  };
-
-  const getCustomerFocusColor = (focus: string | null) => {
-    switch (focus?.toLowerCase()) {
-      case "b2b":
-        return "blue";
-      case "b2c":
-        return "pink";
-      case "b2b_b2c":
-        return "teal";
-      case "b2c_b2b":
-        return "orange";
-      default:
-        return "gray";
-    }
-  };
-
-  const formatFundingAmount = (amount: number | null) => {
-    if (!amount) return "N/A";
-    return <FormatCurrency value={amount} />;
-  };
-
-  const formatFundingType = (type: string | null) => {
-    if (!type) return "N/A";
-    return type.replace(/_/g, " ").toUpperCase();
-  };
-
-  const formatDate = (date: Date | null | string) => {
-    if (!date) return "N/A";
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return dateObj.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const getPositionBackground = (position: number, currentPage: number) => {
-    if (currentPage !== 1) return "white";
-    switch (position) {
-      case 1:
-        return "yellow.100";
-      case 2:
-        return "gray.100";
-      case 3:
-        return "orange.100";
-      default:
-        return "white";
-    }
-  };
-
-  const getPositionBorderColor = (position: number, currentPage: number) => {
-    if (currentPage !== 1) return "gray.200";
-    switch (position) {
-      case 1:
-        return "yellow.300";
-      case 2:
-        return "gray.300";
-      case 3:
-        return "orange.300";
-      default:
-        return "gray.200";
-    }
-  };
-
   return (
     <Box
       bg={getPositionBackground(position, currentPage)}
@@ -238,7 +167,7 @@ export function CompanyCard({
 
               {company.last_funding_amount && (
                 <Box fontSize="sm" fontWeight="semibold" color="green.600">
-                  {formatFundingAmount(company.last_funding_amount)}
+                  <FormatCurrency value={company.last_funding_amount} />
                 </Box>
               )}
             </VStack>

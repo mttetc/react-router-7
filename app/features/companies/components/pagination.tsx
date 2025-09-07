@@ -3,86 +3,73 @@
 import {
   HStack,
   ButtonGroup,
-  IconButton,
   Pagination as ChakraPagination,
+  Text,
 } from "@chakra-ui/react";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
-import { useButton } from "@react-aria/button";
-import { useFocusRing } from "@react-aria/focus";
-import { useRef } from "react";
+import {
+  calculateTotalCount,
+  generateMobilePaginationPages,
+  shouldShowPagination,
+  generatePaginationAriaLabel,
+} from "../utils/pagination-utils";
+import { PaginationButton } from "./pagination-button";
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
   isLoading: boolean;
+  isMobile?: boolean;
 }
-
-// Custom pagination button using React Aria
-const PaginationButton = ({
-  children,
-  onPress,
-  isDisabled = false,
-  isSelected = false,
-  ariaLabel,
-  ...props
-}: {
-  children: React.ReactNode;
-  onPress: () => void;
-  isDisabled?: boolean;
-  isSelected?: boolean;
-  ariaLabel: string;
-  [key: string]: any;
-}) => {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  const { buttonProps, isPressed } = useButton(
-    {
-      onPress,
-      isDisabled,
-      "aria-label": ariaLabel,
-      "aria-current": isSelected ? "page" : undefined,
-    },
-    ref
-  );
-
-  const { isFocusVisible, focusProps } = useFocusRing();
-
-  return (
-    <IconButton
-      ref={ref}
-      {...buttonProps}
-      {...focusProps}
-      {...props}
-      variant={isSelected ? "solid" : "outline"}
-      disabled={isDisabled}
-      _focus={{
-        outline: isFocusVisible
-          ? "2px solid var(--chakra-colors-purple-500)"
-          : "none",
-        outlineOffset: "2px",
-      }}
-      _active={{ bg: isPressed ? "purple.200" : undefined }}
-      aria-current={isSelected ? "page" : undefined}
-    >
-      {children}
-    </IconButton>
-  );
-};
 
 export const Pagination = ({
   currentPage,
   totalPages,
   onPageChange,
   isLoading,
+  isMobile = false,
 }: PaginationProps) => {
   // Always show pagination when there's data, even if only 1 page during loading
-  if (totalPages <= 1 && !isLoading) return null;
+  if (!shouldShowPagination(totalPages, isLoading)) return null;
 
   // Calculate total count assuming 12 items per page (matching the limit in companies.tsx)
   const itemsPerPage = 12;
   // Use fake count when loading to show pagination skeleton
-  const totalCount = isLoading ? itemsPerPage * 5 : totalPages * itemsPerPage;
+  const totalCount = isLoading
+    ? itemsPerPage * 5
+    : calculateTotalCount(totalPages, itemsPerPage);
+
+  // Mobile pagination logic: show 1, 2, ..., last page
+  const renderMobilePagination = (): React.ReactNode[] => {
+    const pageNumbers = generateMobilePaginationPages(totalPages);
+    const pages: React.ReactNode[] = [];
+
+    pageNumbers.forEach((pageNumber, index) => {
+      // Add ellipsis before the last page if we have more than 2 pages
+      if (index === pageNumbers.length - 1 && totalPages > 2) {
+        pages.push(
+          <Text key="ellipsis" color="gray.500" px={2}>
+            ...
+          </Text>
+        );
+      }
+
+      pages.push(
+        <PaginationButton
+          key={pageNumber}
+          onPress={() => onPageChange(pageNumber)}
+          isDisabled={isLoading}
+          isSelected={currentPage === pageNumber}
+          ariaLabel={generatePaginationAriaLabel("page", pageNumber)}
+        >
+          {pageNumber}
+        </PaginationButton>
+      );
+    });
+
+    return pages;
+  };
 
   return (
     <HStack
@@ -107,34 +94,42 @@ export const Pagination = ({
             <PaginationButton
               onPress={() => onPageChange(currentPage - 1)}
               isDisabled={isLoading || currentPage <= 1}
-              ariaLabel={`Go to previous page${
-                currentPage > 1 ? ` (page ${currentPage - 1})` : ""
-              }`}
+              ariaLabel={generatePaginationAriaLabel(
+                "previous",
+                undefined,
+                currentPage
+              )}
             >
               <LuChevronLeft />
             </PaginationButton>
           </ChakraPagination.PrevTrigger>
 
-          <ChakraPagination.Items
-            render={(page) => (
-              <PaginationButton
-                onPress={() => onPageChange(page.value)}
-                isDisabled={isLoading}
-                isSelected={page.value === currentPage}
-                ariaLabel={`Go to page ${page.value}`}
-              >
-                {page.value}
-              </PaginationButton>
-            )}
-          />
+          {isMobile ? (
+            renderMobilePagination()
+          ) : (
+            <ChakraPagination.Items
+              render={(page) => (
+                <PaginationButton
+                  onPress={() => onPageChange(page.value)}
+                  isDisabled={isLoading}
+                  isSelected={page.value === currentPage}
+                  ariaLabel={generatePaginationAriaLabel("page", page.value)}
+                >
+                  {page.value}
+                </PaginationButton>
+              )}
+            />
+          )}
 
           <ChakraPagination.NextTrigger asChild>
             <PaginationButton
               onPress={() => onPageChange(currentPage + 1)}
               isDisabled={isLoading || currentPage >= totalPages}
-              ariaLabel={`Go to next page${
-                currentPage < totalPages ? ` (page ${currentPage + 1})` : ""
-              }`}
+              ariaLabel={generatePaginationAriaLabel(
+                "next",
+                totalPages,
+                currentPage
+              )}
             >
               <LuChevronRight />
             </PaginationButton>

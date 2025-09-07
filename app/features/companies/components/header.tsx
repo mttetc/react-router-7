@@ -7,7 +7,6 @@ import {
   HStack,
   Image,
   Text,
-  useMediaQuery,
 } from "@chakra-ui/react";
 import { CurrencySelector } from "@/components/ui/currency-selector";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -24,7 +23,6 @@ export const Header = ({
   activeFiltersCount = 0,
   isFilterOpen = false,
 }: HeaderProps) => {
-  const [isMobile] = useMediaQuery(["(max-width: 768px)"], { ssr: false });
   return (
     <Box
       bg="white"
@@ -55,7 +53,7 @@ export const Header = ({
               >
                 lite
               </Text>
-              {!isMobile && (
+              <Box hideBelow="md">
                 <Tooltip
                   content="Over 5,000 companies in database"
                   positioning={{ placement: "bottom" }}
@@ -69,55 +67,45 @@ export const Header = ({
                     5K+ Companies
                   </Badge>
                 </Tooltip>
-              )}
+              </Box>
             </HStack>
           </HStack>
 
           <HStack gap={3}>
             {/* Desktop: Breadcrumb + Currency */}
-            {!isMobile && (
-              <>
-                <Breadcrumb.Root fontSize="xs" color="gray.500">
-                  <Breadcrumb.List>
-                    <Breadcrumb.Item>
-                      <Breadcrumb.Link href="/">Home</Breadcrumb.Link>
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Separator />
-                    <Breadcrumb.Item>
-                      <Breadcrumb.CurrentLink>Companies</Breadcrumb.CurrentLink>
-                    </Breadcrumb.Item>
-                  </Breadcrumb.List>
-                </Breadcrumb.Root>
+            <Box hideBelow="md">
+              <Breadcrumb.Root fontSize="xs" color="gray.500">
+                <Breadcrumb.List>
+                  <Breadcrumb.Item>
+                    <Breadcrumb.Link href="/">Home</Breadcrumb.Link>
+                  </Breadcrumb.Item>
+                  <Breadcrumb.Separator />
+                  <Breadcrumb.Item>
+                    <Breadcrumb.CurrentLink>Companies</Breadcrumb.CurrentLink>
+                  </Breadcrumb.Item>
+                </Breadcrumb.List>
+              </Breadcrumb.Root>
+            </Box>
 
-                <HStack gap={2}>
-                  <Tooltip
-                    content="Select currency for funding amounts"
-                    positioning={{ placement: "bottom" }}
-                  >
-                    <CurrencySelector />
-                  </Tooltip>
-                </HStack>
-              </>
-            )}
+            <HStack gap={2}>
+              <Tooltip
+                content="Select currency for funding amounts"
+                positioning={{ placement: "bottom" }}
+              >
+                <CurrencySelector />
+              </Tooltip>
+            </HStack>
 
-            {/* Mobile: Filter button + Currency */}
-            {isMobile && (
-              <HStack gap={2}>
-                {onFilterToggle && (
-                  <FilterToggleButton
-                    onClick={onFilterToggle}
-                    activeFiltersCount={activeFiltersCount}
-                    isOpen={isFilterOpen}
-                  />
-                )}
-                <Tooltip
-                  content="Select currency for funding amounts"
-                  positioning={{ placement: "bottom" }}
-                >
-                  <CurrencySelector />
-                </Tooltip>
-              </HStack>
-            )}
+            {/* Mobile: Filter button */}
+            <Box hideFrom="md">
+              {onFilterToggle && (
+                <FilterToggleButton
+                  onClick={onFilterToggle}
+                  activeFiltersCount={activeFiltersCount}
+                  isOpen={isFilterOpen}
+                />
+              )}
+            </Box>
           </HStack>
         </Flex>
       </Container>

@@ -9,193 +9,24 @@ import { filtersSearchParams } from "@/lib/search-params";
 import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { convertCurrency, convertToUSD } from "@/utils/currency-utils";
+import {
+  parseSmartSearch,
+  type ParsedFilter,
+} from "../utils/smart-search-utils";
 
 // Export the search input value directly
 let currentSearchInput = "";
 let currentParsedFilters: any[] = [];
+
 export const getCurrentSearchInput = () => currentSearchInput;
+export const getCurrentParsedFilters = () => currentParsedFilters;
+
 export const hasOnlyMagicFilters = () => {
   if (!currentSearchInput.trim()) return false;
   // If we have parsed filters and the remaining query after parsing is empty/minimal
   const { remainingQuery } = parseSmartSearch(currentSearchInput, "USD"); // Use USD as default
   return currentParsedFilters.length > 0 && !remainingQuery.trim();
 };
-
-const formatCurrencyLabel = (
-  value: number,
-  type: "min" | "max",
-  currency: string
-): string => {
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-    notation: "compact",
-    maximumFractionDigits: 1,
-  }).format(value);
-  return `${type === "min" ? "Min" : "Max"} ${formatted}`;
-};
-
-interface ParsedFilter {
-  type: string;
-  value: string;
-  label: string;
-  color: string;
-}
-
-const SEARCH_PATTERNS = [
-  // Funding patterns - supports $1M, 5M+, etc. with currency conversion
-  // Negative lookbehind to avoid matching B2B, B2C patterns
-  {
-    pattern: /(?<![a-zA-Z])\$?(\d+(?:\.\d+)?)\s*([kmb])[\+\-]?/gi,
-    type: "funding",
-    extract: (match: RegExpMatchArray) => {
-      const amount = parseFloat(match[1]);
-      const unit = match[2]?.toLowerCase();
-      const multiplier =
-        unit === "k"
-          ? 1000
-          : unit === "m"
-          ? 1000000
-          : unit === "b"
-          ? 1000000000
-          : 1;
-      return amount * multiplier;
-    },
-  },
-
-  {
-    pattern: /\b(early|seed|growing|late|exit)\s*(stage)?\b/gi,
-    type: "growthStage",
-  },
-
-  {
-    pattern: /\b(b2b|b2c|business|consumer)\b/gi,
-    type: "customerFocus",
-    map: {
-      business: "b2b",
-      consumer: "b2c",
-    },
-  },
-
-  {
-    pattern: /\b(series\s*[a-z]|seed|angel|grant|debt|convertible|ipo)\b/gi,
-    type: "fundingType",
-    map: {
-      "series a": "Series A",
-      "series b": "Series B",
-      "series c": "Series C",
-      seed: "Seed",
-      angel: "Angel",
-      grant: "Grant",
-      debt: "Debt Financing",
-      convertible: "Convertible Note",
-      ipo: "Initial Coin Offering",
-    },
-  },
-
-  { pattern: /\b(?:rank|position|top)\s*(\d+)/gi, type: "rank" },
-];
-
-function parseSmartSearch(
-  query: string,
-  currentCurrency: string
-): {
-  filters: Partial<FilterState>;
-  remainingQuery: string;
-  parsedFilters: ParsedFilter[];
-} {
-  let remainingQuery = query;
-  const filters: Partial<FilterState> = {};
-  const parsedFilters: ParsedFilter[] = [];
-
-  SEARCH_PATTERNS.forEach(({ pattern, type, extract, map }) => {
-    const matches = [...query.matchAll(pattern)];
-
-    matches.forEach((match) => {
-      let value: any = match[1] || match[0];
-
-      if (extract) {
-        value = extract(match);
-      } else if (map) {
-        const mappedValue = (map as any)[value.toLowerCase()];
-        value = mappedValue || value;
-      }
-
-      switch (type) {
-        case "funding":
-          // Convert user currency to USD since backend data is in USD
-          const usdAmount = convertToUSD(value, currentCurrency);
-
-          if (query.includes("+") || query.includes("above")) {
-            filters.minFunding = usdAmount;
-            parsedFilters.push({
-              type: "minFunding",
-              value: value.toString(),
-              label: formatCurrencyLabel(value, "min", currentCurrency),
-              color: "orange",
-            });
-          } else {
-            filters.maxFunding = usdAmount;
-            parsedFilters.push({
-              type: "maxFunding",
-              value: value.toString(),
-              label: formatCurrencyLabel(value, "max", currentCurrency),
-              color: "orange",
-            });
-          }
-          break;
-
-        case "growthStage":
-          filters.growthStage = value.toLowerCase();
-          parsedFilters.push({
-            type: "growthStage",
-            value: value.toLowerCase(),
-            label: `${value} Stage`,
-            color: "blue",
-          });
-          break;
-
-        case "customerFocus":
-          filters.customerFocus = value.toLowerCase();
-          parsedFilters.push({
-            type: "customerFocus",
-            value: value.toLowerCase(),
-            label: value.toUpperCase(),
-            color: "purple",
-          });
-          break;
-
-        case "fundingType":
-          filters.fundingType = value;
-          parsedFilters.push({
-            type: "fundingType",
-            value: value,
-            label: value,
-            color: "orange",
-          });
-          break;
-
-        case "rank":
-          filters.maxRank = parseInt(value);
-          parsedFilters.push({
-            type: "maxRank",
-            value: value,
-            label: `Top ${value}`,
-            color: "yellow",
-          });
-          break;
-      }
-
-      // Remove matched text from remaining query
-      remainingQuery = remainingQuery.replace(match[0], "").trim();
-    });
-  });
-
-  // Always include the remaining query as the search term
-  filters.search = remainingQuery.trim();
-
-  return { filters, remainingQuery, parsedFilters };
-}
 
 export function SmartSearch() {
   const [search, setSearch] = useQueryState(
@@ -233,21 +64,6 @@ export function SmartSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
-  // Use React Aria text field for proper accessibility
-  const { labelProps, inputProps, descriptionProps } = useTextField(
-    {
-      label: "Smart search for companies",
-      placeholder: "Search",
-      value: query,
-      onChange: setQuery,
-      description:
-        "Type keywords to automatically filter companies. Try terms like funding amounts (1M, $5M+), growth stages (seed, series A), customer focus (B2B, B2C), or company rankings (top 100).",
-    },
-    inputRef
-  );
-
-  const { isFocusVisible, focusProps } = useFocusRing();
-
   // Clear input when search is cleared via active filter removal
   useEffect(() => {
     if (!search && currentSearchInput) {
@@ -259,25 +75,35 @@ export function SmartSearch() {
 
   const debouncedUpdateFilters = useDebounce(
     (allFilters: Partial<FilterState & { search: string }>) => {
-      if (allFilters.search !== undefined) setSearch(allFilters.search || null);
-      if (allFilters.growthStage !== undefined)
+      if (allFilters.search !== undefined) {
+        setSearch(allFilters.search || null);
+      }
+      if (allFilters.growthStage !== undefined) {
         setGrowthStage(allFilters.growthStage || null);
-      if (allFilters.customerFocus !== undefined)
+      }
+      if (allFilters.customerFocus !== undefined) {
         setCustomerFocus(allFilters.customerFocus || null);
-      if (allFilters.fundingType !== undefined)
+      }
+      if (allFilters.fundingType !== undefined) {
         setFundingType(allFilters.fundingType || null);
-      if (allFilters.minRank !== undefined) setMinRank(allFilters.minRank);
-      if (allFilters.maxRank !== undefined) setMaxRank(allFilters.maxRank);
-      if (allFilters.minFunding !== undefined)
+      }
+      if (allFilters.minRank !== undefined) {
+        setMinRank(allFilters.minRank);
+      }
+      if (allFilters.maxRank !== undefined) {
+        setMaxRank(allFilters.maxRank);
+      }
+      if (allFilters.minFunding !== undefined) {
         setMinFunding(allFilters.minFunding);
-      if (allFilters.maxFunding !== undefined)
+      }
+      if (allFilters.maxFunding !== undefined) {
         setMaxFunding(allFilters.maxFunding);
+      }
     },
     300
   );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuery = e.target.value;
+  const handleChange = (newQuery: string) => {
     setQuery(newQuery);
     currentSearchInput = newQuery; // Always show what's in the input
 
@@ -309,17 +135,27 @@ export function SmartSearch() {
     }
   };
 
+  // Use React Aria text field for proper accessibility
+  const { inputProps, descriptionProps } = useTextField(
+    {
+      label: "Smart search for companies",
+      placeholder: "Search",
+      value: query,
+      onChange: handleChange,
+      description:
+        "Search by funding (1M, $5M+), stage (seed, series A), focus (B2B, B2C), or rank (top 100).",
+    },
+    inputRef
+  );
+
+  const { isFocusVisible, focusProps } = useFocusRing();
+
   return (
     <VStack align="stretch" gap={2}>
       <VStack align="start" gap={1}>
         <HStack gap={2}>
           <FaMagic size={12} color="purple.500" />
-          <Text
-            {...(labelProps as any)}
-            fontSize="xs"
-            fontWeight="semibold"
-            color="purple.600"
-          >
+          <Text fontSize="xs" fontWeight="semibold" color="purple.600">
             Smart Search
           </Text>
         </HStack>
@@ -329,9 +165,8 @@ export function SmartSearch() {
           color="gray.600"
           lineHeight="1.4"
         >
-          Type keywords to automatically filter companies. Try terms like
-          funding amounts (1M, $5M+), growth stages (seed, series A), customer
-          focus (B2B, B2C), or company rankings (top 100).
+          Search by funding (1M, $5M+), stage (seed, series A), focus (B2B,
+          B2C), or rank (top 100).
         </Text>
       </VStack>
 

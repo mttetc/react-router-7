@@ -1,5 +1,6 @@
-import { Box, Container, ScrollArea, Text, VStack } from "@chakra-ui/react";
 import type { Company } from "@/types/companies";
+import { Box, Container, ScrollArea, Text, VStack } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import { CompanyCard } from "./company-card";
 import { Pagination } from "./pagination";
 
@@ -75,12 +76,26 @@ export function MobileLayout({
             <ScrollArea.Content>
               <VStack gap={4} align="stretch" pb={4}>
                 {companies.map((company, index) => (
-                  <CompanyCard
+                  <motion.div
                     key={company.id}
-                    company={company}
-                    position={index + 1}
-                    currentPage={currentPage}
-                  />
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.1,
+                        delay: index * 0.05,
+                        ease: "easeOut",
+                      },
+                    }}
+                    viewport={{ once: true, margin: "-50px" }}
+                  >
+                    <CompanyCard
+                      company={company}
+                      position={index + 1}
+                      currentPage={currentPage}
+                    />
+                  </motion.div>
                 ))}
               </VStack>
             </ScrollArea.Content>
@@ -94,6 +109,7 @@ export function MobileLayout({
           totalPages={totalPages}
           onPageChange={onPageChange}
           isLoading={isLoading}
+          isMobile={true}
         />
       </VStack>
     </Container>
