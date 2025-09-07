@@ -15,37 +15,12 @@ import type { FilterState } from "@/lib/companies-client";
 import { MobileSelectField } from "./mobile-select-field";
 import { MobileSliderField } from "./mobile-slider-field";
 import { MobileFundingSliderField } from "./mobile-funding-slider-field";
-
-// Data for select options
-const growthStageOptions = [
-  { value: "early", label: "🌱 Early" },
-  { value: "seed", label: "🌿 Seed" },
-  { value: "growing", label: "🌳 Growing" },
-  { value: "late", label: "🏢 Late" },
-  { value: "exit", label: "🚀 Exit" },
-];
-
-const customerFocusOptions = [
-  { value: "b2b", label: "🏢 B2B" },
-  { value: "b2c", label: "👥 B2C" },
-  { value: "b2b_b2c", label: "🔄 B2B & B2C" },
-  { value: "b2c_b2b", label: "🔄 B2C & B2B" },
-];
-
-const fundingTypeOptions = [
-  { value: "Seed", label: "🌱 Seed" },
-  { value: "Pre Seed", label: "🌰 Pre Seed" },
-  { value: "Series A", label: "🅰️ Series A" },
-  { value: "Series B", label: "🅱️ Series B" },
-  { value: "Series C", label: "©️ Series C" },
-  { value: "Series Unknown", label: "❓ Series Unknown" },
-  { value: "Angel", label: "👼 Angel" },
-  { value: "Grant", label: "🎁 Grant" },
-  { value: "Debt Financing", label: "🏦 Debt Financing" },
-  { value: "Convertible Note", label: "📝 Convertible Note" },
-  { value: "Corporate Round", label: "🏢 Corporate Round" },
-  { value: "Undisclosed", label: "🤐 Undisclosed" },
-];
+import {
+  GROWTH_STAGE_OPTIONS,
+  CUSTOMER_FOCUS_OPTIONS,
+  FUNDING_TYPE_OPTIONS,
+  FILTER_RANGES,
+} from "../../constants/filter-options";
 
 interface MobileDetailedFiltersProps {
   initialFilters: FilterState;
@@ -124,7 +99,7 @@ export function MobileDetailedFilters({
                   <MobileSelectField
                     name="growthStage"
                     label="Growth Stage"
-                    options={growthStageOptions}
+                    options={GROWTH_STAGE_OPTIONS}
                     placeholder="All stages"
                     value={filters.growthStage}
                     onChange={(value) => updateFilter("growthStage", value)}
@@ -133,7 +108,7 @@ export function MobileDetailedFilters({
                   <MobileSelectField
                     name="customerFocus"
                     label="Customer Focus"
-                    options={customerFocusOptions}
+                    options={CUSTOMER_FOCUS_OPTIONS}
                     placeholder="All customer types"
                     value={filters.customerFocus}
                     onChange={(value) => updateFilter("customerFocus", value)}
@@ -142,7 +117,7 @@ export function MobileDetailedFilters({
                   <MobileSelectField
                     name="fundingType"
                     label="Funding Type"
-                    options={fundingTypeOptions}
+                    options={FUNDING_TYPE_OPTIONS}
                     placeholder="All funding types"
                     value={filters.fundingType}
                     onChange={(value) => updateFilter("fundingType", value)}
@@ -166,17 +141,17 @@ export function MobileDetailedFilters({
                   <MobileSliderField
                     name="rankRange"
                     label="Rank Range"
-                    min={1}
-                    max={5000}
-                    minValue={filters.minRank || 1}
-                    maxValue={filters.maxRank || 5000}
+                    min={FILTER_RANGES.rank.min}
+                    max={FILTER_RANGES.rank.max}
+                    minValue={filters.minRank || FILTER_RANGES.rank.min}
+                    maxValue={filters.maxRank || FILTER_RANGES.rank.max}
                     onMinChange={(value) => updateFilter("minRank", value)}
                     onMaxChange={(value) => updateFilter("maxRank", value)}
                   />
 
                   <MobileFundingSliderField
-                    minValue={filters.minFunding || 0}
-                    maxValue={filters.maxFunding || 100000000}
+                    minValue={filters.minFunding || FILTER_RANGES.funding.min}
+                    maxValue={filters.maxFunding || FILTER_RANGES.funding.max}
                     onMinChange={(value) => updateFilter("minFunding", value)}
                     onMaxChange={(value) => updateFilter("maxFunding", value)}
                   />

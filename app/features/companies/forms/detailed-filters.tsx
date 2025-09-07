@@ -21,37 +21,12 @@ import {
   fundingTypeParser,
   filtersSearchParams,
 } from "@/lib/search-params";
-
-// Data for select options
-const growthStageOptions = [
-  { value: "early", label: "🌱 Early" },
-  { value: "seed", label: "🌿 Seed" },
-  { value: "growing", label: "🌳 Growing" },
-  { value: "late", label: "🏢 Late" },
-  { value: "exit", label: "🚀 Exit" },
-];
-
-const customerFocusOptions = [
-  { value: "b2b", label: "🏢 B2B" },
-  { value: "b2c", label: "👥 B2C" },
-  { value: "b2b_b2c", label: "🔄 B2B & B2C" },
-  { value: "b2c_b2b", label: "🔄 B2C & B2B" },
-];
-
-const fundingTypeOptions = [
-  { value: "Seed", label: "🌱 Seed" },
-  { value: "Pre Seed", label: "🌰 Pre Seed" },
-  { value: "Series A", label: "🅰️ Series A" },
-  { value: "Series B", label: "🅱️ Series B" },
-  { value: "Series C", label: "©️ Series C" },
-  { value: "Series Unknown", label: "❓ Series Unknown" },
-  { value: "Angel", label: "👼 Angel" },
-  { value: "Grant", label: "🎁 Grant" },
-  { value: "Debt Financing", label: "🏦 Debt Financing" },
-  { value: "Convertible Note", label: "📝 Convertible Note" },
-  { value: "Corporate Round", label: "🏢 Corporate Round" },
-  { value: "Undisclosed", label: "🤐 Undisclosed" },
-];
+import {
+  GROWTH_STAGE_OPTIONS,
+  CUSTOMER_FOCUS_OPTIONS,
+  FUNDING_TYPE_OPTIONS,
+  FILTER_RANGES,
+} from "../constants/filter-options";
 
 interface DetailedFiltersProps {
   defaultOpen?: boolean;
@@ -133,7 +108,7 @@ export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
                   <SelectField
                     name="growthStage"
                     label="Growth Stage"
-                    options={growthStageOptions}
+                    options={GROWTH_STAGE_OPTIONS}
                     placeholder="All stages"
                     parser={growthStageParser}
                   />
@@ -141,7 +116,7 @@ export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
                   <SelectField
                     name="customerFocus"
                     label="Customer Focus"
-                    options={customerFocusOptions}
+                    options={CUSTOMER_FOCUS_OPTIONS}
                     placeholder="All customer types"
                     parser={customerFocusParser}
                   />
@@ -149,7 +124,7 @@ export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
                   <SelectField
                     name="fundingType"
                     label="Funding Type"
-                    options={fundingTypeOptions}
+                    options={FUNDING_TYPE_OPTIONS}
                     placeholder="All funding types"
                     parser={fundingTypeParser}
                   />

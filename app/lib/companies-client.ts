@@ -96,22 +96,6 @@ export const companiesCacheUtils = {
   },
 };
 
-// Legacy types for backward compatibility
-
-export interface FilterState {
-  search: string;
-  growthStage: string;
-  customerFocus: string;
-  fundingType: string;
-  minRank: number | null;
-  maxRank: number | null;
-  minFunding: number | null;
-  maxFunding: number | null;
-  sortBy: string;
-  sortOrder: "asc" | "desc";
-}
-
-export interface PaginationState {
-  page: number;
-  limit: number;
-}
+// Legacy types for backward compatibility - moved to @/types/filters
+// These are kept here temporarily for backward compatibility
+export type { FilterState, PaginationState } from "@/types/filters";

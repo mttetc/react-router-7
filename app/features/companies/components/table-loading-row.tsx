@@ -11,17 +11,19 @@ interface LoadingRowProps {
 /**
  * Loading skeleton row for table
  */
-export function LoadingRow({ 
-  position = 1, 
-  currentPage = 1, 
-  bg = "white", 
-  borderColor = "transparent" 
+export function LoadingRow({
+  position = 1,
+  currentPage = 1,
+  bg = "white",
+  borderColor = "transparent",
 }: LoadingRowProps) {
   return (
-    <Table.Row 
+    <Table.Row
       bg={bg}
       borderLeft={position <= 3 && currentPage === 1 ? "3px solid" : undefined}
-      borderLeftColor={position <= 3 && currentPage === 1 ? borderColor : undefined}
+      borderLeftColor={
+        position <= 3 && currentPage === 1 ? borderColor : undefined
+      }
     >
       <For each={TABLE_COLUMNS}>
         {(column) => (
