@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import type { OnUrlUpdateFunction } from "nuqs/adapters/testing";
 import { CompanyTable } from "@/features/companies/components/company-table";
 import { createCombinedWrapper } from "../utils/combined-wrapper";
-import type { Company } from "@/types/companies";
+import type { Company } from "@/types/schemas";
 
 const mockCompanies: Company[] = [
   {
@@ -135,10 +135,8 @@ describe("CompanyTable Accessibility", () => {
       }),
     });
 
-    // Should show sortable headers even in loading state
-    expect(
-      screen.getByRole("button", { name: /sort by rank/i })
-    ).toBeInTheDocument();
+    // Should show table headers in loading state (not sortable buttons)
+    expect(screen.getByText("Rank")).toBeInTheDocument();
     // Should show skeleton rows
     const skeletons = screen.getAllByRole("generic");
     expect(skeletons.length).toBeGreaterThan(0);

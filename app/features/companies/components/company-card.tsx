@@ -7,7 +7,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import type { Company } from "@/types/companies";
+import type { Company } from "@/types/schemas";
 import { FormatCurrency } from "@/components/ui/format-currency";
 import {
   getGrowthStageColor,

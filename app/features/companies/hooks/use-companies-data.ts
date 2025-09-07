@@ -4,9 +4,19 @@ import type { Company, PaginatedResult } from "@/types/schemas";
 import type { CompaniesQueryParams } from "@/types/schemas";
 
 /**
- * Hook for fetching companies data with React Query
+ * Custom hook for fetching companies data with React Query
+ * Provides optimized caching, error handling, and loading states
  * @param params - Filter and pagination parameters
- * @param initialData - Server-side rendered data for initial load
+ * @param initialData - Server-side rendered data for initial load (SSR)
+ * @returns Query result with companies data, loading states, and error handling
+ * @example
+ * ```typescript
+ * const { data, isLoading, error } = useCompaniesData({
+ *   page: 1,
+ *   limit: 12,
+ *   search: "tech"
+ * }, initialServerData);
+ * ```
  */
 export function useCompaniesData(
   params: CompaniesQueryParams,

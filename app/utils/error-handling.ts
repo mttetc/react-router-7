@@ -23,7 +23,21 @@ export interface ErrorContext {
 }
 
 /**
- * Create a standardized error object
+ * Creates a standardized error object with consistent structure
+ * @param code - Unique error code identifier
+ * @param message - Human-readable error message
+ * @param details - Additional error details (optional)
+ * @param context - Error context information (optional)
+ * @returns Standardized AppError object
+ * @example
+ * ```typescript
+ * const error = createAppError(
+ *   "VALIDATION_FAILED",
+ *   "Invalid input parameters",
+ *   { field: "email", value: "invalid-email" },
+ *   { userId: "123", url: "/api/users" }
+ * );
+ * ```
  */
 export function createAppError(
   code: string,
@@ -42,7 +56,21 @@ export function createAppError(
 }
 
 /**
- * Handle validation errors
+ * Handles Zod validation errors and converts them to standardized AppError
+ * @param error - Zod validation error
+ * @param context - Additional error context (optional)
+ * @returns Standardized AppError with validation details
+ * @example
+ * ```typescript
+ * try {
+ *   schema.parse(data);
+ * } catch (error) {
+ *   if (error instanceof z.ZodError) {
+ *     const appError = handleValidationError(error, { userId: "123" });
+ *     // Handle the error...
+ *   }
+ * }
+ * ```
  */
 export function handleValidationError(
   error: z.ZodError,

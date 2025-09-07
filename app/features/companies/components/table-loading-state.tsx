@@ -1,5 +1,7 @@
 import { Box, For, ScrollArea, Table } from "@chakra-ui/react";
 import { LoadingRow } from "./table-loading-row";
+import { SortableHeader } from "./sortable-header";
+import { TABLE_COLUMNS } from "../utils/table-utils";
 import {
   getPositionBackground,
   getPositionBorderColor,
@@ -7,12 +9,20 @@ import {
 
 interface TableLoadingStateProps {
   currentPage?: number;
+  sortBy?: string;
+  sortOrder?: string;
+  onSort?: (sortBy: string) => void;
 }
 
 /**
  * Loading state component for table
  */
-export function TableLoadingState({ currentPage = 1 }: TableLoadingStateProps) {
+export function TableLoadingState({
+  currentPage = 1,
+  sortBy,
+  sortOrder,
+  onSort,
+}: TableLoadingStateProps) {
   return (
     <Box
       borderWidth={1}
@@ -26,17 +36,33 @@ export function TableLoadingState({ currentPage = 1 }: TableLoadingStateProps) {
           <Table.Root variant="outline" size="sm" minWidth="1100px">
             <Table.Header bg="brand.50">
               <Table.Row>
-                {/* Placeholder headers for loading state */}
-                <Table.ColumnHeader width="80px">Rank</Table.ColumnHeader>
-                <Table.ColumnHeader width="300px">Company</Table.ColumnHeader>
-                <Table.ColumnHeader width="250px">
-                  Description
-                </Table.ColumnHeader>
-                <Table.ColumnHeader width="120px">Stage</Table.ColumnHeader>
-                <Table.ColumnHeader width="100px">Focus</Table.ColumnHeader>
-                <Table.ColumnHeader width="120px">Funding</Table.ColumnHeader>
-                <Table.ColumnHeader width="150px">Type</Table.ColumnHeader>
-                <Table.ColumnHeader width="120px">Added</Table.ColumnHeader>
+                <For each={TABLE_COLUMNS}>
+                  {(column) => {
+                    if (column.sortable) {
+                      return (
+                        <SortableHeader
+                          key={column.key}
+                          sortKey={column.sortKey!}
+                          currentSort={sortBy || ""}
+                          currentOrder={sortOrder || "asc"}
+                          onSort={onSort || (() => {})}
+                          textColor="brand.700"
+                        >
+                          {column.label}
+                        </SortableHeader>
+                      );
+                    }
+                    return (
+                      <Table.ColumnHeader
+                        key={column.key}
+                        width={column.width}
+                        color="brand.700"
+                      >
+                        {column.label}
+                      </Table.ColumnHeader>
+                    );
+                  }}
+                </For>
               </Table.Row>
             </Table.Header>
             <Table.Body>

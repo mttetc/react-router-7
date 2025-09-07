@@ -6,19 +6,40 @@ import {
   CompanySchema,
   type CompaniesQueryParams,
 } from "@/types/schemas";
+import type { Prisma } from "@prisma/client";
 
 // Server-side API functions for companies data
 
+/**
+ * Fetches companies data from the database with filtering, sorting, and pagination
+ * @param params - Filter and pagination parameters
+ * @returns Promise resolving to paginated companies data
+ * @throws {Error} When validation fails or database query fails
+ * @example
+ * ```typescript
+ * const companies = await getCompaniesServer({
+ *   page: 1,
+ *   limit: 12,
+ *   search: "tech",
+ *   growthStage: "early"
+ * });
+ * ```
+ */
 export async function getCompaniesServer(
   params: Partial<CompaniesQueryParams> = {}
 ): Promise<PaginatedResult<Company>> {
-  // Validate input parameters
+  // Validate input parameters with detailed error information
   const validationResult = CompaniesQueryParamsSchema.safeParse(params);
   if (!validationResult.success) {
+    const errorDetails = validationResult.error.issues.map((issue) => ({
+      field: issue.path.join("."),
+      message: issue.message,
+      code: issue.code,
+      received: "received" in issue ? issue.received : undefined,
+    }));
+
     throw new Error(
-      `Invalid query parameters: ${validationResult.error.issues
-        .map((i) => i.message)
-        .join(", ")}`
+      `Invalid query parameters: ${JSON.stringify(errorDetails, null, 2)}`
     );
   }
 
@@ -39,7 +60,7 @@ export async function getCompaniesServer(
   } = validatedParams;
 
   // Build Prisma where clause for filtering
-  const where: any = {};
+  const where: Prisma.CompanyWhereInput = {};
 
   if (search) {
     // Search across name, domain, and description
@@ -83,8 +104,8 @@ export async function getCompaniesServer(
   }
 
   // Build sorting clause
-  const orderBy: any = {};
-  orderBy[sortBy] = sortOrder;
+  const orderBy: Prisma.CompanyOrderByWithRelationInput = {};
+  orderBy[sortBy as keyof Prisma.CompanyOrderByWithRelationInput] = sortOrder;
 
   // Execute paginated query and count in parallel
   const [data, total] = await Promise.all([
@@ -143,17 +164,36 @@ export async function getCompaniesServer(
 // URL parameter parsing utilities
 
 /**
- * Parse URL search parameters into CompaniesQueryParams
+ * Parses URL search parameters into CompaniesQueryParams with validation
  * Handles camelCase URL params and converts them to snake_case for the API
+ * @param searchParams - URLSearchParams object from the request
+ * @returns Parsed and validated query parameters
+ * @throws {Error} When URL parameters are invalid
+ * @example
+ * ```typescript
+ * const url = new URL(request.url);
+ * const params = parseCompaniesParamsFromURL(url.searchParams);
+ * // Returns: { page: 1, limit: 12, search: "tech", ... }
+ * ```
  */
 export function parseCompaniesParamsFromURL(
   searchParams: URLSearchParams
 ): Partial<CompaniesQueryParams> {
+  /**
+   * Parses a string parameter from URL, handling null/undefined values
+   * @param value - Raw string value from URL
+   * @returns Cleaned string or empty string if invalid
+   */
   const parseStringParam = (value: string | null): string => {
     if (!value || value === "undefined" || value === "null") return "";
     return value;
   };
 
+  /**
+   * Parses a number parameter from URL, handling invalid values
+   * @param value - Raw string value from URL
+   * @returns Parsed number or undefined if invalid
+   */
   const parseNumberParam = (value: string | null): number | undefined => {
     if (!value || value === "undefined" || value === "null") return undefined;
     const parsed = parseInt(value, 10);

@@ -8,12 +8,33 @@ import { CompanyRow } from "./table-company-row";
 import { TableEmptyState } from "./table-empty-state";
 import { TableLoadingState } from "./table-loading-state";
 
+/**
+ * Props for the CompanyTable component
+ * @interface CompanyTableProps
+ */
 interface CompanyTableProps {
+  /** Array of company data to display */
   companies: Company[];
+  /** Whether the table is in a loading state */
   isLoading: boolean;
+  /** Current page number for pagination context */
   currentPage: number;
 }
 
+/**
+ * CompanyTable component for displaying companies data in a sortable table
+ * @description A responsive table component with sorting, loading states, and empty states
+ * @param props - Component props
+ * @returns JSX element
+ * @example
+ * ```tsx
+ * <CompanyTable
+ *   companies={companiesData}
+ *   isLoading={false}
+ *   currentPage={1}
+ * />
+ * ```
+ */
 export const CompanyTable = ({
   companies,
   isLoading,
@@ -71,7 +92,14 @@ export const CompanyTable = ({
   );
 
   if (isLoading) {
-    return <TableLoadingState currentPage={currentPage} />;
+    return (
+      <TableLoadingState
+        currentPage={currentPage}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
+      />
+    );
   }
 
   if (companies.length === 0) {

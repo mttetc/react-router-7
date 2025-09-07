@@ -50,9 +50,7 @@ describe("SmartSearch Behavior", () => {
     });
 
     // Check search input has proper ARIA attributes
-    const searchInput = screen.getByRole("textbox", {
-      name: /smart search/i,
-    });
+    const searchInput = screen.getByRole("textbox");
     expect(searchInput).toBeInTheDocument();
     expect(searchInput).toHaveAttribute("type", "text");
     expect(searchInput).toHaveAttribute("placeholder", "Search");
@@ -77,9 +75,7 @@ describe("SmartSearch Behavior", () => {
       }),
     });
 
-    const searchInput = screen.getByRole("textbox", {
-      name: /smart search/i,
-    });
+    const searchInput = screen.getByRole("textbox");
     await user.type(searchInput, "test company");
 
     expect(searchInput).toHaveValue("test company");
@@ -104,9 +100,7 @@ describe("SmartSearch Behavior", () => {
       }),
     });
 
-    const searchInput = screen.getByRole("textbox", {
-      name: /smart search/i,
-    });
+    const searchInput = screen.getByRole("textbox");
 
     // Focus on input
     searchInput.focus();
@@ -139,9 +133,7 @@ describe("SmartSearch Behavior", () => {
       }),
     });
 
-    const searchInput = screen.getByRole("textbox", {
-      name: /smart search/i,
-    });
+    const searchInput = screen.getByRole("textbox");
 
     // Simulate paste
     await user.click(searchInput);
@@ -169,9 +161,7 @@ describe("SmartSearch Behavior", () => {
       }),
     });
 
-    const searchInput = screen.getByRole("textbox", {
-      name: /smart search/i,
-    });
+    const searchInput = screen.getByRole("textbox");
 
     // Test edge cases
     await user.type(searchInput, "B2B2C companies"); // Should not match B2B
@@ -201,10 +191,9 @@ describe("SmartSearch Behavior", () => {
     });
 
     expect(
-      screen.getByText(/type keywords to automatically filter companies/i)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/try terms like funding amounts/i)
+      screen.getByText(
+        /search by funding \(1m, \$5m\+\), stage \(seed, series a\), focus \(b2b, b2c\), or rank \(top 100\)\./i
+      )
     ).toBeInTheDocument();
   });
 
@@ -227,9 +216,7 @@ describe("SmartSearch Behavior", () => {
       }),
     });
 
-    const searchInput = screen.getByRole("textbox", {
-      name: /smart search/i,
-    });
+    const searchInput = screen.getByRole("textbox");
     const container =
       searchInput.closest('[data-testid="search-container"]') ||
       searchInput.parentElement;

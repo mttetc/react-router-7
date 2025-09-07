@@ -5,21 +5,55 @@ import type { SliderFieldProps } from "@/types/forms";
 import { useSyncArrayState } from "@/hooks/use-sync-state";
 import { ClientOnly } from "@/components/ui/client-only";
 
+/**
+ * Props for the SliderField component
+ * @interface SliderFieldComponentProps
+ */
 interface SliderFieldComponentProps {
+  /** Unique identifier for the slider field */
   name: string;
+  /** Display label for the slider */
   label: string;
+  /** Minimum value for the slider */
   min: number;
+  /** Maximum value for the slider */
   max: number;
+  /** Step size for the slider (default: 1) */
   step?: number;
+  /** Custom formatter function for displaying values */
   formatValue?: (value: number) => string;
+  /** Currency code for currency formatting */
   currency?: string;
+  /** Whether the slider is disabled */
   disabled?: boolean;
+  /** Query parameter name for minimum value */
   minName: string;
+  /** Query parameter name for maximum value */
   maxName: string;
+  /** Default minimum value */
   minDefaultValue?: number;
+  /** Default maximum value */
   maxDefaultValue?: number;
 }
 
+/**
+ * SliderField component for range input with URL state management
+ * @description A dual-handle slider component that syncs with URL parameters
+ * @param props - Component props
+ * @returns JSX element
+ * @example
+ * ```tsx
+ * <SliderField
+ *   name="rank"
+ *   label="Company Rank"
+ *   min={1}
+ *   max={1000}
+ *   minName="minRank"
+ *   maxName="maxRank"
+ *   currency="USD"
+ * />
+ * ```
+ */
 export function SliderField({
   name,
   label,

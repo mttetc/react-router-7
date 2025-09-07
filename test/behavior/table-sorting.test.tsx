@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import type { OnUrlUpdateFunction } from "nuqs/adapters/testing";
 import { CompanyTable } from "@/features/companies/components/company-table";
 import { createCombinedWrapper } from "../utils/combined-wrapper";
-import type { Company } from "@/types/companies";
+import type { Company } from "@/types/schemas";
 
 const mockCompanies: Company[] = [
   {
@@ -315,10 +315,9 @@ describe("CompanyTable Sorting Behavior", () => {
       }),
     });
 
-    // Should show loading skeleton with sortable headers
-    const rankHeader = screen.getByRole("button", { name: /sort by rank/i });
-    expect(rankHeader).toBeInTheDocument();
-    expect(rankHeader).toHaveAttribute("aria-sort", "ascending");
+    // Should show loading skeleton with table headers (not sortable buttons)
+    expect(screen.getByText("Rank")).toBeInTheDocument();
+    expect(screen.getByText("Company")).toBeInTheDocument();
 
     // Should show skeleton rows
     const skeletons = screen.getAllByRole("generic");

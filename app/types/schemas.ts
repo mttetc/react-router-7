@@ -1,11 +1,18 @@
 /**
  * Zod schemas for type validation and inference
  * Centralized schemas to ensure type safety across the application
+ *
+ * @fileoverview This module contains all Zod schemas used for validation
+ * and type inference throughout the application. It provides a single
+ * source of truth for data validation and TypeScript types.
  */
 
 import { z } from "zod";
 
-// Company schema
+/**
+ * Schema for validating Company entities
+ * @description Validates company data structure with all required and optional fields
+ */
 export const CompanySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -19,7 +26,10 @@ export const CompanySchema = z.object({
   customer_focus: z.string().nullable(),
 });
 
-// Filter state schema
+/**
+ * Schema for validating filter state
+ * @description Defines all possible filter parameters with their types and defaults
+ */
 export const FilterStateSchema = z.object({
   search: z.string().default(""),
   growthStage: z.string().nullable().default(null),
@@ -33,16 +43,29 @@ export const FilterStateSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("asc"),
 });
 
-// Pagination state schema
+/**
+ * Schema for validating pagination state
+ * @description Defines pagination parameters with validation rules
+ */
 export const PaginationStateSchema = z.object({
   page: z.number().int().positive().default(1),
   limit: z.number().int().positive().default(20),
 });
 
-// Combined filter and pagination schema
-export const CompaniesQueryParamsSchema = FilterStateSchema.merge(PaginationStateSchema);
+/**
+ * Combined schema for companies query parameters
+ * @description Merges filter and pagination schemas for complete query validation
+ */
+export const CompaniesQueryParamsSchema = FilterStateSchema.merge(
+  PaginationStateSchema
+);
 
-// Paginated result schema
+/**
+ * Generic schema for paginated results
+ * @description Creates a schema for paginated API responses
+ * @param dataSchema - Schema for the data array items
+ * @returns Zod schema for paginated results
+ */
 export const PaginatedResultSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     data: z.array(dataSchema),
@@ -99,16 +122,44 @@ export const SortConfigSchema = z.object({
   direction: z.enum(["asc", "desc"]),
 });
 
-// Export inferred types
+// Export inferred types with JSDoc documentation
+
+/** Company entity type inferred from CompanySchema */
 export type Company = z.infer<typeof CompanySchema>;
+
+/** Filter state type inferred from FilterStateSchema */
 export type FilterState = z.infer<typeof FilterStateSchema>;
+
+/** Pagination state type inferred from PaginationStateSchema */
 export type PaginationState = z.infer<typeof PaginationStateSchema>;
+
+/** Combined companies query parameters type */
 export type CompaniesQueryParams = z.infer<typeof CompaniesQueryParamsSchema>;
-export type PaginatedResult<T> = z.infer<ReturnType<typeof PaginatedResultSchema<z.ZodType<T>>>>;
+
+/** Generic paginated result type */
+export type PaginatedResult<T> = z.infer<
+  ReturnType<typeof PaginatedResultSchema<z.ZodType<T>>>
+>;
+
+/** Currency type inferred from CurrencySchema */
 export type Currency = z.infer<typeof CurrencySchema>;
+
+/** Select option type for form fields */
 export type SelectOption = z.infer<typeof SelectOptionSchema>;
+
+/** Base form field type */
 export type FormField = z.infer<typeof FormFieldSchema>;
+
+/** Select field type with options */
 export type SelectField = z.infer<typeof SelectFieldSchema>;
+
+/** Slider field type with range configuration */
 export type SliderField = z.infer<typeof SliderFieldSchema>;
-export type ApiResponse<T> = z.infer<ReturnType<typeof ApiResponseSchema<z.ZodType<T>>>>;
+
+/** Generic API response type */
+export type ApiResponse<T> = z.infer<
+  ReturnType<typeof ApiResponseSchema<z.ZodType<T>>>
+>;
+
+/** Sort configuration type */
 export type SortConfig = z.infer<typeof SortConfigSchema>;

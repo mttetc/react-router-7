@@ -1,4 +1,4 @@
-import type { Company } from "@/types/companies";
+import type { Company } from "@/types/schemas";
 import {
   Box,
   Container,

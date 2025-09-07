@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import type { OnUrlUpdateFunction } from "nuqs/adapters/testing";
 import { CompanyTable } from "@/features/companies/components/company-table";
 import { createCombinedWrapper } from "../utils/combined-wrapper";
-import type { Company } from "@/types/companies";
+import type { Company } from "@/types/schemas";
 
 const mockCompanies: Company[] = [
   {
@@ -105,8 +105,8 @@ describe("CompanyTable", () => {
       }
     );
 
-    // Check rank badge
-    expect(screen.getByText("#1")).toBeInTheDocument();
+    // Check rank badge (now includes crown emoji for first place)
+    expect(screen.getByText("👑 #1")).toBeInTheDocument();
 
     // Check company name
     expect(screen.getByText("Test Company")).toBeInTheDocument();

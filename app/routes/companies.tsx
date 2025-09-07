@@ -26,7 +26,7 @@ import {
   getCompaniesServer,
   parseCompaniesParamsFromURL,
 } from "@/lib/companies-server";
-import type { Company, PaginatedResult } from "@/types/companies";
+import type { Company, PaginatedResult } from "@/types/schemas";
 
 interface LoaderData {
   companiesData: PaginatedResult<Company>;
