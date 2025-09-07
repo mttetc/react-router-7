@@ -3,6 +3,7 @@ import {
   Button,
   Drawer,
   HStack,
+  IconButton,
   Presence,
   ScrollArea,
   Text,
@@ -11,7 +12,10 @@ import {
 import { useState } from "react";
 import { MdFilterList } from "react-icons/md";
 import { FaUndo } from "react-icons/fa";
-import { FilterForm } from "../forms/filter-form";
+import { MobileFilterForm } from "../forms/mobile/mobile-filter-form";
+import { useQueryStates } from "nuqs";
+import { filtersSearchParams } from "@/lib/search-params";
+import type { FilterState } from "@/lib/companies-client";
 
 interface MobileFilterDrawerProps {
   isOpen: boolean;
@@ -27,12 +31,58 @@ export function MobileFilterDrawer({
   onClearAllFilters,
 }: MobileFilterDrawerProps) {
   const [isApplying, setIsApplying] = useState(false);
+  const [pendingFilters, setPendingFilters] = useState<Partial<FilterState>>(
+    {}
+  );
+
+  // Get all filter setters
+  const [, setFilters] = useQueryStates({
+    search: filtersSearchParams.search,
+    growthStage: filtersSearchParams.growthStage,
+    customerFocus: filtersSearchParams.customerFocus,
+    fundingType: filtersSearchParams.fundingType,
+    minRank: filtersSearchParams.minRank,
+    maxRank: filtersSearchParams.maxRank,
+    minFunding: filtersSearchParams.minFunding,
+    maxFunding: filtersSearchParams.maxFunding,
+    sortBy: filtersSearchParams.sortBy,
+    sortOrder: filtersSearchParams.sortOrder,
+    page: filtersSearchParams.page,
+    limit: filtersSearchParams.limit,
+  });
+
+  const handleFiltersChange = (filters: Partial<FilterState>) => {
+    setPendingFilters(filters);
+  };
 
   const handleApplyFilters = async () => {
     setIsApplying(true);
-    // Small delay to show loading state
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    setIsApplying(false);
+
+    try {
+      // Apply all pending filters at once
+      await setFilters(pendingFilters);
+
+      // Small delay to show loading state
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    } finally {
+      setIsApplying(false);
+      onClose();
+    }
+  };
+
+  const handleClearAllFilters = () => {
+    const clearedFilters = {
+      search: "",
+      growthStage: "",
+      customerFocus: "",
+      fundingType: "",
+      minRank: null,
+      maxRank: null,
+      minFunding: null,
+      maxFunding: null,
+      page: 1,
+    };
+    setPendingFilters(clearedFilters);
     onClose();
   };
 
@@ -70,7 +120,7 @@ export function MobileFilterDrawer({
                   {activeFiltersCount > 0 && (
                     <Text
                       as="span"
-                      colorPalette="brand"
+                      colorPalette="palette"
                       color="brand.500"
                       ml={2}
                     >
@@ -94,7 +144,10 @@ export function MobileFilterDrawer({
           <ScrollArea.Root flex="1" minH={0}>
             <ScrollArea.Viewport>
               <ScrollArea.Content p={4}>
-                <FilterForm isInDrawer={true} />
+                <MobileFilterForm
+                  onFiltersChange={handleFiltersChange}
+                  pendingFilters={pendingFilters}
+                />
               </ScrollArea.Content>
             </ScrollArea.Viewport>
             <ScrollArea.Scrollbar />
@@ -104,23 +157,22 @@ export function MobileFilterDrawer({
           <Box p={4} borderTop="1px solid" borderColor="gray.200" bg="gray.50">
             <HStack gap={2} width="100%">
               <Presence
-                present={onClearAllFilters && activeFiltersCount > 0}
+                present={activeFiltersCount > 0}
                 animationName={{
                   _open: "fade-in",
                   _closed: "fade-out",
                 }}
                 animationDuration="moderate"
               >
-                <Button
+                <IconButton
                   variant="outline"
                   colorPalette="gray"
-                  onClick={onClearAllFilters}
+                  onClick={handleClearAllFilters}
                   disabled={isApplying}
                   flex="1"
                 >
                   <FaUndo style={{ width: "14px" }} />
-                  Clear
-                </Button>
+                </IconButton>
               </Presence>
 
               <Button

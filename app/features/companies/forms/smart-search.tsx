@@ -128,9 +128,8 @@ export function SmartSearch() {
       setParsedFilters(newParsedFilters);
       currentParsedFilters = newParsedFilters; // Store for hasOnlyMagicFilters check
 
-      // Keep the original query in search if there are magic filters
-      const searchValue =
-        newParsedFilters.length > 0 ? newQuery : remainingQuery.trim();
+      // Only use the remaining query as search (after extracting filters)
+      const searchValue = remainingQuery.trim();
 
       debouncedUpdateFilters({
         ...filters,

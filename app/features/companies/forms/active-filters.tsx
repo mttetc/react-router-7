@@ -242,7 +242,7 @@ export function ActiveFilters({
         <Button
           size="xs"
           variant="outline"
-          colorPalette="gray"
+          colorPalette="brand"
           onClick={onResetAll}
           flexShrink={0}
         >

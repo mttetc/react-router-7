@@ -9,6 +9,7 @@ import { QuickFilters } from "./quick-filters";
 import { ActiveFilters } from "./active-filters";
 import { ClientOnly } from "@/components/ui/client-only";
 import { DetailedFilters } from "./detailed-filters";
+import { MobileFilterForm } from "./mobile/mobile-filter-form";
 import {
   createFilterRemovalHandler,
   createFilterResetHandler,
@@ -21,6 +22,11 @@ interface FilterFormProps {
 }
 
 export function FilterForm({ isInDrawer = false }: FilterFormProps) {
+  // If in drawer mode, use the mobile filter form with sync state
+  if (isInDrawer) {
+    return <MobileFilterForm />;
+  }
+
   const complementaryRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const quickFiltersRef = useRef<HTMLDivElement>(null);

@@ -86,7 +86,12 @@ export const Header = ({
             </HStack>
           </HStack>
 
-          <HStack gap={2}>
+          <HStack
+            gap={{
+              base: 1,
+              md: 2,
+            }}
+          >
             {/* Desktop: Breadcrumb + Currency */}
             <Box hideBelow="md">
               <Breadcrumb.Root fontSize="xs" color="gray.500">
@@ -102,18 +107,21 @@ export const Header = ({
               </Breadcrumb.Root>
             </Box>
 
-            <HStack gap={2}>
-              <Tooltip
-                content="Select currency for funding amounts"
-                positioning={{ placement: "bottom" }}
-              >
-                <CurrencySelector />
-              </Tooltip>
-            </HStack>
+            <Tooltip
+              content="Select currency for funding amounts"
+              positioning={{ placement: "bottom" }}
+            >
+              <CurrencySelector />
+            </Tooltip>
 
             {/* Mobile: Layout toggle and Filter button */}
             <Box hideFrom="md">
-              <HStack gap={2}>
+              <HStack
+                gap={{
+                  base: 1,
+                  md: 2,
+                }}
+              >
                 {onLayoutToggle && (
                   <Tooltip
                     content={
