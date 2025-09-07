@@ -1,15 +1,9 @@
-import {
-  Box,
-  Field,
-  HStack,
-  Slider,
-  Text,
-  FormatNumber,
-} from "@chakra-ui/react";
+import { Box, Field, HStack, Slider, Text } from "@chakra-ui/react";
 import { useCallback } from "react";
 import { useQueryState, parseAsInteger } from "nuqs";
 import type { SliderFieldProps } from "@/types/forms";
 import { useSyncArrayState } from "@/hooks/use-sync-state";
+import { ClientOnly } from "@/components/ui/client-only";
 
 interface SliderFieldComponentProps {
   name: string;
@@ -68,24 +62,22 @@ export function SliderField({
     }
 
     if (currency) {
-      return (
-        <FormatNumber
-          value={value}
-          style="currency"
-          currency={currency}
-          notation="compact"
-          maximumFractionDigits={1}
-        />
-      );
+      // Use consistent formatting that works the same on server and client
+      const formatter = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: currency,
+        notation: "compact",
+        maximumFractionDigits: 1,
+      });
+      return formatter.format(value);
     }
 
-    return (
-      <FormatNumber
-        value={value}
-        notation="standard"
-        maximumFractionDigits={0}
-      />
-    );
+    // Use consistent number formatting
+    const formatter = new Intl.NumberFormat("en-US", {
+      notation: "standard",
+      maximumFractionDigits: 0,
+    });
+    return formatter.format(value);
   };
 
   const fieldId = `slider-${name}`;
@@ -96,40 +88,42 @@ export function SliderField({
       <Text fontSize="xs" color="gray.500" id={labelId} as="label">
         {label}
       </Text>
-      <Box w="100%" role="group">
-        <Slider.Root
-          width="100%"
-          min={min}
-          max={max}
-          step={step}
-          cursor="pointer"
-          colorPalette="purple"
-          value={[...localValues]}
-          onValueChange={handleValueChange}
-          disabled={disabled}
-          aria-labelledby={[labelId]}
-        >
-          <Slider.Control>
-            <Slider.Track>
-              <Slider.Range />
-            </Slider.Track>
-            <Slider.Thumbs />
-          </Slider.Control>
-        </Slider.Root>
+      <ClientOnly fallback={<Box w="100%" h="60px" />}>
+        <Box w="100%" role="group">
+          <Slider.Root
+            width="100%"
+            min={min}
+            max={max}
+            step={step}
+            cursor="pointer"
+            colorPalette="purple"
+            value={[...localValues]}
+            onValueChange={handleValueChange}
+            disabled={disabled}
+            aria-labelledby={[labelId]}
+          >
+            <Slider.Control>
+              <Slider.Track>
+                <Slider.Range />
+              </Slider.Track>
+              <Slider.Thumbs />
+            </Slider.Control>
+          </Slider.Root>
 
-        <HStack justify="space-between" mt={2}>
-          <Text fontSize="xs" color="gray.500">
-            {localValues[0] > min
-              ? formatDisplayValue(localValues[0])
-              : formatDisplayValue(min)}
-          </Text>
-          <Text fontSize="xs" color="gray.500">
-            {localValues[1] < max
-              ? formatDisplayValue(localValues[1])
-              : formatDisplayValue(max)}
-          </Text>
-        </HStack>
-      </Box>
+          <HStack justify="space-between" mt={2}>
+            <Text fontSize="xs" color="gray.500">
+              {localValues[0] > min
+                ? formatDisplayValue(localValues[0])
+                : formatDisplayValue(min)}
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              {localValues[1] < max
+                ? formatDisplayValue(localValues[1])
+                : formatDisplayValue(max)}
+            </Text>
+          </HStack>
+        </Box>
+      </ClientOnly>
       <Field.ErrorText />
     </Field.Root>
   );

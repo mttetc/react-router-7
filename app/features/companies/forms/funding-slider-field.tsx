@@ -1,16 +1,10 @@
-import {
-  Box,
-  Field,
-  HStack,
-  Slider,
-  Text,
-  FormatNumber,
-} from "@chakra-ui/react";
+import { Box, Field, HStack, Slider, Text } from "@chakra-ui/react";
 import { useCallback } from "react";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { convertCurrency, convertToUSD } from "@/utils/currency-utils";
 import { useSyncArrayState } from "@/hooks/use-sync-state";
+import { ClientOnly } from "@/components/ui/client-only";
 
 export function FundingSliderField() {
   const [minFunding, setMinFunding] = useQueryState(
@@ -60,15 +54,14 @@ export function FundingSliderField() {
   };
 
   const formatDisplayValue = (value: number) => {
-    return (
-      <FormatNumber
-        value={value}
-        style="currency"
-        currency={currentCurrency}
-        notation="compact"
-        maximumFractionDigits={1}
-      />
-    );
+    // Use consistent formatting that works the same on server and client
+    const formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currentCurrency,
+      notation: "compact",
+      maximumFractionDigits: 1,
+    });
+    return formatter.format(value);
   };
 
   const fieldId = `slider-fundingRange`;
@@ -86,39 +79,41 @@ export function FundingSliderField() {
         Funding Amount ({currentCurrency})
       </Text>
 
-      <Box role="group" aria-labelledby={labelId} w="100%">
-        <Slider.Root
-          width="100%"
-          min={0}
-          max={maxSliderValue}
-          step={convertCurrency(100000, currentCurrency)}
-          cursor="pointer"
-          colorPalette="purple"
-          value={[...localValues]}
-          onValueChange={handleValueChange}
-          aria-labelledby={[labelId]}
-        >
-          <Slider.Control>
-            <Slider.Track>
-              <Slider.Range />
-            </Slider.Track>
-            <Slider.Thumbs />
-          </Slider.Control>
-        </Slider.Root>
+      <ClientOnly fallback={<Box w="100%" h="60px" />}>
+        <Box role="group" aria-labelledby={labelId} w="100%">
+          <Slider.Root
+            width="100%"
+            min={0}
+            max={maxSliderValue}
+            step={convertCurrency(100000, currentCurrency)}
+            cursor="pointer"
+            colorPalette="purple"
+            value={[...localValues]}
+            onValueChange={handleValueChange}
+            aria-labelledby={[labelId]}
+          >
+            <Slider.Control>
+              <Slider.Track>
+                <Slider.Range />
+              </Slider.Track>
+              <Slider.Thumbs />
+            </Slider.Control>
+          </Slider.Root>
 
-        <HStack justify="space-between" mt={2}>
-          <Text fontSize="xs" color="gray.500">
-            {localValues[0] > 0
-              ? formatDisplayValue(localValues[0])
-              : formatDisplayValue(0)}
-          </Text>
-          <Text fontSize="xs" color="gray.500">
-            {localValues[1] < maxSliderValue
-              ? formatDisplayValue(localValues[1])
-              : formatDisplayValue(maxSliderValue)}
-          </Text>
-        </HStack>
-      </Box>
+          <HStack justify="space-between" mt={2}>
+            <Text fontSize="xs" color="gray.500">
+              {localValues[0] > 0
+                ? formatDisplayValue(localValues[0])
+                : formatDisplayValue(0)}
+            </Text>
+            <Text fontSize="xs" color="gray.500">
+              {localValues[1] < maxSliderValue
+                ? formatDisplayValue(localValues[1])
+                : formatDisplayValue(maxSliderValue)}
+            </Text>
+          </HStack>
+        </Box>
+      </ClientOnly>
       <Field.ErrorText />
     </Field.Root>
   );

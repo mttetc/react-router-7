@@ -62,16 +62,24 @@ export async function getCompaniesServer(
     where.last_funding_type = last_funding_type;
   }
 
-  if (min_rank !== undefined || max_rank !== undefined) {
+  if (
+    (min_rank !== null && min_rank !== undefined) ||
+    (max_rank !== null && max_rank !== undefined)
+  ) {
     where.rank = {};
-    if (min_rank !== undefined) where.rank.gte = min_rank;
-    if (max_rank !== undefined) where.rank.lte = max_rank;
+    if (min_rank !== null && min_rank !== undefined) where.rank.gte = min_rank;
+    if (max_rank !== null && max_rank !== undefined) where.rank.lte = max_rank;
   }
 
-  if (min_funding !== undefined || max_funding !== undefined) {
+  if (
+    (min_funding !== null && min_funding !== undefined) ||
+    (max_funding !== null && max_funding !== undefined)
+  ) {
     where.last_funding_amount = {};
-    if (min_funding !== undefined) where.last_funding_amount.gte = min_funding;
-    if (max_funding !== undefined) where.last_funding_amount.lte = max_funding;
+    if (min_funding !== null && min_funding !== undefined)
+      where.last_funding_amount.gte = min_funding;
+    if (max_funding !== null && max_funding !== undefined)
+      where.last_funding_amount.lte = max_funding;
   }
 
   // Build sorting clause
@@ -156,13 +164,13 @@ export function parseCompaniesParamsFromURL(
     page: parseNumberParam(searchParams.get("page")) || 1,
     limit: parseNumberParam(searchParams.get("limit")) || 12,
     search: parseStringParam(searchParams.get("search")),
-    growth_stage: parseStringParam(searchParams.get("growthStage")),
-    customer_focus: parseStringParam(searchParams.get("customerFocus")),
-    last_funding_type: parseStringParam(searchParams.get("fundingType")),
-    min_rank: parseNumberParam(searchParams.get("minRank")),
-    max_rank: parseNumberParam(searchParams.get("maxRank")),
-    min_funding: parseNumberParam(searchParams.get("minFunding")),
-    max_funding: parseNumberParam(searchParams.get("maxFunding")),
+    growthStage: parseStringParam(searchParams.get("growthStage")),
+    customerFocus: parseStringParam(searchParams.get("customerFocus")),
+    fundingType: parseStringParam(searchParams.get("fundingType")),
+    minRank: parseNumberParam(searchParams.get("minRank")),
+    maxRank: parseNumberParam(searchParams.get("maxRank")),
+    minFunding: parseNumberParam(searchParams.get("minFunding")),
+    maxFunding: parseNumberParam(searchParams.get("maxFunding")),
     sortBy: parseStringParam(searchParams.get("sortBy")) || "rank",
     sortOrder: (searchParams.get("sortOrder") as "asc" | "desc") || "asc",
   };
