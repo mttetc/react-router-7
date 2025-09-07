@@ -1,27 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import {
-  withNuqsTestingAdapter,
-  type OnUrlUpdateFunction,
-} from "nuqs/adapters/testing";
+import type { OnUrlUpdateFunction } from "nuqs/adapters/testing";
 import { CompanyTable } from "@/features/companies/components/company-table";
-import { createTestWrapper } from "../utils/test-wrapper";
+import { createCombinedWrapper } from "../utils/combined-wrapper";
 import type { Company } from "@/types/companies";
-
-// Create a combined wrapper that includes both ChakraProvider and nuqs testing adapter
-const createCombinedWrapper = (nuqsConfig: {
-  searchParams: any;
-  onUrlUpdate: OnUrlUpdateFunction;
-}) => {
-  const TestWrapper = createTestWrapper();
-  const NuqsWrapper = withNuqsTestingAdapter(nuqsConfig);
-
-  return ({ children }: { children: React.ReactNode }) => (
-    <TestWrapper>
-      <NuqsWrapper>{children}</NuqsWrapper>
-    </TestWrapper>
-  );
-};
 
 const mockCompanies: Company[] = [
   {
@@ -57,12 +39,19 @@ describe("CompanyTable", () => {
 
   it("should render companies data", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     expect(screen.getByText("Test Company")).toBeInTheDocument();
     expect(screen.getByText("Another Company")).toBeInTheDocument();
@@ -72,7 +61,7 @@ describe("CompanyTable", () => {
 
   it("should show loading state", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={[]} isLoading={true} />, {
+    render(<CompanyTable companies={[]} isLoading={true} currentPage={1} />, {
       wrapper: createCombinedWrapper({
         searchParams: { sortBy: "rank", sortOrder: "asc" },
         onUrlUpdate,
@@ -90,7 +79,7 @@ describe("CompanyTable", () => {
 
   it("should show empty state", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={[]} isLoading={false} />, {
+    render(<CompanyTable companies={[]} isLoading={false} currentPage={1} />, {
       wrapper: createCombinedWrapper({
         searchParams: { sortBy: "rank", sortOrder: "asc" },
         onUrlUpdate,
@@ -102,12 +91,19 @@ describe("CompanyTable", () => {
 
   it("should render company details correctly", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={[mockCompanies[0]]} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={[mockCompanies[0]]}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Check rank badge
     expect(screen.getByText("#1")).toBeInTheDocument();
@@ -126,12 +122,19 @@ describe("CompanyTable", () => {
 
   it("should have proper accessibility attributes", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Check table has proper role
     const table = screen.getByRole("table");

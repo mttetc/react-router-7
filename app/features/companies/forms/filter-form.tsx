@@ -10,7 +10,11 @@ import { ActiveFilters } from "./active-filters";
 import { ClientOnly } from "@/components/ui/client-only";
 import { DetailedFilters } from "./detailed-filters";
 
-export function FilterForm() {
+interface FilterFormProps {
+  isInDrawer?: boolean;
+}
+
+export function FilterForm({ isInDrawer = false }: FilterFormProps) {
   const complementaryRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const quickFiltersRef = useRef<HTMLDivElement>(null);
@@ -139,15 +143,19 @@ export function FilterForm() {
     <Box
       ref={complementaryRef}
       {...complementaryProps}
-      bg="white"
-      borderRadius="lg"
-      shadow="sm"
-      border="1px solid"
-      borderColor="gray.200"
-      p={4}
-      h="fit-content"
-      maxH="100%"
-      overflow="hidden"
+      {...(isInDrawer
+        ? {}
+        : {
+            bg: "white",
+            borderRadius: "lg",
+            shadow: "sm",
+            border: "1px solid",
+            borderColor: "gray.200",
+            p: 4,
+            h: "fit-content",
+            maxH: "100%",
+            overflow: "hidden",
+          })}
     >
       <VStack gap={6} align="stretch">
         <Box ref={searchRef} {...searchProps}>

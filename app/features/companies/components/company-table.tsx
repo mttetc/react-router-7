@@ -34,11 +34,14 @@ interface CellHelpers {
   getStageColor: (stage: string | null) => string;
   getFocusColor: (focus: string | null) => string;
   formatDate: (date: Date | null | string) => string;
+  position: number;
+  currentPage: number;
 }
 
 interface CompanyTableProps {
   companies: Company[];
   isLoading: boolean;
+  currentPage: number;
 }
 
 // Utility functions
@@ -82,9 +85,9 @@ const COLUMNS: TableColumn[] = [
     sortable: true,
     sortKey: "rank",
     width: "80px",
-    render: (company) => (
+    render: (company, { position, currentPage }) => (
       <Badge colorPalette="yellow" variant="surface">
-        #{company.rank}
+        {position === 1 && currentPage === 1 ? "👑 " : ""}#{company.rank}
       </Badge>
     ),
   },
@@ -240,7 +243,15 @@ const LoadingRow = () => (
   </Table.Row>
 );
 
-const CompanyRow = ({ company }: { company: Company }) => {
+const CompanyRow = ({
+  company,
+  position,
+  currentPage,
+}: {
+  company: Company;
+  position: number;
+  currentPage: number;
+}) => {
   const formatDate = (date: Date | null | string) => {
     if (!date) return "N/A";
     const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -252,14 +263,59 @@ const CompanyRow = ({ company }: { company: Company }) => {
     });
   };
 
+  const getPositionBackground = (position: number, currentPage: number) => {
+    if (currentPage !== 1) return "white";
+    switch (position) {
+      case 1:
+        return "yellow.100";
+      case 2:
+        return "gray.100";
+      case 3:
+        return "orange.100";
+      default:
+        return "white";
+    }
+  };
+
+  const getPositionBorderColor = (position: number, currentPage: number) => {
+    if (currentPage !== 1) return "transparent";
+    switch (position) {
+      case 1:
+        return "yellow.300";
+      case 2:
+        return "gray.300";
+      case 3:
+        return "orange.300";
+      default:
+        return "transparent";
+    }
+  };
+
   const helpers: CellHelpers = {
     getStageColor,
     getFocusColor,
     formatDate,
+    position,
+    currentPage,
   };
 
+  const isTopThree = position <= 3 && currentPage === 1;
+
   return (
-    <Table.Row _hover={{ bg: "gray.50" }}>
+    <Table.Row
+      bg={isTopThree ? getPositionBackground(position, currentPage) : "white"}
+      borderLeft={
+        isTopThree
+          ? `3px solid ${getPositionBorderColor(position, currentPage)}`
+          : "none"
+      }
+      _hover={{
+        bg: isTopThree
+          ? getPositionBackground(position, currentPage)
+          : "gray.50",
+        opacity: 0.95,
+      }}
+    >
       <For each={COLUMNS}>
         {(column) => (
           <Table.Cell key={column.key} width={column.width}>
@@ -346,7 +402,11 @@ const SortableHeader = ({
   );
 };
 
-export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
+export const CompanyTable = ({
+  companies,
+  isLoading,
+  currentPage,
+}: CompanyTableProps) => {
   // Use nuqs directly for sorting
   const [sortBy, setSortBy] = useQueryState(
     "sortBy",
@@ -477,7 +537,14 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
           {renderTableHeader()}
           <Table.Body>
             <For each={companies}>
-              {(company) => <CompanyRow key={company.id} company={company} />}
+              {(company, index) => (
+                <CompanyRow
+                  key={company.id}
+                  company={company}
+                  position={index + 1}
+                  currentPage={currentPage}
+                />
+              )}
             </For>
           </Table.Body>
         </Table.Root>

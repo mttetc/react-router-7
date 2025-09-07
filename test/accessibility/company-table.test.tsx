@@ -1,27 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import {
-  withNuqsTestingAdapter,
-  type OnUrlUpdateFunction,
-} from "nuqs/adapters/testing";
+import type { OnUrlUpdateFunction } from "nuqs/adapters/testing";
 import { CompanyTable } from "@/features/companies/components/company-table";
-import { createTestWrapper } from "../utils/test-wrapper";
+import { createCombinedWrapper } from "../utils/combined-wrapper";
 import type { Company } from "@/types/companies";
-
-// Create a combined wrapper that includes both ChakraProvider and nuqs testing adapter
-const createCombinedWrapper = (nuqsConfig: {
-  searchParams: any;
-  onUrlUpdate: OnUrlUpdateFunction;
-}) => {
-  const TestWrapper = createTestWrapper();
-  const NuqsWrapper = withNuqsTestingAdapter(nuqsConfig);
-
-  return ({ children }: { children: React.ReactNode }) => (
-    <TestWrapper>
-      <NuqsWrapper>{children}</NuqsWrapper>
-    </TestWrapper>
-  );
-};
 
 const mockCompanies: Company[] = [
   {
@@ -57,12 +39,19 @@ describe("CompanyTable Accessibility", () => {
 
   it("should have proper table structure and ARIA attributes", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Check table has proper role
     const table = screen.getByRole("table");
@@ -87,12 +76,19 @@ describe("CompanyTable Accessibility", () => {
 
   it("should have proper keyboard navigation support", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Check that sortable headers are focusable
     const rankHeader = screen.getByRole("button", { name: /sort by rank/i });
@@ -106,12 +102,19 @@ describe("CompanyTable Accessibility", () => {
 
   it("should have proper ARIA labels for sorting", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Check sort indicators
     const rankHeader = screen.getByRole("button", { name: /sort by rank/i });
@@ -125,7 +128,7 @@ describe("CompanyTable Accessibility", () => {
 
   it("should maintain accessibility in loading state", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={[]} isLoading={true} />, {
+    render(<CompanyTable companies={[]} isLoading={true} currentPage={1} />, {
       wrapper: createCombinedWrapper({
         searchParams: { sortBy: "rank", sortOrder: "asc" },
         onUrlUpdate,
@@ -143,7 +146,7 @@ describe("CompanyTable Accessibility", () => {
 
   it("should maintain accessibility in empty state", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={[]} isLoading={false} />, {
+    render(<CompanyTable companies={[]} isLoading={false} currentPage={1} />, {
       wrapper: createCombinedWrapper({
         searchParams: { sortBy: "rank", sortOrder: "asc" },
         onUrlUpdate,

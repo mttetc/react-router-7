@@ -127,7 +127,6 @@ export function CurrencySelector() {
     <Menu.Root>
       <Menu.Trigger asChild>
         <Button variant="ghost" size="sm">
-          <LuGlobe />
           <HStack gap={1}>
             <Text fontSize="sm">{currentCurrency.flag}</Text>
             <Text fontSize="sm" fontWeight="medium">

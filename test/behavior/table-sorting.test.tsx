@@ -1,28 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  withNuqsTestingAdapter,
-  type OnUrlUpdateFunction,
-} from "nuqs/adapters/testing";
+import type { OnUrlUpdateFunction } from "nuqs/adapters/testing";
 import { CompanyTable } from "@/features/companies/components/company-table";
-import { createTestWrapper } from "../utils/test-wrapper";
+import { createCombinedWrapper } from "../utils/combined-wrapper";
 import type { Company } from "@/types/companies";
-
-// Create a combined wrapper that includes both ChakraProvider and nuqs testing adapter
-const createCombinedWrapper = (nuqsConfig: {
-  searchParams: any;
-  onUrlUpdate: OnUrlUpdateFunction;
-}) => {
-  const TestWrapper = createTestWrapper();
-  const NuqsWrapper = withNuqsTestingAdapter(nuqsConfig);
-
-  return ({ children }: { children: React.ReactNode }) => (
-    <TestWrapper>
-      <NuqsWrapper>{children}</NuqsWrapper>
-    </TestWrapper>
-  );
-};
 
 const mockCompanies: Company[] = [
   {
@@ -70,12 +52,19 @@ describe("CompanyTable Sorting Behavior", () => {
 
   it("should display sortable headers with proper accessibility", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Check sortable headers have button role and proper ARIA attributes
     const rankHeader = screen.getByRole("button", { name: /sort by rank/i });
@@ -99,12 +88,19 @@ describe("CompanyTable Sorting Behavior", () => {
   it("should handle click sorting correctly", async () => {
     const user = userEvent.setup();
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Click on company header to sort by name
     const companyHeader = screen.getByRole("button", {
@@ -123,12 +119,19 @@ describe("CompanyTable Sorting Behavior", () => {
     const user = userEvent.setup();
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
 
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Click on rank header (currently ascending)
     const rankHeader = screen.getByRole("button", { name: /sort by rank/i });
@@ -143,12 +146,19 @@ describe("CompanyTable Sorting Behavior", () => {
   it("should handle keyboard navigation for sorting", async () => {
     const user = userEvent.setup();
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Focus on rank header
     const rankHeader = screen.getByRole("button", { name: /sort by rank/i });
@@ -173,12 +183,19 @@ describe("CompanyTable Sorting Behavior", () => {
 
   it("should show correct sort indicators", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "name", sortOrder: "desc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "name", sortOrder: "desc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     const companyHeader = screen.getByRole("button", {
       name: /sort by company/i,
@@ -193,12 +210,19 @@ describe("CompanyTable Sorting Behavior", () => {
   it("should handle sorting with different data types", async () => {
     const user = userEvent.setup();
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     // Test sorting by funding amount
     const fundingHeader = screen.getByRole("button", {
@@ -229,7 +253,11 @@ describe("CompanyTable Sorting Behavior", () => {
   it("should maintain sort state across re-renders", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
     const { rerender } = render(
-      <CompanyTable companies={mockCompanies} isLoading={false} />,
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
       {
         wrapper: createCombinedWrapper({
           searchParams: { sortBy: "name", sortOrder: "desc" },
@@ -244,7 +272,13 @@ describe("CompanyTable Sorting Behavior", () => {
     expect(companyHeader).toHaveAttribute("aria-sort", "descending");
 
     // Re-render with same props
-    rerender(<CompanyTable companies={mockCompanies} isLoading={false} />);
+    rerender(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />
+    );
 
     // Sort state should be maintained
     const companyHeaderAfterRerender = screen.getByRole("button", {
@@ -258,7 +292,7 @@ describe("CompanyTable Sorting Behavior", () => {
 
   it("should handle sorting with empty data", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={[]} isLoading={false} />, {
+    render(<CompanyTable companies={[]} isLoading={false} currentPage={1} />, {
       wrapper: createCombinedWrapper({
         searchParams: { sortBy: "rank", sortOrder: "asc" },
         onUrlUpdate,
@@ -274,7 +308,7 @@ describe("CompanyTable Sorting Behavior", () => {
 
   it("should handle sorting during loading state", () => {
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={[]} isLoading={true} />, {
+    render(<CompanyTable companies={[]} isLoading={true} currentPage={1} />, {
       wrapper: createCombinedWrapper({
         searchParams: { sortBy: "rank", sortOrder: "asc" },
         onUrlUpdate,
@@ -294,12 +328,19 @@ describe("CompanyTable Sorting Behavior", () => {
   it("should provide proper tooltips for sortable headers", async () => {
     const user = userEvent.setup();
     const onUrlUpdate = vi.fn<OnUrlUpdateFunction>();
-    render(<CompanyTable companies={mockCompanies} isLoading={false} />, {
-      wrapper: createCombinedWrapper({
-        searchParams: { sortBy: "rank", sortOrder: "asc" },
-        onUrlUpdate,
-      }),
-    });
+    render(
+      <CompanyTable
+        companies={mockCompanies}
+        isLoading={false}
+        currentPage={1}
+      />,
+      {
+        wrapper: createCombinedWrapper({
+          searchParams: { sortBy: "rank", sortOrder: "asc" },
+          onUrlUpdate,
+        }),
+      }
+    );
 
     const rankHeader = screen.getByRole("button", { name: /sort by rank/i });
 

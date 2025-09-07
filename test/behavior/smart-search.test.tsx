@@ -1,27 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  withNuqsTestingAdapter,
-  type OnUrlUpdateFunction,
-} from "nuqs/adapters/testing";
+import type { OnUrlUpdateFunction } from "nuqs/adapters/testing";
 import { SmartSearch } from "@/features/companies/forms/smart-search";
-import { createTestWrapper } from "../utils/test-wrapper";
-
-// Create a combined wrapper that includes both ChakraProvider and nuqs testing adapter
-const createCombinedWrapper = (nuqsConfig: {
-  searchParams: any;
-  onUrlUpdate: OnUrlUpdateFunction;
-}) => {
-  const TestWrapper = createTestWrapper();
-  const NuqsWrapper = withNuqsTestingAdapter(nuqsConfig);
-
-  return ({ children }: { children: React.ReactNode }) => (
-    <TestWrapper>
-      <NuqsWrapper>{children}</NuqsWrapper>
-    </TestWrapper>
-  );
-};
+import { createCombinedWrapper } from "../utils/combined-wrapper";
 
 // Mock currency store
 vi.mock("@/stores/currency.store", () => ({

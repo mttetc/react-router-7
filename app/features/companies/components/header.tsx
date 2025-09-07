@@ -7,11 +7,24 @@ import {
   HStack,
   Image,
   Text,
+  useMediaQuery,
 } from "@chakra-ui/react";
 import { CurrencySelector } from "@/components/ui/currency-selector";
 import { Tooltip } from "@/components/ui/tooltip";
+import { FilterToggleButton } from "./filter-toggle-button";
 
-export const Header = () => {
+interface HeaderProps {
+  onFilterToggle?: () => void;
+  activeFiltersCount?: number;
+  isFilterOpen?: boolean;
+}
+
+export const Header = ({
+  onFilterToggle,
+  activeFiltersCount = 0,
+  isFilterOpen = false,
+}: HeaderProps) => {
+  const [isMobile] = useMediaQuery(["(max-width: 768px)"], { ssr: false });
   return (
     <Box
       bg="white"
@@ -42,43 +55,69 @@ export const Header = () => {
               >
                 lite
               </Text>
-              <Tooltip
-                content="Over 5,000 companies in database"
-                positioning={{ placement: "bottom" }}
-              >
-                <Badge
-                  colorPalette="purple"
-                  borderRadius="full"
-                  size="sm"
-                  variant="surface"
+              {!isMobile && (
+                <Tooltip
+                  content="Over 5,000 companies in database"
+                  positioning={{ placement: "bottom" }}
                 >
-                  5K+ Companies
-                </Badge>
-              </Tooltip>
+                  <Badge
+                    colorPalette="purple"
+                    borderRadius="full"
+                    size="sm"
+                    variant="surface"
+                  >
+                    5K+ Companies
+                  </Badge>
+                </Tooltip>
+              )}
             </HStack>
           </HStack>
 
           <HStack gap={3}>
-            <Breadcrumb.Root fontSize="xs" color="gray.500">
-              <Breadcrumb.List>
-                <Breadcrumb.Item>
-                  <Breadcrumb.Link href="/">Home</Breadcrumb.Link>
-                </Breadcrumb.Item>
-                <Breadcrumb.Separator />
-                <Breadcrumb.Item>
-                  <Breadcrumb.CurrentLink>Companies</Breadcrumb.CurrentLink>
-                </Breadcrumb.Item>
-              </Breadcrumb.List>
-            </Breadcrumb.Root>
+            {/* Desktop: Breadcrumb + Currency */}
+            {!isMobile && (
+              <>
+                <Breadcrumb.Root fontSize="xs" color="gray.500">
+                  <Breadcrumb.List>
+                    <Breadcrumb.Item>
+                      <Breadcrumb.Link href="/">Home</Breadcrumb.Link>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Breadcrumb.CurrentLink>Companies</Breadcrumb.CurrentLink>
+                    </Breadcrumb.Item>
+                  </Breadcrumb.List>
+                </Breadcrumb.Root>
 
-            <HStack gap={2}>
-              <Tooltip
-                content="Select currency for funding amounts"
-                positioning={{ placement: "bottom" }}
-              >
-                <CurrencySelector />
-              </Tooltip>
-            </HStack>
+                <HStack gap={2}>
+                  <Tooltip
+                    content="Select currency for funding amounts"
+                    positioning={{ placement: "bottom" }}
+                  >
+                    <CurrencySelector />
+                  </Tooltip>
+                </HStack>
+              </>
+            )}
+
+            {/* Mobile: Filter button + Currency */}
+            {isMobile && (
+              <HStack gap={2}>
+                {onFilterToggle && (
+                  <FilterToggleButton
+                    onClick={onFilterToggle}
+                    activeFiltersCount={activeFiltersCount}
+                    isOpen={isFilterOpen}
+                  />
+                )}
+                <Tooltip
+                  content="Select currency for funding amounts"
+                  positioning={{ placement: "bottom" }}
+                >
+                  <CurrencySelector />
+                </Tooltip>
+              </HStack>
+            )}
           </HStack>
         </Flex>
       </Container>
