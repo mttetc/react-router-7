@@ -61,8 +61,9 @@ export function MobileFundingSliderField({
   };
 
   const handleMaxInputChange = (value: string) => {
-    const numValue = parseInt(value) || 100000000;
-    const clampedValue = Math.max(range[0], Math.min(numValue, 100000000));
+    const maxAllowed = Math.max(displayMaxValue, 100000000);
+    const numValue = parseInt(value) || maxAllowed;
+    const clampedValue = Math.max(range[0], Math.min(numValue, maxAllowed));
     const newRange = [range[0], clampedValue] as [number, number];
     setRange(newRange);
     // Convert back to USD for storage
@@ -89,7 +90,7 @@ export function MobileFundingSliderField({
               onValueChange={(details) => handleMinInputChange(details.value)}
               min={0}
               max={range[1]}
-              step={100000}
+              step={Math.max(100000, Math.floor(displayMaxValue / 1000))}
               size="sm"
             >
               <NumberInput.Input />
@@ -104,8 +105,8 @@ export function MobileFundingSliderField({
               value={range[1].toString()}
               onValueChange={(details) => handleMaxInputChange(details.value)}
               min={range[0]}
-              max={100000000}
-              step={100000}
+              max={Math.max(displayMaxValue, 100000000)}
+              step={Math.max(100000, Math.floor(displayMaxValue / 1000))}
               size="sm"
             >
               <NumberInput.Input />
@@ -120,8 +121,8 @@ export function MobileFundingSliderField({
               handleRangeChange(details.value as [number, number])
             }
             min={0}
-            max={100000000}
-            step={100000}
+            max={Math.max(displayMaxValue, 100000000)}
+            step={Math.max(100000, Math.floor(displayMaxValue / 1000))}
             minStepsBetweenThumbs={1}
           >
             <Slider.Control>

@@ -10,7 +10,7 @@ export function Provider(props: { children: React.ReactNode }) {
   const ssrLocale = "en-US";
 
   return (
-    <ErrorBoundary>
+    <ErrorBoundary name="Root Provider">
       <GlobalErrorHandler />
       <NuqsProvider>
         <LocaleProvider locale={ssrLocale}>

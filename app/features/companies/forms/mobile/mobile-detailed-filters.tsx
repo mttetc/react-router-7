@@ -143,15 +143,15 @@ export function MobileDetailedFilters({
                     label="Rank Range"
                     min={FILTER_RANGES.rank.min}
                     max={FILTER_RANGES.rank.max}
-                    minValue={filters.minRank || FILTER_RANGES.rank.min}
-                    maxValue={filters.maxRank || FILTER_RANGES.rank.max}
+                    minValue={filters.minRank ?? FILTER_RANGES.rank.min}
+                    maxValue={filters.maxRank ?? FILTER_RANGES.rank.max}
                     onMinChange={(value) => updateFilter("minRank", value)}
                     onMaxChange={(value) => updateFilter("maxRank", value)}
                   />
 
                   <MobileFundingSliderField
-                    minValue={filters.minFunding || FILTER_RANGES.funding.min}
-                    maxValue={filters.maxFunding || FILTER_RANGES.funding.max}
+                    minValue={filters.minFunding ?? FILTER_RANGES.funding.min}
+                    maxValue={filters.maxFunding ?? FILTER_RANGES.funding.max}
                     onMinChange={(value) => updateFilter("minFunding", value)}
                     onMaxChange={(value) => updateFilter("maxFunding", value)}
                   />

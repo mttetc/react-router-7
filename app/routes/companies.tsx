@@ -20,6 +20,7 @@ import { MobileFilterDrawer } from "@/features/companies/components/mobile-filte
 import { Pagination } from "@/features/companies/components/pagination";
 import { FilterForm } from "@/features/companies/forms/filter-form";
 import { useCompaniesData } from "@/features/companies/hooks/use-companies-data";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { filtersSearchParams, loadFilters } from "@/lib/search-params";
 import {
   getCompaniesServer,
@@ -299,12 +300,14 @@ export default function CompanyFeed() {
 
       {/* Mobile Filter Drawer - only show on mobile */}
       <Box hideFrom="md">
-        <MobileFilterDrawer
-          isOpen={isFilterDrawerOpen}
-          onClose={() => setIsFilterDrawerOpen(false)}
-          activeFiltersCount={activeFiltersCount}
-          onClearAllFilters={handleClearAllFilters}
-        />
+        <ErrorBoundary name="Mobile Filter Drawer">
+          <MobileFilterDrawer
+            isOpen={isFilterDrawerOpen}
+            onClose={() => setIsFilterDrawerOpen(false)}
+            activeFiltersCount={activeFiltersCount}
+            onClearAllFilters={handleClearAllFilters}
+          />
+        </ErrorBoundary>
       </Box>
     </Box>
   );
