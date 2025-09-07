@@ -79,8 +79,10 @@ export function MobileFilterDrawer({
       maxFunding: null,
       page: 1,
     };
+
+    // Set the cleared filters as pending and apply them
     setPendingFilters(clearedFilters);
-    onClose();
+    handleApplyFilters();
   };
 
   return (

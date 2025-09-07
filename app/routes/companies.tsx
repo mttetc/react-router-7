@@ -6,6 +6,8 @@ import {
   ScrollArea,
   Text,
   useScrollArea,
+  Spinner,
+  HStack,
 } from "@chakra-ui/react";
 
 import type { LoaderFunctionArgs } from "react-router";
@@ -108,10 +110,13 @@ export default function CompanyFeed() {
   };
 
   // Fetch companies data - will refetch when URL params change
-  const { data, isFetching, error } = useCompaniesData(
+  const { data, isLoading, isFetching, error } = useCompaniesData(
     params,
     loaderData.companiesData
   );
+
+  // Show loading state when we don't have data yet OR when we're fetching new data
+  const shouldShowLoading = isLoading || (isFetching && !data);
 
   const isNavigating = navigation.state === "loading";
 
@@ -146,21 +151,6 @@ export default function CompanyFeed() {
     setIsSqueezedLayout(!isSqueezedLayout);
   }, [isSqueezedLayout]);
 
-  const handleClearAllFilters = useCallback(() => {
-    setQueryParams({
-      growthStage: null,
-      customerFocus: null,
-      fundingType: null,
-      minRank: null,
-      maxRank: null,
-      minFunding: null,
-      maxFunding: null,
-      sortBy: "rank",
-      sortOrder: "asc",
-      page: 1,
-    });
-  }, [setQueryParams]);
-
   return (
     <Box
       height="100dvh"
@@ -192,7 +182,7 @@ export default function CompanyFeed() {
       <Box hideFrom="md" h="100%" minH={0}>
         <MobileLayout
           companies={data?.data || []}
-          isLoading={isFetching || isNavigating}
+          isLoading={shouldShowLoading || isNavigating}
           totalPages={data?.totalPages || 1}
           currentPage={data?.page || 1}
           onPageChange={handlePageChange}
@@ -231,7 +221,7 @@ export default function CompanyFeed() {
               maxH="100%"
             >
               <Presence
-                present={!!data || isFetching || isNavigating}
+                present={!!data || shouldShowLoading || isNavigating}
                 animationName={{
                   _open: "fade-in",
                   _closed: "fade-out",
@@ -239,13 +229,18 @@ export default function CompanyFeed() {
                 animationDuration="moderate"
               >
                 <Box mb={2}>
-                  <Text fontSize="sm" color="gray.500">
-                    {isFetching || isNavigating
-                      ? "Loading companies..."
-                      : error
-                      ? "Error loading companies"
-                      : `Showing ${data?.data?.length || 0} companies`}
-                  </Text>
+                  <HStack gap={2}>
+                    <Text fontSize="sm" color="gray.500">
+                      {shouldShowLoading || isNavigating
+                        ? "Loading companies..."
+                        : error
+                        ? "Error loading companies"
+                        : `Showing ${data?.data?.length || 0} companies`}
+                    </Text>
+                    {isFetching && !shouldShowLoading && data && (
+                      <Spinner size="xs" color="purple.500" />
+                    )}
+                  </HStack>
                 </Box>
               </Presence>
 
@@ -259,7 +254,7 @@ export default function CompanyFeed() {
                 <ScrollArea.Viewport>
                   <ScrollArea.Content>
                     <Presence
-                      present={!!data || isFetching || isNavigating}
+                      present={!!data || shouldShowLoading || isNavigating}
                       animationName={{
                         _open: "fade-in",
                         _closed: "fade-out",
@@ -268,7 +263,7 @@ export default function CompanyFeed() {
                     >
                       <CompanyTable
                         companies={data?.data || []}
-                        isLoading={isFetching || isNavigating}
+                        isLoading={shouldShowLoading || isNavigating}
                         currentPage={data?.page || 1}
                       />
                     </Presence>
@@ -277,7 +272,9 @@ export default function CompanyFeed() {
                 <ScrollArea.Scrollbar />
               </ScrollArea.Root>
 
-              {((data && data.total > 0) || isFetching || isNavigating) && (
+              {((data && data.total > 0) ||
+                shouldShowLoading ||
+                isNavigating) && (
                 <Presence
                   present
                   animationName={{
@@ -291,7 +288,7 @@ export default function CompanyFeed() {
                       currentPage={data?.page || 1}
                       totalPages={data?.totalPages || 1}
                       onPageChange={handlePageChange}
-                      isLoading={isFetching || isNavigating}
+                      isLoading={shouldShowLoading || isNavigating}
                     />
                   </Box>
                 </Presence>

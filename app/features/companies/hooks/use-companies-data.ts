@@ -33,8 +33,15 @@ export function useCompaniesData(
   const query = useQuery({
     queryKey,
     queryFn: () => getCompaniesClient(params),
-    // Use placeholderData only for initial load, not for subsequent refetches
-    placeholderData: initialData,
+    // Use keepPreviousData to avoid flickering during search transitions
+    placeholderData: (previousData) => {
+      // For initial load, use the server-side rendered data
+      if (!previousData && initialData) {
+        return initialData;
+      }
+      // For subsequent queries, keep the previous data to avoid flickering
+      return previousData;
+    },
     gcTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
@@ -48,9 +55,6 @@ export function useCompaniesData(
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
-  // Return isFetching instead of isLoading for instant loading states
-  return {
-    ...query,
-    isLoading: query.isFetching,
-  };
+  // Return the query directly - React Query already provides all the states we need
+  return query;
 }
