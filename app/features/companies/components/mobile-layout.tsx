@@ -11,6 +11,10 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { CompanyCard } from "./company-card";
 import { Pagination } from "./pagination";
+import {
+  getPositionBackground,
+  getPositionBorderColor,
+} from "../utils/company-utils";
 
 interface MobileLayoutProps {
   companies: Company[];
@@ -41,60 +45,32 @@ export function MobileLayout({
       <Container p={isSqueezed ? 2 : 4} h="100%" minH={0}>
         <VStack gap={isSqueezed ? 2 : 4} align="stretch">
           {/* Loading skeleton cards */}
-          {Array.from({ length: isSqueezed ? 8 : 6 }).map((_, index) => (
-            <Box
-              key={index}
-              bg="white"
-              borderRadius="lg"
-              border="1px solid"
-              borderColor="gray.200"
-              p={isSqueezed ? 2 : 4}
-              h={isSqueezed ? "46px" : "200px"}
-              bgGradient="linear(to-r, gray.100, gray.200)"
-            >
-              {isSqueezed ? (
-                // Compact skeleton layout
-                <HStack gap={1} align="start" h="full">
-                  {/* Logo skeleton */}
-                  <Box
-                    width="28px"
-                    height="28px"
-                    borderRadius="lg"
-                    bg="gray.300"
-                    flexShrink={0}
-                  />
-                  {/* Content skeleton */}
-                  <VStack gap={1} align="start" flex="1" minW={0}>
-                    <Box
-                      height="14px"
-                      width="70%"
-                      bg="gray.300"
-                      borderRadius="sm"
-                    />
-                    <Box
-                      height="10px"
-                      width="40%"
-                      bg="gray.300"
-                      borderRadius="sm"
-                    />
-                  </VStack>
-                  {/* Badge skeleton */}
-                  <Box
-                    width="24px"
-                    height="20px"
-                    bg="gray.300"
-                    borderRadius="full"
-                    flexShrink={0}
-                  />
-                </HStack>
-              ) : (
-                // Full skeleton layout
-                <VStack gap={3} align="stretch" h="full">
-                  <HStack gap={3} align="start">
+          {Array.from({ length: isSqueezed ? 8 : 6 }).map((_, index) => {
+            const position = index + 1;
+            const skeletonBg = getPositionBackground(position, currentPage);
+            const skeletonBorderColor = getPositionBorderColor(
+              position,
+              currentPage
+            );
+
+            return (
+              <Box
+                key={index}
+                bg={skeletonBg}
+                borderRadius="lg"
+                border="1px solid"
+                borderColor={skeletonBorderColor}
+                p={isSqueezed ? 2 : 4}
+                h={isSqueezed ? "48px" : "200px"}
+                bgGradient="linear(to-r, gray.100, gray.200)"
+              >
+                {isSqueezed ? (
+                  // Compact skeleton layout
+                  <HStack gap={1} align="start" h="full">
                     {/* Logo skeleton */}
                     <Box
-                      width="48px"
-                      height="48px"
+                      width="28px"
+                      height="28px"
                       borderRadius="lg"
                       bg="gray.300"
                       flexShrink={0}
@@ -102,66 +78,103 @@ export function MobileLayout({
                     {/* Content skeleton */}
                     <VStack gap={1} align="start" flex="1" minW={0}>
                       <Box
-                        height="16px"
-                        width="80%"
+                        height="14px"
+                        width="70%"
                         bg="gray.300"
                         borderRadius="sm"
                       />
                       <Box
-                        height="14px"
-                        width="60%"
+                        height="10px"
+                        width="40%"
                         bg="gray.300"
                         borderRadius="sm"
                       />
                     </VStack>
                     {/* Badge skeleton */}
                     <Box
-                      width="32px"
-                      height="24px"
+                      width="24px"
+                      height="20px"
                       bg="gray.300"
                       borderRadius="full"
                       flexShrink={0}
                     />
                   </HStack>
-                  {/* Description skeleton */}
-                  <Box
-                    height="14px"
-                    width="100%"
-                    bg="gray.300"
-                    borderRadius="sm"
-                  />
-                  <Box
-                    height="14px"
-                    width="75%"
-                    bg="gray.300"
-                    borderRadius="sm"
-                  />
-                  {/* Badges skeleton */}
-                  <HStack gap={2}>
+                ) : (
+                  // Full skeleton layout
+                  <VStack gap={3} align="stretch" h="full">
+                    <HStack gap={3} align="start">
+                      {/* Logo skeleton */}
+                      <Box
+                        width="48px"
+                        height="48px"
+                        borderRadius="lg"
+                        bg="gray.300"
+                        flexShrink={0}
+                      />
+                      {/* Content skeleton */}
+                      <VStack gap={1} align="start" flex="1" minW={0}>
+                        <Box
+                          height="16px"
+                          width="80%"
+                          bg="gray.300"
+                          borderRadius="sm"
+                        />
+                        <Box
+                          height="14px"
+                          width="60%"
+                          bg="gray.300"
+                          borderRadius="sm"
+                        />
+                      </VStack>
+                      {/* Badge skeleton */}
+                      <Box
+                        width="32px"
+                        height="24px"
+                        bg="gray.300"
+                        borderRadius="full"
+                        flexShrink={0}
+                      />
+                    </HStack>
+                    {/* Description skeleton */}
                     <Box
-                      height="20px"
-                      width="60px"
+                      height="14px"
+                      width="100%"
                       bg="gray.300"
-                      borderRadius="full"
+                      borderRadius="sm"
                     />
                     <Box
-                      height="20px"
-                      width="50px"
+                      height="14px"
+                      width="75%"
                       bg="gray.300"
-                      borderRadius="full"
+                      borderRadius="sm"
                     />
-                  </HStack>
-                  {/* Funding info skeleton */}
-                  <Box
-                    height="60px"
-                    width="100%"
-                    bg="gray.300"
-                    borderRadius="md"
-                  />
-                </VStack>
-              )}
-            </Box>
-          ))}
+                    {/* Badges skeleton */}
+                    <HStack gap={2}>
+                      <Box
+                        height="20px"
+                        width="60px"
+                        bg="gray.300"
+                        borderRadius="full"
+                      />
+                      <Box
+                        height="20px"
+                        width="50px"
+                        bg="gray.300"
+                        borderRadius="full"
+                      />
+                    </HStack>
+                    {/* Funding info skeleton */}
+                    <Box
+                      height="60px"
+                      width="100%"
+                      bg="gray.300"
+                      borderRadius="md"
+                    />
+                  </VStack>
+                )}
+              </Box>
+            );
+          })}
         </VStack>
       </Container>
     );
@@ -197,7 +210,7 @@ export function MobileLayout({
         {/* Companies Grid */}
         <ScrollArea.Root flex="1" minH={0}>
           <ScrollArea.Viewport>
-            <ScrollArea.Content>
+            <ScrollArea.Content w="100%" minW="0!important">
               {isSqueezed ? (
                 <VStack gap={2} align="stretch" pb={4}>
                   {companies.map((company, index) => (
@@ -263,7 +276,7 @@ export function MobileLayout({
           totalPages={totalPages}
           onPageChange={onPageChange}
           isLoading={isLoading}
-          isMobile={true}
+          isMobile
         />
       </VStack>
     </Container>

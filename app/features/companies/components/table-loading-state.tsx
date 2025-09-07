@@ -1,10 +1,18 @@
 import { Box, For, ScrollArea, Table } from "@chakra-ui/react";
 import { LoadingRow } from "./table-loading-row";
+import {
+  getPositionBackground,
+  getPositionBorderColor,
+} from "../utils/company-utils";
+
+interface TableLoadingStateProps {
+  currentPage?: number;
+}
 
 /**
  * Loading state component for table
  */
-export function TableLoadingState() {
+export function TableLoadingState({ currentPage = 1 }: TableLoadingStateProps) {
   return (
     <Box
       borderWidth={1}
@@ -33,7 +41,24 @@ export function TableLoadingState() {
             </Table.Header>
             <Table.Body>
               <For each={Array.from({ length: 10 }, (_, i) => i)}>
-                {(index) => <LoadingRow key={index} />}
+                {(index) => {
+                  const position = index + 1;
+                  const rowBg = getPositionBackground(position, currentPage);
+                  const rowBorderColor = getPositionBorderColor(
+                    position,
+                    currentPage
+                  );
+
+                  return (
+                    <LoadingRow
+                      key={index}
+                      position={position}
+                      currentPage={currentPage}
+                      bg={rowBg}
+                      borderColor={rowBorderColor}
+                    />
+                  );
+                }}
               </For>
             </Table.Body>
           </Table.Root>

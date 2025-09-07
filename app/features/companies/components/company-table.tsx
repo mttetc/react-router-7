@@ -71,7 +71,7 @@ export const CompanyTable = ({
   );
 
   if (isLoading) {
-    return <TableLoadingState />;
+    return <TableLoadingState currentPage={currentPage} />;
   }
 
   if (companies.length === 0) {

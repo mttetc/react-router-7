@@ -42,7 +42,13 @@ export const Header = ({
     >
       <Container maxW="8xl" py={3}>
         <Flex align="center" justify="space-between">
-          <HStack gap={2} align="center">
+          <HStack
+            gap={{
+              base: 1,
+              md: 2,
+            }}
+            align="center"
+          >
             <Image
               src="https://www.tryspecter.com/specter.svg"
               alt="Specter"

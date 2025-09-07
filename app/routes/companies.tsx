@@ -142,6 +142,21 @@ export default function CompanyFeed() {
     setIsSqueezedLayout(!isSqueezedLayout);
   }, [isSqueezedLayout]);
 
+  const handleClearAllFilters = useCallback(() => {
+    setQueryParams({
+      growthStage: null,
+      customerFocus: null,
+      fundingType: null,
+      minRank: null,
+      maxRank: null,
+      minFunding: null,
+      maxFunding: null,
+      sortBy: "rank",
+      sortOrder: "asc",
+      page: 1,
+    });
+  }, [setQueryParams]);
+
   return (
     <Box
       height="100dvh"
@@ -288,6 +303,7 @@ export default function CompanyFeed() {
           isOpen={isFilterDrawerOpen}
           onClose={() => setIsFilterDrawerOpen(false)}
           activeFiltersCount={activeFiltersCount}
+          onClearAllFilters={handleClearAllFilters}
         />
       </Box>
     </Box>

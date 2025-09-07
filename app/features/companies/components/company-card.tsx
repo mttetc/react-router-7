@@ -70,17 +70,15 @@ export function CompanyCard({
             />
           </Box>
 
-          <VStack gap={0.5} align="start" flex="1" minW={0}>
+          <VStack gap={0} align="start" flex="1" minW={0}>
             <Text
               fontSize={isSqueezed ? "xs" : "md"}
               fontWeight="semibold"
               color="gray.900"
               title={company.name}
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
+              overflow="hidden"
+              textOverflow="ellipsis"
+              whiteSpace="nowrap"
             >
               {company.name}
             </Text>
@@ -92,14 +90,27 @@ export function CompanyCard({
                 fontSize="sm"
                 color="brand.500"
                 _hover={{ textDecoration: "underline" }}
-                style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+                w="100%"
               >
                 {company.domain}
               </Link>
+            )}
+            {isSqueezed && company.description && (
+              <Text
+                fontSize="10px"
+                color="gray.600"
+                lineHeight="1.2"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+                w="100%"
+                title={company.description}
+              >
+                {company.description}
+              </Text>
             )}
           </VStack>
 

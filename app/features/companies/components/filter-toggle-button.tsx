@@ -31,7 +31,7 @@ export function FilterToggleButton({
 
         {activeFiltersCount > 0 && (
           <Badge
-            colorPalette="blue"
+            colorPalette="brand"
             variant="solid"
             size="sm"
             borderRadius="full"

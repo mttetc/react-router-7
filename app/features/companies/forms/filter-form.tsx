@@ -168,6 +168,7 @@ export function FilterForm({ isInDrawer = false }: FilterFormProps) {
               filters={filters}
               onRemoveFilter={removeFilter}
               onResetAll={resetFilters}
+              hideClearAll={isInDrawer}
             />
           </Box>
         </ClientOnly>

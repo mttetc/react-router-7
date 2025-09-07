@@ -20,6 +20,7 @@ interface ActiveFiltersProps {
   filters: FilterState;
   onRemoveFilter: (key: keyof FilterState) => void;
   onResetAll: () => void;
+  hideClearAll?: boolean;
 }
 
 interface ActiveFilter {
@@ -129,6 +130,7 @@ export function ActiveFilters({
   filters,
   onRemoveFilter,
   onResetAll,
+  hideClearAll = false,
 }: ActiveFiltersProps) {
   const currency = useCurrencyStore((state) => state.selectedCurrency);
 
@@ -236,16 +238,18 @@ export function ActiveFilters({
         </Wrap>
       </HStack>
 
-      <Button
-        size="xs"
-        variant="outline"
-        colorPalette="gray"
-        onClick={onResetAll}
-        flexShrink={0}
-      >
-        <FaUndo />
-        Clear all
-      </Button>
+      {!hideClearAll && (
+        <Button
+          size="xs"
+          variant="outline"
+          colorPalette="gray"
+          onClick={onResetAll}
+          flexShrink={0}
+        >
+          <FaUndo />
+          Clear all
+        </Button>
+      )}
     </HStack>
   );
 }

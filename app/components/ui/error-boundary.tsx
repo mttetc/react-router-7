@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
               onClick={() =>
                 this.setState({ hasError: false, error: undefined })
               }
-              colorScheme="blue"
+              colorScheme="purple"
             >
               Try again
             </Button>

@@ -160,7 +160,7 @@ export function CurrencySelector() {
                   value={currency.value}
                   onClick={() => handleCurrencySelect(currency)}
                   bg={
-                    selectedCurrency === currency.value ? "blue.50" : undefined
+                    selectedCurrency === currency.value ? "brand.50" : undefined
                   }
                 >
                   <HStack gap={3} w="full">
@@ -198,7 +198,7 @@ export function CurrencySelector() {
               key={currency.value}
               value={currency.value}
               onClick={() => handleCurrencySelect(currency)}
-              bg={selectedCurrency === currency.value ? "blue.50" : undefined}
+              bg={selectedCurrency === currency.value ? "brand.50" : undefined}
             >
               <HStack gap={3} w="full">
                 <Text fontSize="lg">{currency.flag}</Text>
@@ -341,7 +341,7 @@ export function CurrencySelector() {
                                 onClick={() => handleCurrencySelect(currency)}
                                 bg={
                                   selectedCurrency === currency.value
-                                    ? "blue.50"
+                                    ? "brand.50"
                                     : "transparent"
                                 }
                                 justifyContent="start"
@@ -386,7 +386,7 @@ export function CurrencySelector() {
                             onClick={() => handleCurrencySelect(currency)}
                             bg={
                               selectedCurrency === currency.value
-                                ? "blue.50"
+                                ? "brand.50"
                                 : "transparent"
                             }
                             justifyContent="start"

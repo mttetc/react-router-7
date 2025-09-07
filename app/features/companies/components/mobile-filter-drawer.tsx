@@ -3,24 +3,28 @@ import {
   Button,
   Drawer,
   HStack,
+  Presence,
   ScrollArea,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { MdFilterList } from "react-icons/md";
+import { FaUndo } from "react-icons/fa";
 import { FilterForm } from "../forms/filter-form";
 
 interface MobileFilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   activeFiltersCount: number;
+  onClearAllFilters?: () => void;
 }
 
 export function MobileFilterDrawer({
   isOpen,
   onClose,
   activeFiltersCount,
+  onClearAllFilters,
 }: MobileFilterDrawerProps) {
   const [isApplying, setIsApplying] = useState(false);
 
@@ -64,7 +68,12 @@ export function MobileFilterDrawer({
                 <Text fontSize="lg" fontWeight="semibold">
                   Filters
                   {activeFiltersCount > 0 && (
-                    <Text as="span" color="blue.500" ml={2}>
+                    <Text
+                      as="span"
+                      colorPalette="brand"
+                      color="brand.500"
+                      ml={2}
+                    >
                       ({activeFiltersCount})
                     </Text>
                   )}
@@ -93,7 +102,27 @@ export function MobileFilterDrawer({
 
           {/* Footer */}
           <Box p={4} borderTop="1px solid" borderColor="gray.200" bg="gray.50">
-            <HStack gap={3}>
+            <HStack gap={2} width="100%">
+              <Presence
+                present={onClearAllFilters && activeFiltersCount > 0}
+                animationName={{
+                  _open: "fade-in",
+                  _closed: "fade-out",
+                }}
+                animationDuration="moderate"
+              >
+                <Button
+                  variant="outline"
+                  colorPalette="gray"
+                  onClick={onClearAllFilters}
+                  disabled={isApplying}
+                  flex="1"
+                >
+                  <FaUndo style={{ width: "14px" }} />
+                  Clear
+                </Button>
+              </Presence>
+
               <Button
                 variant="outline"
                 flex="1"
@@ -102,14 +131,15 @@ export function MobileFilterDrawer({
               >
                 Cancel
               </Button>
+
               <Button
-                colorPalette="blue"
+                colorPalette="purple"
                 flex="1"
                 onClick={handleApplyFilters}
                 loading={isApplying}
                 loadingText="Applying..."
               >
-                Apply Filters
+                {activeFiltersCount > 0 ? "Apply" : "Apply Filters"}
               </Button>
             </HStack>
           </Box>
