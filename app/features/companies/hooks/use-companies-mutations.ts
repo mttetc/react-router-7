@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { companiesKeys, companiesCacheUtils } from "@/lib/companies-client";
-import type { CompaniesQueryParams } from "@/lib/companies-client";
+import type { CompaniesQueryParams } from "@/types/schemas";
 
 /**
  * Example mutation hook using the Query Key Factory pattern

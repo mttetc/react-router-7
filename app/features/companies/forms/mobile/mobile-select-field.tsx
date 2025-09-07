@@ -10,7 +10,6 @@ import {
   For,
 } from "@chakra-ui/react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { useSyncState } from "@/hooks/use-sync-state";
 
 interface SelectOption {
   value: string;

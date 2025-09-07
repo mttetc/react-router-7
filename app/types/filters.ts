@@ -40,21 +40,7 @@ export interface ParsedFilter {
   color: string;
 }
 
-// API parameter mapping
-export interface CompaniesQueryParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  growth_stage?: string;
-  customer_focus?: string;
-  last_funding_type?: string;
-  min_rank?: number;
-  max_rank?: number;
-  min_funding?: number;
-  max_funding?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}
+// CompaniesQueryParams is now defined in @/types/schemas
 
 // Form field props
 export interface FilterFieldProps {

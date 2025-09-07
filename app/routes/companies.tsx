@@ -21,7 +21,7 @@ import { Pagination } from "@/features/companies/components/pagination";
 import { FilterForm } from "@/features/companies/forms/filter-form";
 import { useCompaniesData } from "@/features/companies/hooks/use-companies-data";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
-import { filtersSearchParams, loadFilters } from "@/lib/search-params";
+import { filtersSearchParams } from "@/lib/search-params";
 import {
   getCompaniesServer,
   parseCompaniesParamsFromURL,
@@ -88,18 +88,18 @@ export default function CompanyFeed() {
     limit,
   } = queryParams;
 
-  // Transform URL params to API params (camelCase to snake_case)
+  // Transform URL params to API params (keep camelCase for Zod validation)
   const params = {
     page: page || 1,
     limit: limit || 12,
-    search: search || undefined,
-    growth_stage: growthStage || undefined,
-    customer_focus: customerFocus || undefined,
-    last_funding_type: fundingType || undefined,
-    min_rank: minRank || undefined,
-    max_rank: maxRank || undefined,
-    min_funding: minFunding || undefined,
-    max_funding: maxFunding || undefined,
+    search: search || "",
+    growthStage: growthStage || null,
+    customerFocus: customerFocus || null,
+    fundingType: fundingType || null,
+    minRank: minRank || null,
+    maxRank: maxRank || null,
+    minFunding: minFunding || null,
+    maxFunding: maxFunding || null,
     sortBy: sortBy || "rank",
     sortOrder: (sortOrder || "asc") as "asc" | "desc",
   };

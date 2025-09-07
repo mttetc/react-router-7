@@ -1,12 +1,7 @@
 import { useMemo } from "react";
-import { useLocaleContext } from "@chakra-ui/react";
 import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
-import {
-  convertCurrency,
-  getCurrencyName,
-  getCurrencySymbol,
-} from "@/utils/currency-utils";
+import { convertCurrency, getCurrencySymbol } from "@/utils/currency-utils";
 
 export const useActiveFilters = (filters: FilterState) => {
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);

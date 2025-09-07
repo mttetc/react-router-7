@@ -8,8 +8,6 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import type { Route } from "./+types/home";
-import { HiArrowRight } from "react-icons/hi";
-import { motion } from "framer-motion";
 import { Link } from "react-router";
 
 export function meta({}: Route.MetaArgs) {

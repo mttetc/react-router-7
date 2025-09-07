@@ -1,10 +1,7 @@
 "use client";
 
-import { FormatNumber, useLocaleContext } from "@chakra-ui/react";
-import {
-  getCurrencyFromLocale,
-  convertCurrency,
-} from "@/utils/currency-utils";
+import { FormatNumber } from "@chakra-ui/react";
+import { convertCurrency } from "@/utils/currency-utils";
 import { ClientOnly } from "./client-only";
 import { useCurrencyStore } from "@/stores/currency.store";
 

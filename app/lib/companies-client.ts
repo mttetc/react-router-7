@@ -1,24 +1,13 @@
-import type { Company, PaginatedResult } from "@/types/companies";
+import type {
+  Company,
+  PaginatedResult,
+  CompaniesQueryParams,
+} from "@/types/schemas";
 
 // Client-side API functions for companies data
 
-export interface CompaniesQueryParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  growth_stage?: string;
-  customer_focus?: string;
-  last_funding_type?: string;
-  min_rank?: number;
-  max_rank?: number;
-  min_funding?: number;
-  max_funding?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}
-
 export async function getCompaniesClient(
-  params: CompaniesQueryParams = {}
+  params: Partial<CompaniesQueryParams> = {}
 ): Promise<PaginatedResult<Company>> {
   const searchParams = new URLSearchParams();
 

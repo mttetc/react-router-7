@@ -7,7 +7,7 @@ import {
   Tag,
   For,
 } from "@chakra-ui/react";
-import React, { useCallback, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 // import { useSyncArrayState } from "@/hooks/use-sync-state";
 import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";

@@ -8,7 +8,7 @@ import { useFocusRing } from "@react-aria/focus";
 import { filtersSearchParams } from "@/lib/search-params";
 import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency, convertToUSD } from "@/utils/currency-utils";
+import { convertCurrency } from "@/utils/currency-utils";
 import {
   parseSmartSearch,
   type ParsedFilter,

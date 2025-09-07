@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { companiesKeys, getCompaniesClient } from "@/lib/companies-client";
 import type { Company, PaginatedResult } from "@/types/schemas";
-import type { CompaniesQueryParams } from "@/lib/companies-client";
+import type { CompaniesQueryParams } from "@/types/schemas";
 
 /**
  * Hook for fetching companies data with React Query
