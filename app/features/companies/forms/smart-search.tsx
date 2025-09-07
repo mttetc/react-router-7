@@ -55,6 +55,7 @@ export function SmartSearch() {
     "maxFunding",
     filtersSearchParams.maxFunding
   );
+  const [, setPage] = useQueryState("page", filtersSearchParams.page);
 
   const [query, setQuery] = useState(search || "");
   const [parsedFilters, setParsedFilters] = useState<ParsedFilter[]>([]);
@@ -75,6 +76,9 @@ export function SmartSearch() {
 
   const debouncedUpdateFilters = useDebounce(
     (allFilters: Partial<FilterState & { search: string }>) => {
+      // Reset page to 1 when any filter changes
+      setPage(1);
+
       if (allFilters.search !== undefined) {
         setSearch(allFilters.search || null);
       }

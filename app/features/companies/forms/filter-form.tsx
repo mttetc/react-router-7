@@ -13,6 +13,7 @@ import {
   createFilterRemovalHandler,
   createFilterResetHandler,
   createFiltersObject,
+  createFilterSetterWithPageReset,
 } from "../utils/filter-form-utils";
 
 interface FilterFormProps {
@@ -83,20 +84,20 @@ export function FilterForm({ isInDrawer = false }: FilterFormProps) {
   const [page, setPage] = useQueryState("page", filtersSearchParams.page);
   const [limit, setLimit] = useQueryState("limit", filtersSearchParams.limit);
 
-  // Create filter setters object
+  // Create filter setters object with page reset for filter changes (but not sorting)
   const filterSetters = {
-    search: setSearch,
-    growthStage: setGrowthStage,
-    customerFocus: setCustomerFocus,
-    fundingType: setFundingType,
-    minRank: setMinRank,
-    maxRank: setMaxRank,
-    minFunding: setMinFunding,
-    maxFunding: setMaxFunding,
-    sortBy: setSortBy,
-    sortOrder: setSortOrder,
-    page: setPage,
-    limit: setLimit,
+    search: createFilterSetterWithPageReset(setSearch, setPage),
+    growthStage: createFilterSetterWithPageReset(setGrowthStage, setPage),
+    customerFocus: createFilterSetterWithPageReset(setCustomerFocus, setPage),
+    fundingType: createFilterSetterWithPageReset(setFundingType, setPage),
+    minRank: createFilterSetterWithPageReset(setMinRank, setPage),
+    maxRank: createFilterSetterWithPageReset(setMaxRank, setPage),
+    minFunding: createFilterSetterWithPageReset(setMinFunding, setPage),
+    maxFunding: createFilterSetterWithPageReset(setMaxFunding, setPage),
+    sortBy: setSortBy, // Sorting doesn't reset page
+    sortOrder: setSortOrder, // Sorting doesn't reset page
+    page: setPage, // Page setter doesn't need page reset
+    limit: setLimit, // Limit setter doesn't need page reset
   };
 
   // Use useMemo to prevent infinite re-renders from getCurrentSearchInput()

@@ -21,6 +21,7 @@ export function FundingSliderField() {
     "maxFunding",
     parseAsInteger
   );
+  const [, setPage] = useQueryState("page");
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   const minFundingDisplay = minFunding
@@ -45,10 +46,11 @@ export function FundingSliderField() {
             ? null
             : convertToUSD(maxVal, currentCurrency);
 
+        setPage("1"); // Reset page to 1 when filter changes
         setMinFunding(minUSD);
         setMaxFunding(maxUSD);
       },
-      [maxSliderValue, setMinFunding, setMaxFunding, currentCurrency]
+      [maxSliderValue, setMinFunding, setMaxFunding, currentCurrency, setPage]
     ),
     debounceMs: 300,
   });

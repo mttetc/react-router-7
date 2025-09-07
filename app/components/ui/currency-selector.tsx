@@ -126,14 +126,7 @@ export function CurrencySelector() {
   return (
     <Menu.Root>
       <Menu.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          _focus={{
-            borderColor: "purple.500",
-            boxShadow: "0 0 0 1px var(--chakra-colors-purple-500)",
-          }}
-        >
+        <Button variant="ghost" size="sm">
           <HStack gap={1}>
             <Text fontSize="sm">{currentCurrency.flag}</Text>
             <Text fontSize="sm" fontWeight="medium">
@@ -155,7 +148,10 @@ export function CurrencySelector() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 size="sm"
-                _focus={{ outline: "none", boxShadow: "none" }}
+                _focus={{
+                  borderColor: "purple.500",
+                  boxShadow: "0 0 0 1px var(--chakra-colors-purple-500)",
+                }}
                 aria-label="Search currencies"
               />
             </VStack>

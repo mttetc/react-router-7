@@ -19,6 +19,19 @@ export function createFilterRemovalHandler(
 }
 
 /**
+ * Create filter setter that resets page to 1 when filter changes
+ */
+export function createFilterSetterWithPageReset(
+  setFilter: (value: any) => void,
+  setPage: (value: number) => void
+) {
+  return (value: any) => {
+    setFilter(value);
+    setPage(1);
+  };
+}
+
+/**
  * Create filter reset handler
  */
 export function createFilterResetHandler(

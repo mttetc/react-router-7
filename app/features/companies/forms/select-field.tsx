@@ -18,6 +18,7 @@ export function SelectField({
   parser,
 }: SelectFieldProps) {
   const [currentValue, setCurrentValue] = useQueryState(name, parser);
+  const [, setPage] = useQueryState("page");
 
   const collection = createListCollection({
     items: options,
@@ -25,6 +26,7 @@ export function SelectField({
 
   const handleValueChange = (details: { value: string[] }) => {
     const newValue = details.value[0] || "";
+    setPage("1"); // Reset page to 1 when filter changes
     setCurrentValue(newValue || null);
   };
 

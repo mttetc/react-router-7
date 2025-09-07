@@ -42,16 +42,18 @@ export function SliderField({
 }: SliderFieldComponentProps) {
   const [currentMinValue, setMinValue] = useQueryState(minName, parseAsInteger);
   const [currentMaxValue, setMaxValue] = useQueryState(maxName, parseAsInteger);
+  const [, setPage] = useQueryState("page");
   const [localValues, setLocalValues] = useSyncArrayState({
     initialValue: [currentMinValue ?? min, currentMaxValue ?? max] as const,
     externalValue: [currentMinValue ?? min, currentMaxValue ?? max] as const,
     onSync: useCallback(
       async (values: readonly [number, number]) => {
         const [minVal, maxVal] = values;
+        setPage("1"); // Reset page to 1 when filter changes
         setMinValue(minVal === min ? null : minVal);
         setMaxValue(maxVal === max ? null : maxVal);
       },
-      [minName, maxName, min, max, setMinValue, setMaxValue]
+      [minName, maxName, min, max, setMinValue, setMaxValue, setPage]
     ),
     debounceMs: 300,
   });

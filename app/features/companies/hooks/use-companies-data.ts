@@ -17,10 +17,8 @@ export function useCompaniesData(
   const query = useQuery({
     queryKey,
     queryFn: () => getCompaniesClient(params),
-    // Use placeholderData to show server data initially while allowing refetches
-    placeholderData: (previousData) => {
-      return previousData || initialData;
-    },
+    // Use placeholderData only for initial load, not for subsequent refetches
+    placeholderData: initialData,
     gcTime: 1000 * 60 * 10, // 10 minutes
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
@@ -34,5 +32,9 @@ export function useCompaniesData(
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
-  return query;
+  // Return isFetching instead of isLoading for instant loading states
+  return {
+    ...query,
+    isLoading: query.isFetching,
+  };
 }

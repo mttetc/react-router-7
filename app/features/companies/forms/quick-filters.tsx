@@ -7,7 +7,7 @@ import {
   Tag,
   For,
 } from "@chakra-ui/react";
-import { useQueryStates } from "nuqs";
+import { useQueryStates, useQueryState } from "nuqs";
 import { filtersSearchParams } from "@/lib/search-params";
 import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
@@ -94,6 +94,7 @@ function QuickFiltersInner() {
     minFunding: filtersSearchParams.minFunding,
     maxFunding: filtersSearchParams.maxFunding,
   });
+  const [, setPage] = useQueryState("page", filtersSearchParams.page);
 
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
@@ -137,6 +138,9 @@ function QuickFiltersInner() {
 
   const applyQuickFilter = async (quickFilter: ProcessedQuickFilter) => {
     const isCurrentlyActive = isFilterActive(quickFilter);
+
+    // Reset page to 1 when applying or clearing filters
+    setPage(1);
 
     if (isCurrentlyActive) {
       // Clear the filters - batch update all at once
