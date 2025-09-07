@@ -22,7 +22,12 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error("🚨 Error Boundary caught an error:", error, errorInfo);
+    // Log to external service in production
+    if (import.meta.env.PROD) {
+      // TODO: Send to error tracking service (Sentry, etc.)
+    } else {
+      console.error("🚨 Error Boundary caught an error:", error, errorInfo);
+    }
   }
 
   render() {

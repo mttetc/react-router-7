@@ -13,6 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
+import { useRef } from "react";
 import { FormatCurrencyCompact } from "@/components/ui/format-currency";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useQueryState } from "nuqs";
@@ -291,19 +292,47 @@ const SortableHeader = ({
     nextOrder === "asc" ? "ascending" : "descending"
   }`;
 
+  const ref = useRef<HTMLTableCellElement>(null);
+
+  const handleClick = () => {
+    onSort(sortKey);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSort(sortKey);
+    }
+  };
+
   return (
     <Tooltip content={tooltipText} positioning={{ placement: "top" }}>
       <Table.ColumnHeader
-        cursor="pointer"
-        onClick={() => onSort(sortKey)}
-        _hover={{ bg: "brand.100" }}
-        position="relative"
+        ref={ref}
         color={textColor}
+        cursor="pointer"
+        _hover={{ bg: "brand.100" }}
+        role="button"
+        tabIndex={0}
+        aria-label={`Sort by ${children} ${
+          isActive
+            ? `(${currentOrder === "asc" ? "ascending" : "descending"})`
+            : ""
+        }`}
+        aria-sort={
+          isActive
+            ? currentOrder === "asc"
+              ? "ascending"
+              : "descending"
+            : "none"
+        }
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
       >
-        <Flex align="center" justify="space-between">
+        <Flex align="center" justify="space-between" w="full">
           {children}
           {isActive && (
-            <Box ml={2}>
+            <Box ml={2} aria-hidden="true">
               {currentOrder === "asc" ? (
                 <FaCaretUp size={12} />
               ) : (
@@ -318,8 +347,6 @@ const SortableHeader = ({
 };
 
 export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
-  // All hooks must be called at the top level, not conditionally
-
   // Use nuqs directly for sorting
   const [sortBy, setSortBy] = useQueryState(
     "sortBy",
@@ -333,7 +360,7 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
   const handleSort = (newSortBy: string) => {
     const newOrder =
       sortBy === newSortBy && sortOrder === "asc" ? "desc" : "asc";
-    setSortBy(newSortBy || null);
+    setSortBy(newSortBy);
     setSortOrder(newOrder);
   };
 
@@ -436,9 +463,17 @@ export const CompanyTable = ({ companies, isLoading }: CompanyTableProps) => {
       borderRadius="lg"
       bg="white"
       maxWidth="100%"
+      role="region"
+      aria-label="Companies table"
     >
       <ScrollArea.Viewport>
-        <Table.Root variant="outline" size="sm" minWidth="1100px">
+        <Table.Root
+          variant="outline"
+          size="sm"
+          minWidth="1100px"
+          role="table"
+          aria-label="Companies directory"
+        >
           {renderTableHeader()}
           <Table.Body>
             <For each={companies}>

@@ -1,7 +1,8 @@
 import { Box, VStack } from "@chakra-ui/react";
 import { useQueryState } from "nuqs";
 import { filtersSearchParams } from "@/lib/search-params";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useLandmark } from "@react-aria/landmark";
 
 import { SmartSearch, getCurrentSearchInput } from "./smart-search";
 import { QuickFilters } from "./quick-filters";
@@ -10,10 +11,30 @@ import { ClientOnly } from "@/components/ui/client-only";
 import { DetailedFilters } from "./detailed-filters";
 
 export function FilterForm() {
-  const [search, setSearch] = useQueryState(
-    "search",
-    filtersSearchParams.search
+  const complementaryRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const quickFiltersRef = useRef<HTMLDivElement>(null);
+  const activeFiltersRef = useRef<HTMLDivElement>(null);
+  const detailedFiltersRef = useRef<HTMLDivElement>(null);
+
+  // Use React Aria landmarks for proper accessibility
+  const { landmarkProps: complementaryProps } = useLandmark(
+    { role: "complementary", "aria-label": "Company filters" },
+    complementaryRef
   );
+  const { landmarkProps: searchProps } = useLandmark(
+    { role: "search", "aria-label": "Search companies" },
+    searchRef
+  );
+  // Group elements don't need landmark props, just ARIA attributes
+  const quickFiltersProps = { role: "group", "aria-label": "Quick filters" };
+  const activeFiltersProps = { role: "group", "aria-label": "Active filters" };
+  const detailedFiltersProps = {
+    role: "group",
+    "aria-label": "Detailed filters",
+  };
+
+  const [, setSearch] = useQueryState("search", filtersSearchParams.search);
   const [growthStage, setGrowthStage] = useQueryState(
     "growthStage",
     filtersSearchParams.growthStage
@@ -116,6 +137,8 @@ export function FilterForm() {
 
   return (
     <Box
+      ref={complementaryRef}
+      {...complementaryProps}
       bg="white"
       borderRadius="lg"
       shadow="sm"
@@ -127,19 +150,27 @@ export function FilterForm() {
       overflow="hidden"
     >
       <VStack gap={6} align="stretch">
-        <SmartSearch />
+        <Box ref={searchRef} {...searchProps}>
+          <SmartSearch />
+        </Box>
 
-        <QuickFilters />
+        <Box ref={quickFiltersRef} {...quickFiltersProps}>
+          <QuickFilters />
+        </Box>
 
         <ClientOnly fallback={null}>
-          <ActiveFilters
-            filters={filters}
-            onRemoveFilter={removeFilter}
-            onResetAll={resetFilters}
-          />
+          <Box ref={activeFiltersRef} {...activeFiltersProps}>
+            <ActiveFilters
+              filters={filters}
+              onRemoveFilter={removeFilter}
+              onResetAll={resetFilters}
+            />
+          </Box>
         </ClientOnly>
 
-        <DetailedFilters />
+        <Box ref={detailedFiltersRef} {...detailedFiltersProps}>
+          <DetailedFilters />
+        </Box>
       </VStack>
     </Box>
   );

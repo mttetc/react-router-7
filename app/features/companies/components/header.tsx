@@ -21,6 +21,7 @@ export const Header = () => {
       top="0"
       zIndex="sticky"
       shadow="sm"
+      role="banner"
     >
       <Container maxW="8xl" py={3}>
         <Flex align="center" justify="space-between">

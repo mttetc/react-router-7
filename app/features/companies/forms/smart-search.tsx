@@ -3,6 +3,8 @@ import { Box, Input, HStack, Text, Badge, VStack, For } from "@chakra-ui/react";
 import { FaSearch, FaMagic } from "react-icons/fa";
 import { useDebounce } from "rooks";
 import { useQueryState } from "nuqs";
+import { useTextField } from "@react-aria/textfield";
+import { useFocusRing } from "@react-aria/focus";
 import { filtersSearchParams } from "@/lib/search-params";
 import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
@@ -231,6 +233,21 @@ export function SmartSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
+  // Use React Aria text field for proper accessibility
+  const { labelProps, inputProps, descriptionProps } = useTextField(
+    {
+      label: "Smart search for companies",
+      placeholder: "Search",
+      value: query,
+      onChange: setQuery,
+      description:
+        "Type keywords to automatically filter companies. Try terms like funding amounts (1M, $5M+), growth stages (seed, series A), customer focus (B2B, B2C), or company rankings (top 100).",
+    },
+    inputRef
+  );
+
+  const { isFocusVisible, focusProps } = useFocusRing();
+
   // Clear input when search is cleared via active filter removal
   useEffect(() => {
     if (!search && currentSearchInput) {
@@ -241,7 +258,7 @@ export function SmartSearch() {
   }, [search]);
 
   const debouncedUpdateFilters = useDebounce(
-    async (allFilters: Partial<FilterState & { search: string }>) => {
+    (allFilters: Partial<FilterState & { search: string }>) => {
       if (allFilters.search !== undefined) setSearch(allFilters.search || null);
       if (allFilters.growthStage !== undefined)
         setGrowthStage(allFilters.growthStage || null);
@@ -277,6 +294,7 @@ export function SmartSearch() {
         remainingQuery,
         parsedFilters: newParsedFilters,
       } = parseSmartSearch(newQuery, currentCurrency);
+
       setParsedFilters(newParsedFilters);
       currentParsedFilters = newParsedFilters; // Store for hasOnlyMagicFilters check
 
@@ -296,11 +314,21 @@ export function SmartSearch() {
       <VStack align="start" gap={1}>
         <HStack gap={2}>
           <FaMagic size={12} color="purple.500" />
-          <Text fontSize="xs" fontWeight="semibold" color="purple.600">
+          <Text
+            {...(labelProps as any)}
+            fontSize="xs"
+            fontWeight="semibold"
+            color="purple.600"
+          >
             Smart Search
           </Text>
         </HStack>
-        <Text fontSize="xs" color="gray.600" lineHeight="1.4">
+        <Text
+          {...descriptionProps}
+          fontSize="xs"
+          color="gray.600"
+          lineHeight="1.4"
+        >
           Type keywords to automatically filter companies. Try terms like
           funding amounts (1M, $5M+), growth stages (seed, series A), customer
           focus (B2B, B2C), or company rankings (top 100).
@@ -321,24 +349,26 @@ export function SmartSearch() {
         }}
         minH="40px"
       >
-        <FaSearch color="gray.400" size={14} />
+        <FaSearch color="gray.400" style={{ fontSize: "14px" }} />
         <Input
           ref={inputRef}
-          id="smart-search-input"
-          name="smart-search"
-          placeholder="Search"
-          value={query}
-          onChange={handleChange}
+          {...(inputProps as any)}
+          {...(focusProps as any)}
           border="none"
           outline="none"
-          _focus={{ boxShadow: "none" }}
+          _focus={{
+            boxShadow: "none",
+            outline: isFocusVisible
+              ? "2px solid var(--chakra-colors-purple-500)"
+              : "none",
+            outlineOffset: "2px",
+          }}
           _placeholder={{ color: "gray.400" }}
           fontSize="sm"
           bg="transparent"
           p={0}
           h="auto"
           flex={1}
-          aria-label="Smart search for companies"
         />
         {parsedFilters.length > 0 && (
           <FaMagic
