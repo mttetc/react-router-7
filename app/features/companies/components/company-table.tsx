@@ -1,7 +1,7 @@
 import { For, ScrollArea, Table } from "@chakra-ui/react";
 import { useQueryState } from "nuqs";
 import { filtersSearchParams } from "@/lib/search-params";
-import type { Company } from "@/types/schemas";
+import type { Company } from "@/features/companies/types/schemas";
 import { TABLE_COLUMNS } from "../utils/table-utils";
 import { SortableHeader } from "./sortable-header";
 import { CompanyRow } from "./table-company-row";

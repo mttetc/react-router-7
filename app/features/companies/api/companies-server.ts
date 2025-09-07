@@ -1,11 +1,12 @@
-import { prisma } from "@/utils/prisma-server";
-import type { Company, PaginatedResult } from "@/types/schemas";
+import { prisma } from "@/lib/prisma-server";
 import {
   CompaniesQueryParamsSchema,
   PaginatedResultSchema,
   CompanySchema,
   type CompaniesQueryParams,
-} from "@/types/schemas";
+  type Company,
+  type PaginatedResult,
+} from "@/features/companies/types/schemas";
 import type { Prisma } from "@prisma/client";
 
 // Server-side API functions for companies data

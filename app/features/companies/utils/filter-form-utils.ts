@@ -2,7 +2,10 @@
  * Utility functions for filter form operations
  */
 
-import type { FilterState, PaginationState } from "@/lib/companies-client";
+import type {
+  FilterState,
+  PaginationState,
+} from "@/features/companies/api/companies-client";
 
 /**
  * Create filter removal handler

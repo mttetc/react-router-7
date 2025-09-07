@@ -26,8 +26,6 @@ interface MobileSelectFieldProps {
 }
 
 export function MobileSelectField({
-  name,
-  label,
   options,
   placeholder,
   value,

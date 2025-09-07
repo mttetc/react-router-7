@@ -10,7 +10,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FaChevronDown, FaChevronUp, FaCog } from "react-icons/fa";
-import type { FilterState } from "@/types/schemas";
+import type { FilterState } from "@/features/companies/types/schemas";
 import { MobileSelectField } from "./mobile-select-field";
 import { MobileSliderField } from "./mobile-slider-field";
 import { MobileFundingSliderField } from "./mobile-funding-slider-field";

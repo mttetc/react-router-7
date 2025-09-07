@@ -1,10 +1,9 @@
 /**
- * Zod schemas for type validation and inference
- * Centralized schemas to ensure type safety across the application
+ * Zod schemas for companies feature
+ * Company-specific schemas for type validation and inference
  *
- * @fileoverview This module contains all Zod schemas used for validation
- * and type inference throughout the application. It provides a single
- * source of truth for data validation and TypeScript types.
+ * @fileoverview This module contains all Zod schemas specific to the companies feature.
+ * It provides type safety and validation for company-related data structures.
  */
 
 import { z } from "zod";
@@ -75,53 +74,6 @@ export const PaginatedResultSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
     totalPages: z.number().int().nonnegative(),
   });
 
-// Currency schema
-export const CurrencySchema = z.object({
-  code: z.string().length(3),
-  name: z.string(),
-  symbol: z.string(),
-  rate: z.number().positive(),
-});
-
-// Form field schemas
-export const SelectOptionSchema = z.object({
-  value: z.string(),
-  label: z.string(),
-});
-
-export const FormFieldSchema = z.object({
-  name: z.string(),
-  label: z.string(),
-  defaultValue: z.union([z.string(), z.number(), z.null()]).optional(),
-  disabled: z.boolean().default(false),
-});
-
-export const SelectFieldSchema = FormFieldSchema.extend({
-  options: z.array(SelectOptionSchema),
-  placeholder: z.string().default("Select an option"),
-});
-
-export const SliderFieldSchema = FormFieldSchema.extend({
-  min: z.number(),
-  max: z.number(),
-  step: z.number().positive().default(1),
-  formatValue: z.function().optional(),
-});
-
-// API response schema
-export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
-  z.object({
-    data: dataSchema,
-    success: z.boolean(),
-    message: z.string().optional(),
-  });
-
-// Sort configuration schema
-export const SortConfigSchema = z.object({
-  field: z.string(),
-  direction: z.enum(["asc", "desc"]),
-});
-
 // Export inferred types with JSDoc documentation
 
 /** Company entity type inferred from CompanySchema */
@@ -140,26 +92,3 @@ export type CompaniesQueryParams = z.infer<typeof CompaniesQueryParamsSchema>;
 export type PaginatedResult<T> = z.infer<
   ReturnType<typeof PaginatedResultSchema<z.ZodType<T>>>
 >;
-
-/** Currency type inferred from CurrencySchema */
-export type Currency = z.infer<typeof CurrencySchema>;
-
-/** Select option type for form fields */
-export type SelectOption = z.infer<typeof SelectOptionSchema>;
-
-/** Base form field type */
-export type FormField = z.infer<typeof FormFieldSchema>;
-
-/** Select field type with options */
-export type SelectField = z.infer<typeof SelectFieldSchema>;
-
-/** Slider field type with range configuration */
-export type SliderField = z.infer<typeof SliderFieldSchema>;
-
-/** Generic API response type */
-export type ApiResponse<T> = z.infer<
-  ReturnType<typeof ApiResponseSchema<z.ZodType<T>>>
->;
-
-/** Sort configuration type */
-export type SortConfig = z.infer<typeof SortConfigSchema>;

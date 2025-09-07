@@ -1,7 +1,7 @@
 "use client";
 
 import { FormatNumber } from "@chakra-ui/react";
-import { convertCurrency } from "@/utils/currency-utils";
+import { convertCurrency } from "@/stores/currency-utils";
 import { ClientOnly } from "./client-only";
 import { useCurrencyStore } from "@/stores/currency.store";
 
@@ -16,13 +16,6 @@ interface FormatCurrencyProps {
   minimumFractionDigits?: number;
   /** Whether to show currency symbol */
   showCurrency?: boolean;
-}
-
-function getClientLocale(): string {
-  if (typeof window !== "undefined" && window.navigator) {
-    return window.navigator.language || "en-US";
-  }
-  return "en-US";
 }
 
 export function FormatCurrency({

@@ -2,7 +2,7 @@ import { Box, Field, HStack, Slider, Text } from "@chakra-ui/react";
 import { useCallback } from "react";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency, convertToUSD } from "@/utils/currency-utils";
+import { convertCurrency, convertToUSD } from "@/stores/currency-utils";
 import { useSyncArrayState } from "@/hooks/use-sync-state";
 import { ClientOnly } from "@/components/ui/client-only";
 

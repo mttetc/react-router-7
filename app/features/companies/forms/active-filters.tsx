@@ -9,10 +9,9 @@ import {
   Wrap,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
-import { FaUndo } from "react-icons/fa";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency } from "@/utils/currency-utils";
-import type { FilterState } from "@/lib/companies-client";
+import { convertCurrency } from "@/stores/currency-utils";
+import type { FilterState } from "@/features/companies/api/companies-client";
 import { getFilterColor } from "./filter-colors";
 
 interface ActiveFiltersProps {

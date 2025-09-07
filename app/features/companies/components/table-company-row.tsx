@@ -1,5 +1,5 @@
 import { For, Table } from "@chakra-ui/react";
-import type { Company } from "@/types/schemas";
+import type { Company } from "@/features/companies/types/schemas";
 import {
   TABLE_COLUMNS,
   createCellHelpers,

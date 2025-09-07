@@ -1,7 +1,6 @@
 import { Box, Field, HStack, Slider, Text } from "@chakra-ui/react";
 import { useCallback } from "react";
 import { useQueryState, parseAsInteger } from "nuqs";
-import type { SliderFieldProps } from "@/types/forms";
 import { useSyncArrayState } from "@/hooks/use-sync-state";
 import { ClientOnly } from "@/components/ui/client-only";
 
@@ -64,8 +63,7 @@ export function SliderField({
   currency,
   minName,
   maxName,
-  minDefaultValue = min,
-  maxDefaultValue = max,
+
   disabled = false,
 }: SliderFieldComponentProps) {
   const [currentMinValue, setMinValue] = useQueryState(minName, parseAsInteger);

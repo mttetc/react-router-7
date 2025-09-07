@@ -25,8 +25,11 @@ import { filtersSearchParams } from "@/lib/search-params";
 import {
   getCompaniesServer,
   parseCompaniesParamsFromURL,
-} from "@/lib/companies-server";
-import type { Company, PaginatedResult } from "@/types/schemas";
+} from "@/features/companies/api/companies-server";
+import type {
+  Company,
+  PaginatedResult,
+} from "@/features/companies/types/schemas";
 
 interface LoaderData {
   companiesData: PaginatedResult<Company>;
@@ -305,7 +308,6 @@ export default function CompanyFeed() {
             isOpen={isFilterDrawerOpen}
             onClose={() => setIsFilterDrawerOpen(false)}
             activeFiltersCount={activeFiltersCount}
-            onClearAllFilters={handleClearAllFilters}
           />
         </ErrorBoundary>
       </Box>

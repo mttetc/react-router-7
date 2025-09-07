@@ -66,6 +66,12 @@ app/
 │   └── tooltip.tsx
 │
 ├── features/companies/         # Feature complète
+│   ├── api/                  # API calls spécifiques
+│   │   ├── companies-client.ts
+│   │   └── companies-server.ts
+│   ├── types/               # Types spécifiques aux companies
+│   │   ├── schemas.ts       # CompanySchema, FilterStateSchema, etc.
+│   │   └── forms.ts         # FilterFormData, etc.
 │   ├── components/            # Composants spécifiques
 │   │   ├── company-card.tsx
 │   │   ├── company-table.tsx
@@ -122,28 +128,25 @@ app/
 ├── hooks/                     # Hooks globaux
 │   └── use-sync-state.ts
 │
-├── lib/                       # Logique métier
-│   ├── companies-client.ts
-│   ├── companies-server.ts
-│   └── search-params.ts
+├── lib/                       # Logique métier globale
+│   ├── search-params.ts
+│   ├── prisma-server.ts
+│   └── query-client.ts
 │
 ├── routes/                    # Routes React Router
 │   ├── api.companies.ts
 │   ├── companies.tsx
 │   └── home.tsx
 │
-├── stores/                    # State management
-│   └── currency.store.ts
+├── stores/                    # State management global
+│   ├── currency.store.ts
+│   └── currency-utils.ts
 │
-├── types/                     # Types TypeScript
-│   ├── forms.ts              # Types spécifiques aux formulaires
-│   └── schemas.ts            # Schémas Zod + types principaux
+├── types/                     # Types globaux
+│   └── common.ts             # Types partagés (Currency, FormField, etc.)
 │
 ├── utils/                     # Utilitaires globaux
-│   ├── currency-utils.ts
-│   ├── error-handling.ts
-│   ├── prisma-server.ts
-│   └── query-client.ts
+│   └── error-handling.ts
 │
 ├── root.tsx
 ├── routes.ts

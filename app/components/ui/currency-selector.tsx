@@ -8,7 +8,6 @@ import {
   Text,
   VStack,
   For,
-  createListCollection,
   Input,
   Drawer,
   Box,
@@ -18,7 +17,7 @@ import {
 import { LuChevronDown, LuGlobe } from "react-icons/lu";
 import { useState, useMemo } from "react";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { getCurrencyName } from "@/utils/currency-utils";
+import { getCurrencyName } from "@/stores/currency-utils";
 import { toaster } from "./toaster";
 
 // Most popular currencies (top 4)

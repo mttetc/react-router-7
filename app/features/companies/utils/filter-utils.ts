@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import type { FilterState } from "@/lib/companies-client";
+import type { FilterState } from "@/features/companies/api/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency, getCurrencySymbol } from "@/utils/currency-utils";
+import { convertCurrency, getCurrencySymbol } from "@/stores/currency-utils";
 
 export const useActiveFilters = (filters: FilterState) => {
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
@@ -99,10 +99,5 @@ export const formatFunding = (amount: number | null): string => {
   if (amount >= 1000) {
     return `$${(amount / 1000).toFixed(0)}K`;
   }
-  // Use browser's default locale if available
-  const locale =
-    typeof window !== "undefined" && window.navigator
-      ? window.navigator.language
-      : "en-US";
   return `$${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };

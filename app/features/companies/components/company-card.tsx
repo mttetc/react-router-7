@@ -7,12 +7,11 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import type { Company } from "@/types/schemas";
+import type { Company } from "@/features/companies/types/schemas";
 import { FormatCurrency } from "@/components/ui/format-currency";
 import {
   getGrowthStageColor,
   getCustomerFocusColor,
-  formatFundingAmount,
   formatFundingType,
   formatDate,
   getPositionBackground,

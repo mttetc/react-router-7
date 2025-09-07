@@ -10,7 +10,6 @@ import {
   Collapsible,
   HStack,
   Icon,
-  Separator,
   Stack,
   Text,
 } from "@chakra-ui/react";

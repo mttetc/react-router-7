@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { OnUrlUpdateFunction } from "nuqs/adapters/testing";
 import { SmartSearch } from "@/features/companies/forms/smart-search";
@@ -217,9 +217,6 @@ describe("SmartSearch Behavior", () => {
     });
 
     const searchInput = screen.getByRole("textbox");
-    const container =
-      searchInput.closest('[data-testid="search-container"]') ||
-      searchInput.parentElement;
 
     // Focus should change styling
     await user.click(searchInput);

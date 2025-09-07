@@ -4,11 +4,7 @@
  */
 
 import { useMemo } from "react";
-import { Box, VStack } from "@chakra-ui/react";
-import type {
-  SelectField as SelectFieldType,
-  SliderField as SliderFieldType,
-} from "@/types/schemas";
+import { Box } from "@chakra-ui/react";
 import { SelectField } from "../forms/select-field";
 import { SliderField } from "../forms/slider-field";
 import { FundingSliderField } from "../forms/funding-slider-field";
@@ -53,7 +49,6 @@ export function FilterField({
   minValue,
   maxValue,
   step,
-  currency,
   onChange,
 }: FilterFieldProps) {
   const commonProps = useMemo(

@@ -1,9 +1,9 @@
-import { useRef, useCallback, useEffect, useState } from "react";
-import { Box, Input, HStack, Text, Badge, VStack, For } from "@chakra-ui/react";
+import { useRef, useEffect, useState, useCallback } from "react";
+import { Input, HStack, Text, Badge, VStack, For } from "@chakra-ui/react";
 import { FaSearch, FaMagic } from "react-icons/fa";
 import { useTextField } from "@react-aria/textfield";
 import { useFocusRing } from "@react-aria/focus";
-import type { FilterState } from "@/lib/companies-client";
+import type { FilterState } from "@/features/companies/api/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
 import {
   parseSmartSearch,

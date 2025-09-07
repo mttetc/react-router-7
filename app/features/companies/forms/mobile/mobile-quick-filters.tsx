@@ -1,17 +1,8 @@
-import {
-  HStack,
-  Button,
-  Text,
-  Wrap,
-  FormatNumber,
-  Tag,
-  For,
-} from "@chakra-ui/react";
+import { Button, Wrap, FormatNumber, For } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-// import { useSyncArrayState } from "@/hooks/use-sync-state";
-import type { FilterState } from "@/lib/companies-client";
+import type { FilterState } from "@/features/companies/api/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency } from "@/utils/currency-utils";
+import { convertCurrency } from "@/stores/currency-utils";
 
 interface QuickFilterBase {
   id: string;

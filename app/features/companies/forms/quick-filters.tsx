@@ -1,18 +1,10 @@
-import {
-  HStack,
-  Button,
-  Text,
-  Wrap,
-  FormatNumber,
-  Tag,
-  For,
-} from "@chakra-ui/react";
-import { useQueryStates, useQueryState } from "nuqs";
-import { filtersSearchParams } from "@/lib/search-params";
-import type { FilterState } from "@/lib/companies-client";
-import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency } from "@/utils/currency-utils";
 import { ClientOnly } from "@/components/ui/client-only";
+import type { FilterState } from "@/features/companies/api/companies-client";
+import { filtersSearchParams } from "@/lib/search-params";
+import { convertCurrency } from "@/stores/currency-utils";
+import { useCurrencyStore } from "@/stores/currency.store";
+import { Button, For, FormatNumber, Wrap } from "@chakra-ui/react";
+import { useQueryState, useQueryStates } from "nuqs";
 
 interface QuickFilterBase {
   id: string;

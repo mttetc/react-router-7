@@ -3,7 +3,7 @@
  * Centralized validation logic for filter values
  */
 
-import type { FilterState } from "@/types/schemas";
+import type { FilterState } from "@/features/companies/types/schemas";
 
 export interface ValidationResult {
   isValid: boolean;

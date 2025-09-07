@@ -8,9 +8,8 @@ import {
   NumberInput,
   FormatNumber,
 } from "@chakra-ui/react";
-// import { useSyncArrayState } from "@/hooks/use-sync-state";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency, convertToUSD } from "@/utils/currency-utils";
+import { convertCurrency, convertToUSD } from "@/stores/currency-utils";
 
 interface MobileFundingSliderFieldProps {
   minValue: number;

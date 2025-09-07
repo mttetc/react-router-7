@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FilterForm } from "@/features/companies/forms/filter-form";
 import { createTestWrapper } from "../utils/test-wrapper";
@@ -154,7 +154,6 @@ describe("FilterForm Behavior", () => {
     expect(mockSetSearch).not.toHaveBeenCalled();
   });
 
-
   it("should handle keyboard navigation", async () => {
     const user = userEvent.setup();
     render(<FilterForm />, { wrapper: createTestWrapper() });
@@ -168,5 +167,4 @@ describe("FilterForm Behavior", () => {
     const removeButton = screen.getByText("Remove Growth Stage");
     expect(removeButton).toBeInTheDocument();
   });
-
 });

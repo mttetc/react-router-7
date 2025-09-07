@@ -9,7 +9,7 @@ import React, {
   useCallback,
 } from "react";
 import { useLandmark } from "@react-aria/landmark";
-import type { FilterState } from "@/types/schemas";
+import type { FilterState } from "@/features/companies/types/schemas";
 
 import { MobileSmartSearch } from "./mobile-smart-search";
 import { MobileQuickFilters } from "./mobile-quick-filters";

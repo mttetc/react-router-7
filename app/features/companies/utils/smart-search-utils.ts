@@ -2,8 +2,8 @@
  * Smart search parsing utilities
  */
 
-import type { FilterState } from "@/lib/companies-client";
-import { convertToUSD } from "@/utils/currency-utils";
+import type { FilterState } from "@/features/companies/api/companies-client";
+import { convertToUSD } from "@/stores/currency-utils";
 
 export interface ParsedFilter {
   type: string;

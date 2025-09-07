@@ -1,14 +1,13 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { Box, Input, HStack, Text, Badge, VStack, For } from "@chakra-ui/react";
-import { FaSearch, FaMagic } from "react-icons/fa";
-import { useDebounce } from "rooks";
-import { useQueryState } from "nuqs";
-import { useTextField } from "@react-aria/textfield";
-import { useFocusRing } from "@react-aria/focus";
+import type { FilterState } from "@/features/companies/api/companies-client";
 import { filtersSearchParams } from "@/lib/search-params";
-import type { FilterState } from "@/lib/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency } from "@/utils/currency-utils";
+import { Badge, For, HStack, Input, Text, VStack } from "@chakra-ui/react";
+import { useFocusRing } from "@react-aria/focus";
+import { useTextField } from "@react-aria/textfield";
+import { useQueryState } from "nuqs";
+import { useEffect, useRef, useState } from "react";
+import { FaMagic, FaSearch } from "react-icons/fa";
+import { useDebounce } from "rooks";
 import {
   parseSmartSearch,
   type ParsedFilter,
@@ -16,7 +15,7 @@ import {
 
 // Export the search input value directly
 let currentSearchInput = "";
-let currentParsedFilters: any[] = [];
+let currentParsedFilters: ParsedFilter[] = [];
 
 export const getCurrentSearchInput = () => currentSearchInput;
 export const getCurrentParsedFilters = () => currentParsedFilters;
@@ -59,9 +58,7 @@ export function SmartSearch() {
 
   const [query, setQuery] = useState(search || "");
   const [parsedFilters, setParsedFilters] = useState<ParsedFilter[]>([]);
-  const [immediateSearchState, setImmediateSearchState] = useState(
-    search || ""
-  );
+
   const inputRef = useRef<HTMLInputElement>(null);
   const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 

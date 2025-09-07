@@ -1,7 +1,7 @@
 import {
   getCompaniesServer,
   parseCompaniesParamsFromURL,
-} from "@/lib/companies-server";
+} from "@/features/companies/api/companies-server";
 import type { LoaderFunctionArgs } from "react-router";
 
 /**

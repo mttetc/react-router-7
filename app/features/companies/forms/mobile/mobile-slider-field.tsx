@@ -7,7 +7,6 @@ import {
   Slider,
   NumberInput,
 } from "@chakra-ui/react";
-// import { useSyncArrayState } from "@/hooks/use-sync-state";
 
 interface MobileSliderFieldProps {
   name: string;
@@ -22,7 +21,6 @@ interface MobileSliderFieldProps {
 }
 
 export function MobileSliderField({
-  name,
   label,
   min,
   max,

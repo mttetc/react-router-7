@@ -6,13 +6,12 @@ import {
   createListCollection,
 } from "@chakra-ui/react";
 import { useQueryState } from "nuqs";
-import type { SelectFieldProps } from "@/types/forms";
+import type { SelectFieldProps } from "@/types/common";
 
 export function SelectField({
   name,
   label,
   options,
-  defaultValue = "",
   placeholder = "Select an option",
   disabled = false,
   parser,

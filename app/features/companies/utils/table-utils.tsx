@@ -12,7 +12,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import type { Company } from "@/types/schemas";
+import type { Company } from "@/features/companies/types/schemas";
 import { FormatCurrencyCompact } from "../../../components/ui/format-currency";
 import { Tooltip } from "../../../components/ui/tooltip";
 import {

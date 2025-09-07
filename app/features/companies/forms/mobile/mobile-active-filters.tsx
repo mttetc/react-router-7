@@ -1,10 +1,9 @@
 import { Box, Button, HStack, Text, Wrap, For, Tag } from "@chakra-ui/react";
-import { FaTimes, FaUndo } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import { useState, useEffect } from "react";
-// import { useSyncArrayState } from "@/hooks/use-sync-state";
-import type { FilterState } from "@/lib/companies-client";
+import type { FilterState } from "@/features/companies/api/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
-import { convertCurrency, getCurrencySymbol } from "@/utils/currency-utils";
+import { convertCurrency, getCurrencySymbol } from "@/stores/currency-utils";
 
 interface MobileActiveFiltersProps {
   initialFilters: FilterState;

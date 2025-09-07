@@ -7,7 +7,6 @@ import {
   Presence,
   ScrollArea,
   Text,
-  VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { MdFilterList } from "react-icons/md";
@@ -15,20 +14,18 @@ import { FaUndo } from "react-icons/fa";
 import { MobileFilterForm } from "../forms/mobile/mobile-filter-form";
 import { useQueryStates } from "nuqs";
 import { filtersSearchParams } from "@/lib/search-params";
-import type { FilterState } from "@/lib/companies-client";
+import type { FilterState } from "@/features/companies/api/companies-client";
 
 interface MobileFilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   activeFiltersCount: number;
-  onClearAllFilters?: () => void;
 }
 
 export function MobileFilterDrawer({
   isOpen,
   onClose,
   activeFiltersCount,
-  onClearAllFilters,
 }: MobileFilterDrawerProps) {
   const [isApplying, setIsApplying] = useState(false);
   const [pendingFilters, setPendingFilters] = useState<Partial<FilterState>>(

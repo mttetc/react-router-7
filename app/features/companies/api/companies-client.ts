@@ -2,7 +2,7 @@ import type {
   Company,
   PaginatedResult,
   CompaniesQueryParams,
-} from "@/types/schemas";
+} from "@/features/companies/types/schemas";
 
 // Client-side API functions for companies data
 
@@ -86,4 +86,4 @@ export const companiesCacheUtils = {
 };
 
 // Types moved to @/types/schemas for better organization
-export type { FilterState, PaginationState } from "@/types/schemas";
+export type { FilterState, PaginationState } from "@/features/companies/types/schemas";
