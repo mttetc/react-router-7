@@ -1,13 +1,7 @@
 import { Box, VStack } from "@chakra-ui/react";
 import { useQueryState } from "nuqs";
 import { filtersSearchParams } from "@/lib/search-params";
-import React, {
-  useMemo,
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { useLandmark } from "@react-aria/landmark";
 import type { FilterState } from "@/features/companies/types/schemas";
 

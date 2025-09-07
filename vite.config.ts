@@ -8,8 +8,10 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       onwarn(warning, warn) {
-        // Ignorer les warnings de sourcemap
-        if (warning.code === "SOURCEMAP_ERROR") {
+        // Ignorer les erreurs de sourcemap spécifiques
+        if (
+          warning.message?.includes("Can't resolve original location of error")
+        ) {
           return;
         }
         warn(warning);

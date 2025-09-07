@@ -2,7 +2,6 @@
  * Table utility functions and configurations
  */
 
-import React from "react";
 import {
   Avatar,
   Badge,
