@@ -1,9 +1,7 @@
 import { prisma } from "@/utils/prisma-server";
 import type { Company, PaginatedResult } from "@/types/companies";
 
-// ============================================================================
-// SERVER-SIDE LOGIC - Uses Prisma directly
-// ============================================================================
+// Server-side API functions for companies data
 
 export interface CompaniesQueryParams {
   page?: number;
@@ -38,10 +36,11 @@ export async function getCompaniesServer(
     sortOrder = "asc",
   } = params;
 
-  // Build where clause
+  // Build Prisma where clause for filtering
   const where: any = {};
 
   if (search) {
+    // Search across name, domain, and description
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },
       { domain: { contains: search, mode: "insensitive" } },
@@ -73,11 +72,11 @@ export async function getCompaniesServer(
     if (max_funding !== undefined) where.last_funding_amount.lte = max_funding;
   }
 
-  // Build orderBy clause
+  // Build sorting clause
   const orderBy: any = {};
   orderBy[sortBy] = sortOrder;
 
-  // Execute queries
+  // Execute paginated query and count in parallel
   const [data, total] = await Promise.all([
     prisma.company.findMany({
       where,
@@ -93,6 +92,7 @@ export async function getCompaniesServer(
   return {
     data: data.map((company) => ({
       ...company,
+      // Convert BigInt to Number for JSON serialization
       last_funding_amount: company.last_funding_amount
         ? Number(company.last_funding_amount)
         : null,
@@ -104,10 +104,12 @@ export async function getCompaniesServer(
   };
 }
 
-// ============================================================================
-// URL PARSING UTILITIES
-// ============================================================================
+// URL parameter parsing utilities
 
+/**
+ * Parse URL search parameters into CompaniesQueryParams
+ * Handles camelCase URL params and converts them to snake_case for the API
+ */
 export function parseCompaniesParamsFromURL(
   searchParams: URLSearchParams
 ): CompaniesQueryParams {

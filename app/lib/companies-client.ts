@@ -1,8 +1,6 @@
 import type { Company, PaginatedResult } from "@/types/companies";
 
-// ============================================================================
-// CLIENT-SIDE LOGIC - Makes HTTP calls to API endpoints
-// ============================================================================
+// Client-side API functions for companies data
 
 export interface CompaniesQueryParams {
   page?: number;
@@ -24,10 +22,22 @@ export async function getCompaniesClient(
 ): Promise<PaginatedResult<Company>> {
   const searchParams = new URLSearchParams();
 
-  // Add all non-undefined parameters to search params
+  // Map server field names to URL parameter names (camelCase)
+  const paramMapping: Record<string, string> = {
+    growth_stage: "growthStage",
+    customer_focus: "customerFocus",
+    last_funding_type: "fundingType",
+    min_rank: "minRank",
+    max_rank: "maxRank",
+    min_funding: "minFunding",
+    max_funding: "maxFunding",
+  };
+
+  // Build URL search parameters
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
-      searchParams.set(key, String(value));
+      const urlParamName = paramMapping[key] || key;
+      searchParams.set(urlParamName, String(value));
     }
   });
 
@@ -42,34 +52,21 @@ export async function getCompaniesClient(
   return response.json();
 }
 
-// ============================================================================
-// QUERY KEY FACTORY (TkDodo Pattern)
-// ============================================================================
+// React Query key factory for companies
 
 export const companiesKeys = {
   all: ["companies"] as const,
   lists: () => [...companiesKeys.all, "list"] as const,
   list: (params: CompaniesQueryParams) => {
-    // Create a unique key by serializing the params object
-    // This ensures React Query detects changes even with complex objects
+    // Serialize params to create unique keys for different filter combinations
     const serializedParams = JSON.stringify(params);
-    const key = [
-      ...companiesKeys.lists(),
-      serializedParams,
-      Date.now(),
-    ] as const;
-    console.log("🏭 [Key Factory] Generated key:", key, "for params:", params);
-    console.log("🔍 [Key Factory String]", JSON.stringify(key));
-    return key;
+    return [...companiesKeys.lists(), serializedParams] as const;
   },
   details: () => [...companiesKeys.all, "detail"] as const,
   detail: (id: string) => [...companiesKeys.details(), id] as const,
 } as const;
 
-// ============================================================================
-// REACT QUERY INTEGRATION
-// ============================================================================
-
+// React Query integration helper
 export function createCompaniesQuery(params: CompaniesQueryParams) {
   return {
     queryKey: companiesKeys.list(params),
@@ -77,49 +74,29 @@ export function createCompaniesQuery(params: CompaniesQueryParams) {
   };
 }
 
-// ============================================================================
-// QUERY CACHE UTILITIES (for future mutations)
-// ============================================================================
-
-/**
- * Utility functions for cache invalidation and updates
- * These can be used in mutations to update the cache efficiently
- */
+// Cache utilities for mutations
 export const companiesCacheUtils = {
-  // Invalidate all companies queries
   invalidateAll: (queryClient: any) => {
     queryClient.invalidateQueries({ queryKey: companiesKeys.all });
   },
-
-  // Invalidate all list queries
   invalidateLists: (queryClient: any) => {
     queryClient.invalidateQueries({ queryKey: companiesKeys.lists() });
   },
-
-  // Invalidate specific list query
   invalidateList: (queryClient: any, params: CompaniesQueryParams) => {
     queryClient.invalidateQueries({ queryKey: companiesKeys.list(params) });
   },
-
-  // Invalidate all detail queries
   invalidateDetails: (queryClient: any) => {
     queryClient.invalidateQueries({ queryKey: companiesKeys.details() });
   },
-
-  // Invalidate specific detail query
   invalidateDetail: (queryClient: any, id: string) => {
     queryClient.invalidateQueries({ queryKey: companiesKeys.detail(id) });
   },
-
-  // Remove all companies from cache
   removeAll: (queryClient: any) => {
     queryClient.removeQueries({ queryKey: companiesKeys.all });
   },
 };
 
-// ============================================================================
-// COMPATIBILITY TYPES (for existing components)
-// ============================================================================
+// Legacy types for backward compatibility
 
 export interface FilterState {
   search: string;

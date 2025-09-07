@@ -83,7 +83,7 @@ export default function CompanyFeed() {
     limit,
   } = queryParams;
 
-  // Build params object for useCompaniesData
+  // Transform URL params to API params (camelCase to snake_case)
   const params = {
     page: page || 1,
     limit: limit || 12,
@@ -99,7 +99,7 @@ export default function CompanyFeed() {
     sortOrder: (sortOrder || "asc") as "asc" | "desc",
   };
 
-  // Now useCompaniesData will refetch when URL changes
+  // Fetch companies data - will refetch when URL params change
   const { data, isLoading, error } = useCompaniesData(
     params,
     loaderData.companiesData
@@ -110,7 +110,6 @@ export default function CompanyFeed() {
   const handlePageChange = useCallback(
     async (newPage: number) => {
       scrollArea.scrollToEdge({ edge: "top", behavior: "instant" });
-      // Use the batched setter to avoid multiple state updates
       setQueryParams({ page: newPage });
     },
     [scrollArea, setQueryParams]
