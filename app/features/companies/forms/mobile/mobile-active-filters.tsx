@@ -141,12 +141,12 @@ export function MobileActiveFilters({
         </Text>
         <Button
           size="xs"
-          variant="outline"
-          colorPalette="brand"
+          variant="plain"
+          colorPalette="purple"
           onClick={clearAllFilters}
           flexShrink={0}
+          _hover={{ textDecoration: "underline" }}
         >
-          <FaUndo />
           Clear all
         </Button>
       </HStack>

@@ -31,10 +31,11 @@ export function CompanyRow({
   return (
     <Table.Row
       bg={isTopThree ? getPositionBackground(position, currentPage) : "white"}
-      borderLeft={
-        isTopThree
-          ? `3px solid ${getTableRowBorderColor(position, currentPage)}`
-          : "none"
+      borderLeft={position <= 3 && currentPage === 1 ? "3px solid" : undefined}
+      borderLeftColor={
+        position <= 3 && currentPage === 1
+          ? getTableRowBorderColor(position, currentPage)
+          : undefined
       }
       _hover={{
         bg: isTopThree

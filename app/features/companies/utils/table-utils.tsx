@@ -69,7 +69,7 @@ export const TABLE_COLUMNS: TableColumn[] = [
           <Avatar.Fallback>{company.name.charAt(0)}</Avatar.Fallback>
         </Avatar.Root>
         <VStack align="start" gap={0}>
-          <Text fontWeight="semibold" fontSize="sm" lineClamp={1}>
+          <Text fontWeight="semibold" fontSize="sm">
             {company.name}
           </Text>
           <ChakraLink
@@ -183,17 +183,17 @@ export const SKELETON_MAP: Record<string, React.ReactNode> = {
     <HStack gap={3}>
       <Skeleton height="36px" width="36px" borderRadius="full" />
       <VStack align="start" gap={1}>
-        <Skeleton height="16px" width="120px" />
-        <Skeleton height="14px" width="90px" />
+        <Skeleton height="18px" width="120px" />
+        <Skeleton height="18px" width="90px" />
       </VStack>
     </HStack>
   ),
-  description: <Skeleton height="16px" width="200px" />,
+  description: <Skeleton height="20px" width="200px" />,
   stage: <Skeleton height="24px" width="80px" borderRadius="full" />,
   focus: <Skeleton height="24px" width="50px" borderRadius="full" />,
-  funding: <Skeleton height="16px" width="80px" />,
-  fundingType: <Skeleton height="16px" width="70px" />,
-  createdAt: <Skeleton height="16px" width="85px" />,
+  funding: <Skeleton height="20px" width="80px" />,
+  fundingType: <Skeleton height="20px" width="70px" />,
+  createdAt: <Skeleton height="20px" width="85px" />,
 };
 
 /**

@@ -241,12 +241,12 @@ export function ActiveFilters({
       {!hideClearAll && (
         <Button
           size="xs"
-          variant="outline"
-          colorPalette="brand"
+          variant="plain"
+          colorPalette="purple"
           onClick={onResetAll}
           flexShrink={0}
+          _hover={{ textDecoration: "underline" }}
         >
-          <FaUndo />
           Clear all
         </Button>
       )}
