@@ -43,9 +43,6 @@ export default function Home() {
           Welcome to the Specter frontend test.
         </Text>
         <VStack gap={3}>
-          <Link to="/test">
-            <Button variant="outline">Get Started</Button>
-          </Link>
           <Link to="/companies">
             <Button variant="solid" colorPalette="purple">
               View Companies

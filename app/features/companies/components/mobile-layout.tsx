@@ -8,7 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CompanyCard } from "./company-card";
 import { Pagination } from "./pagination";
 import {
@@ -34,10 +34,37 @@ export function MobileLayout({
   isSqueezed = false,
 }: MobileLayoutProps) {
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const handleCardClick = (companyId: string) => {
+  const handleCardClick = (
+    companyId: string,
+    event: React.MouseEvent<HTMLDivElement>
+  ) => {
     if (isSqueezed) {
-      setExpandedCardId(expandedCardId === companyId ? null : companyId);
+      const isExpanding = expandedCardId !== companyId;
+      setExpandedCardId(isExpanding ? companyId : null);
+
+      // If expanding a card, scroll to it after animation completes
+      if (isExpanding) {
+        // Capture the element reference before the timeout
+        const cardElement = event.currentTarget;
+
+        setTimeout(() => {
+          const scrollContainer = scrollAreaRef.current;
+
+          if (scrollContainer && cardElement) {
+            const cardRect = cardElement.getBoundingClientRect();
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const cardTop =
+              cardRect.top - containerRect.top + scrollContainer.scrollTop;
+
+            scrollContainer.scrollTo({
+              top: cardTop - 20, // Add some padding from the top
+              behavior: "smooth",
+            });
+          }
+        }, 200); // Wait for expansion animation to complete
+      }
     }
   };
   if (isLoading) {
@@ -209,7 +236,7 @@ export function MobileLayout({
       <VStack gap={4} align="stretch" h="100%">
         {/* Companies Grid */}
         <ScrollArea.Root flex="1" minH={0}>
-          <ScrollArea.Viewport>
+          <ScrollArea.Viewport ref={scrollAreaRef}>
             <ScrollArea.Content w="100%" minW="0!important">
               {isSqueezed ? (
                 <VStack gap={2} align="stretch" pb={4}>
@@ -233,7 +260,7 @@ export function MobileLayout({
                         position={index + 1}
                         currentPage={currentPage}
                         isSqueezed={expandedCardId !== company.id}
-                        onClick={() => handleCardClick(company.id)}
+                        onClick={(event) => handleCardClick(company.id, event)}
                       />
                     </motion.div>
                   ))}

@@ -23,7 +23,7 @@ interface CompanyCardProps {
   position: number;
   currentPage: number;
   isSqueezed?: boolean;
-  onClick?: () => void;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export function CompanyCard({
