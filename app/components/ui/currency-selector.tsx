@@ -10,6 +10,9 @@ import {
   For,
   createListCollection,
   Input,
+  Drawer,
+  Box,
+  ScrollArea,
 } from "@chakra-ui/react";
 
 import { LuChevronDown, LuGlobe } from "react-icons/lu";
@@ -63,6 +66,7 @@ export function CurrencySelector() {
   );
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const getCurrentCurrencyInfo = () => {
     const allCurrencies = [...popularCurrencies, ...allOtherCurrencies];
@@ -115,6 +119,7 @@ export function CurrencySelector() {
   }) => {
     setSelectedCurrency(currency.value);
     setSearchQuery(""); // Clear search when currency is selected
+    setIsDrawerOpen(false); // Close drawer on mobile
     toaster.create({
       title: "Currency Updated",
       description: `Switched to ${currency.label} (${currency.symbol})`,
@@ -123,119 +128,297 @@ export function CurrencySelector() {
     });
   };
 
-  return (
-    <Menu.Root>
-      <Menu.Trigger asChild>
-        <Button variant="ghost" size="sm">
-          <HStack gap={1}>
-            <Text fontSize="sm">{currentCurrency.flag}</Text>
-            <Text fontSize="sm" fontWeight="medium">
-              {selectedCurrency}
-            </Text>
-          </HStack>
-          <LuChevronDown />
-        </Button>
-      </Menu.Trigger>
+  // Shared currency list component
+  const CurrencyList = () => (
+    <>
+      <VStack align="stretch" p={3} gap={3}>
+        <Input
+          id="currency-search-input"
+          name="currency-search"
+          placeholder="Search currencies..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          size="sm"
+          _focus={{
+            borderColor: "purple.500",
+            boxShadow: "0 0 0 1px var(--chakra-colors-purple-500)",
+          }}
+          aria-label="Search currencies"
+        />
+      </VStack>
 
-      <Portal>
-        <Menu.Positioner>
-          <Menu.Content minW="280px" maxH="400px" overflowY="auto">
-            <VStack align="stretch" p={3} gap={3}>
-              <Input
-                id="currency-search-input"
-                name="currency-search"
-                placeholder="Search currencies..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                size="sm"
-                _focus={{
-                  borderColor: "purple.500",
-                  boxShadow: "0 0 0 1px var(--chakra-colors-purple-500)",
-                }}
-                aria-label="Search currencies"
-              />
-            </VStack>
+      <Menu.Separator />
 
-            <Menu.Separator />
-
-            {filteredCurrencies.showPopularSection && (
-              <>
-                <Menu.ItemGroup>
-                  <Menu.ItemGroupLabel>Popular Currencies</Menu.ItemGroupLabel>
-                  <For each={filteredCurrencies.popular}>
-                    {(currency) => (
-                      <Menu.Item
-                        key={currency.value}
-                        value={currency.value}
-                        onClick={() => handleCurrencySelect(currency)}
-                        bg={
-                          selectedCurrency === currency.value
-                            ? "blue.50"
-                            : undefined
-                        }
-                      >
-                        <HStack gap={3} w="full">
-                          <Text fontSize="lg">{currency.flag}</Text>
-                          <VStack align="start" gap={0} flex={1}>
-                            <Text fontSize="sm" fontWeight="medium">
-                              {currency.value}
-                            </Text>
-                            <Text fontSize="xs" color="gray.500">
-                              {currency.label}
-                            </Text>
-                          </VStack>
-                          <Text fontSize="sm" color="gray.400">
-                            {currency.symbol}
-                          </Text>
-                        </HStack>
-                      </Menu.Item>
-                    )}
-                  </For>
-                </Menu.ItemGroup>
-
-                <Menu.Separator />
-              </>
-            )}
-
-            <Menu.ItemGroup>
-              <Menu.ItemGroupLabel>
-                {filteredCurrencies.showPopularSection
-                  ? "Other Currencies"
-                  : "Search Results"}
-              </Menu.ItemGroupLabel>
-              <For each={filteredCurrencies.others}>
-                {(currency) => (
-                  <Menu.Item
-                    key={currency.value}
-                    value={currency.value}
-                    onClick={() => handleCurrencySelect(currency)}
-                    bg={
-                      selectedCurrency === currency.value
-                        ? "blue.50"
-                        : undefined
-                    }
-                  >
-                    <HStack gap={3} w="full">
-                      <Text fontSize="lg">{currency.flag}</Text>
-                      <VStack align="start" gap={0} flex={1}>
-                        <Text fontSize="sm" fontWeight="medium">
-                          {currency.value}
-                        </Text>
-                        <Text fontSize="xs" color="gray.500">
-                          {currency.label}
-                        </Text>
-                      </VStack>
-                      <Text fontSize="sm" color="gray.400">
-                        {currency.symbol}
+      {filteredCurrencies.showPopularSection && (
+        <>
+          <Menu.ItemGroup>
+            <Menu.ItemGroupLabel>Popular Currencies</Menu.ItemGroupLabel>
+            <For each={filteredCurrencies.popular}>
+              {(currency) => (
+                <Menu.Item
+                  key={currency.value}
+                  value={currency.value}
+                  onClick={() => handleCurrencySelect(currency)}
+                  bg={
+                    selectedCurrency === currency.value ? "blue.50" : undefined
+                  }
+                >
+                  <HStack gap={3} w="full">
+                    <Text fontSize="lg">{currency.flag}</Text>
+                    <VStack align="start" gap={0} flex={1}>
+                      <Text fontSize="sm" fontWeight="medium">
+                        {currency.value}
                       </Text>
-                    </HStack>
-                  </Menu.Item>
-                )}
-              </For>
-            </Menu.ItemGroup>
-          </Menu.Content>
-        </Menu.Positioner>
-      </Portal>
-    </Menu.Root>
+                      <Text fontSize="xs" color="gray.500">
+                        {currency.label}
+                      </Text>
+                    </VStack>
+                    <Text fontSize="sm" color="gray.400">
+                      {currency.symbol}
+                    </Text>
+                  </HStack>
+                </Menu.Item>
+              )}
+            </For>
+          </Menu.ItemGroup>
+
+          <Menu.Separator />
+        </>
+      )}
+
+      <Menu.ItemGroup>
+        <Menu.ItemGroupLabel>
+          {filteredCurrencies.showPopularSection
+            ? "Other Currencies"
+            : "Search Results"}
+        </Menu.ItemGroupLabel>
+        <For each={filteredCurrencies.others}>
+          {(currency) => (
+            <Menu.Item
+              key={currency.value}
+              value={currency.value}
+              onClick={() => handleCurrencySelect(currency)}
+              bg={selectedCurrency === currency.value ? "blue.50" : undefined}
+            >
+              <HStack gap={3} w="full">
+                <Text fontSize="lg">{currency.flag}</Text>
+                <VStack align="start" gap={0} flex={1}>
+                  <Text fontSize="sm" fontWeight="medium">
+                    {currency.value}
+                  </Text>
+                  <Text fontSize="xs" color="gray.500">
+                    {currency.label}
+                  </Text>
+                </VStack>
+                <Text fontSize="sm" color="gray.400">
+                  {currency.symbol}
+                </Text>
+              </HStack>
+            </Menu.Item>
+          )}
+        </For>
+      </Menu.ItemGroup>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop: Menu */}
+      <Box hideBelow="md">
+        <Menu.Root>
+          <Menu.Trigger asChild>
+            <Button variant="ghost" size="sm">
+              <HStack gap={1}>
+                <Text fontSize="sm">{currentCurrency.flag}</Text>
+                <Text fontSize="sm" fontWeight="medium">
+                  {selectedCurrency}
+                </Text>
+              </HStack>
+              <LuChevronDown />
+            </Button>
+          </Menu.Trigger>
+
+          <Portal>
+            <Menu.Positioner>
+              <Menu.Content minW="280px" maxH="400px" overflowY="auto">
+                <CurrencyList />
+              </Menu.Content>
+            </Menu.Positioner>
+          </Portal>
+        </Menu.Root>
+      </Box>
+
+      {/* Mobile: Compact button with drawer */}
+      <Box hideFrom="md">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsDrawerOpen(true)}
+        >
+          <Text fontSize="sm" fontWeight="medium">
+            {currentCurrency.symbol}
+          </Text>
+        </Button>
+
+        <Drawer.Root
+          open={isDrawerOpen}
+          onOpenChange={(details) => {
+            if (!details.open) setIsDrawerOpen(false);
+          }}
+          placement="bottom"
+          size="full"
+        >
+          <Drawer.Backdrop />
+          <Drawer.Positioner>
+            <Drawer.Content
+              bg="white"
+              borderTopRadius="xl"
+              maxH="90vh"
+              display="flex"
+              flexDirection="column"
+            >
+              {/* Header */}
+              <Box
+                p={4}
+                borderBottom="1px solid"
+                borderColor="gray.200"
+                bg="white"
+                borderTopRadius="xl"
+              >
+                <HStack justify="space-between" align="center">
+                  <HStack gap={2} align="center">
+                    <LuGlobe size={20} />
+                    <Text fontSize="lg" fontWeight="semibold">
+                      Select Currency
+                    </Text>
+                  </HStack>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsDrawerOpen(false)}
+                    aria-label="Close currency selector"
+                  >
+                    ✕
+                  </Button>
+                </HStack>
+              </Box>
+
+              {/* Content */}
+              <ScrollArea.Root flex="1" minH={0}>
+                <ScrollArea.Viewport>
+                  <ScrollArea.Content p={4}>
+                    <VStack align="stretch" gap={3}>
+                      <Input
+                        id="currency-search-input-mobile"
+                        name="currency-search-mobile"
+                        placeholder="Search currencies..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        size="sm"
+                        _focus={{
+                          borderColor: "purple.500",
+                          boxShadow:
+                            "0 0 0 1px var(--chakra-colors-purple-500)",
+                        }}
+                        aria-label="Search currencies"
+                      />
+
+                      {filteredCurrencies.showPopularSection && (
+                        <>
+                          <Text
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            color="gray.600"
+                          >
+                            Popular Currencies
+                          </Text>
+                          <VStack gap={2} align="stretch">
+                            {filteredCurrencies.popular.map((currency) => (
+                              <Button
+                                key={currency.value}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleCurrencySelect(currency)}
+                                bg={
+                                  selectedCurrency === currency.value
+                                    ? "blue.50"
+                                    : "transparent"
+                                }
+                                justifyContent="start"
+                                h="auto"
+                                p={3}
+                              >
+                                <HStack gap={3} w="full">
+                                  <Text fontSize="lg">{currency.flag}</Text>
+                                  <VStack align="start" gap={0} flex={1}>
+                                    <Text fontSize="sm" fontWeight="medium">
+                                      {currency.value}
+                                    </Text>
+                                    <Text fontSize="xs" color="gray.500">
+                                      {currency.label}
+                                    </Text>
+                                  </VStack>
+                                  <Text fontSize="sm" color="gray.400">
+                                    {currency.symbol}
+                                  </Text>
+                                </HStack>
+                              </Button>
+                            ))}
+                          </VStack>
+                        </>
+                      )}
+
+                      <Text
+                        fontSize="sm"
+                        fontWeight="semibold"
+                        color="gray.600"
+                      >
+                        {filteredCurrencies.showPopularSection
+                          ? "Other Currencies"
+                          : "Search Results"}
+                      </Text>
+                      <VStack gap={2} align="stretch">
+                        {filteredCurrencies.others.map((currency) => (
+                          <Button
+                            key={currency.value}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCurrencySelect(currency)}
+                            bg={
+                              selectedCurrency === currency.value
+                                ? "blue.50"
+                                : "transparent"
+                            }
+                            justifyContent="start"
+                            h="auto"
+                            p={3}
+                          >
+                            <HStack gap={3} w="full">
+                              <Text fontSize="lg">{currency.flag}</Text>
+                              <VStack align="start" gap={0} flex={1}>
+                                <Text fontSize="sm" fontWeight="medium">
+                                  {currency.value}
+                                </Text>
+                                <Text fontSize="xs" color="gray.500">
+                                  {currency.label}
+                                </Text>
+                              </VStack>
+                              <Text fontSize="sm" color="gray.400">
+                                {currency.symbol}
+                              </Text>
+                            </HStack>
+                          </Button>
+                        ))}
+                      </VStack>
+                    </VStack>
+                  </ScrollArea.Content>
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar />
+              </ScrollArea.Root>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Drawer.Root>
+      </Box>
+    </>
   );
 }

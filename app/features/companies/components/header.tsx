@@ -2,12 +2,14 @@ import {
   Badge,
   Box,
   Breadcrumb,
+  Button,
   Container,
   Flex,
   HStack,
   Image,
   Text,
 } from "@chakra-ui/react";
+import { MdGridOn, MdList } from "react-icons/md";
 import { CurrencySelector } from "@/components/ui/currency-selector";
 import { Tooltip } from "@/components/ui/tooltip";
 import { FilterToggleButton } from "./filter-toggle-button";
@@ -16,12 +18,16 @@ interface HeaderProps {
   onFilterToggle?: () => void;
   activeFiltersCount?: number;
   isFilterOpen?: boolean;
+  onLayoutToggle?: () => void;
+  isSqueezedLayout?: boolean;
 }
 
 export const Header = ({
   onFilterToggle,
   activeFiltersCount = 0,
   isFilterOpen = false,
+  onLayoutToggle,
+  isSqueezedLayout = false,
 }: HeaderProps) => {
   return (
     <Box
@@ -40,7 +46,10 @@ export const Header = ({
             <Image
               src="https://www.tryspecter.com/specter.svg"
               alt="Specter"
-              height="24px"
+              height={{
+                base: "16px",
+                md: "24px",
+              }}
               width="auto"
               filter="none"
             />
@@ -71,7 +80,7 @@ export const Header = ({
             </HStack>
           </HStack>
 
-          <HStack gap={3}>
+          <HStack gap={2}>
             {/* Desktop: Breadcrumb + Currency */}
             <Box hideBelow="md">
               <Breadcrumb.Root fontSize="xs" color="gray.500">
@@ -96,15 +105,40 @@ export const Header = ({
               </Tooltip>
             </HStack>
 
-            {/* Mobile: Filter button */}
+            {/* Mobile: Layout toggle and Filter button */}
             <Box hideFrom="md">
-              {onFilterToggle && (
-                <FilterToggleButton
-                  onClick={onFilterToggle}
-                  activeFiltersCount={activeFiltersCount}
-                  isOpen={isFilterOpen}
-                />
-              )}
+              <HStack gap={2}>
+                {onLayoutToggle && (
+                  <Tooltip
+                    content={
+                      isSqueezedLayout
+                        ? "Switch to full cards"
+                        : "Switch to compact cards"
+                    }
+                    positioning={{ placement: "bottom" }}
+                  >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={onLayoutToggle}
+                      aria-label={
+                        isSqueezedLayout
+                          ? "Switch to full cards"
+                          : "Switch to compact cards"
+                      }
+                    >
+                      {isSqueezedLayout ? <MdList /> : <MdGridOn />}
+                    </Button>
+                  </Tooltip>
+                )}
+                {onFilterToggle && (
+                  <FilterToggleButton
+                    onClick={onFilterToggle}
+                    activeFiltersCount={activeFiltersCount}
+                    isOpen={isFilterOpen}
+                  />
+                )}
+              </HStack>
             </Box>
           </HStack>
         </Flex>

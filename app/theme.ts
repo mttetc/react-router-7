@@ -228,6 +228,4 @@ export const system = createSystem(defaultConfig, {
       },
     },
   },
-  // Global styles can be added via globalCss if needed
-  // For now, we'll handle them via CSS or component-specific styles
 });

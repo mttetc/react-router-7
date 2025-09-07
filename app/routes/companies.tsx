@@ -53,6 +53,7 @@ export default function CompanyFeed() {
   const navigation = useNavigation();
   const scrollArea = useScrollArea();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [isSqueezedLayout, setIsSqueezedLayout] = useState(true);
 
   // Read all filters from nuqs
   const [queryParams, setQueryParams] = useQueryStates({
@@ -137,6 +138,10 @@ export default function CompanyFeed() {
     setIsFilterDrawerOpen(!isFilterDrawerOpen);
   }, [isFilterDrawerOpen]);
 
+  const handleLayoutToggle = useCallback(() => {
+    setIsSqueezedLayout(!isSqueezedLayout);
+  }, [isSqueezedLayout]);
+
   return (
     <Box
       height="100dvh"
@@ -160,6 +165,8 @@ export default function CompanyFeed() {
         onFilterToggle={handleFilterToggle}
         activeFiltersCount={activeFiltersCount}
         isFilterOpen={isFilterDrawerOpen}
+        onLayoutToggle={handleLayoutToggle}
+        isSqueezedLayout={isSqueezedLayout}
       />
 
       {/* Mobile Layout - hidden on desktop (md and up) */}
@@ -170,6 +177,7 @@ export default function CompanyFeed() {
           totalPages={data?.totalPages || 1}
           currentPage={data?.page || 1}
           onPageChange={handlePageChange}
+          isSqueezed={isSqueezedLayout}
         />
       </Box>
 

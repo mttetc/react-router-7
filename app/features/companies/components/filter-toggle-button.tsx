@@ -1,4 +1,5 @@
-import { Badge, Button, HStack, Text } from "@chakra-ui/react";
+import { Badge, Button, HStack } from "@chakra-ui/react";
+import { MdFilterList } from "react-icons/md";
 
 interface FilterToggleButtonProps {
   onClick: () => void;
@@ -25,8 +26,8 @@ export function FilterToggleButton({
       minW="auto"
       px={3}
     >
-      <HStack gap={2} align="center">
-        <Text fontSize="sm">Filtres</Text>
+      <HStack gap={1} align="center">
+        <MdFilterList size={18} />
 
         {activeFiltersCount > 0 && (
           <Badge

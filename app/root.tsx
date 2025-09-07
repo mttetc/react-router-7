@@ -49,7 +49,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  console.log("🚀 [Root] App component rendering");
   return <Outlet />;
 }
 

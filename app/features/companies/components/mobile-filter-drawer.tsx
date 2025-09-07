@@ -8,6 +8,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { MdFilterList } from "react-icons/md";
 import { FilterForm } from "../forms/filter-form";
 
 interface MobileFilterDrawerProps {
@@ -58,19 +59,22 @@ export function MobileFilterDrawer({
             borderTopRadius="xl"
           >
             <HStack justify="space-between" align="center">
-              <Text fontSize="lg" fontWeight="semibold">
-                Filtres
-                {activeFiltersCount > 0 && (
-                  <Text as="span" color="blue.500" ml={2}>
-                    ({activeFiltersCount})
-                  </Text>
-                )}
-              </Text>
+              <HStack gap={2} align="center">
+                <MdFilterList size={20} />
+                <Text fontSize="lg" fontWeight="semibold">
+                  Filters
+                  {activeFiltersCount > 0 && (
+                    <Text as="span" color="blue.500" ml={2}>
+                      ({activeFiltersCount})
+                    </Text>
+                  )}
+                </Text>
+              </HStack>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                aria-label="Fermer les filtres"
+                aria-label="Close filters"
               >
                 ✕
               </Button>
@@ -96,16 +100,16 @@ export function MobileFilterDrawer({
                 onClick={onClose}
                 disabled={isApplying}
               >
-                Annuler
+                Cancel
               </Button>
               <Button
                 colorPalette="blue"
                 flex="1"
                 onClick={handleApplyFilters}
                 loading={isApplying}
-                loadingText="Application..."
+                loadingText="Applying..."
               >
-                Appliquer les filtres
+                Apply Filters
               </Button>
             </HStack>
           </Box>
