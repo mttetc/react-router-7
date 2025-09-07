@@ -9,7 +9,7 @@ import React, {
   useCallback,
 } from "react";
 import { useLandmark } from "@react-aria/landmark";
-import type { FilterState } from "@/lib/companies-client";
+import type { FilterState } from "@/types/schemas";
 
 import { MobileSmartSearch } from "./mobile-smart-search";
 import { MobileQuickFilters } from "./mobile-quick-filters";
@@ -122,12 +122,12 @@ export function MobileFilterForm({
 
   // Use React Aria landmarks for proper accessibility
   const { landmarkProps: complementaryProps } = useLandmark(
-    { role: "complementary", "aria-label": "Company filters" },
+    { role: "complementary", "aria-label": "Mobile company filters" },
     complementaryRef
   );
 
   const { landmarkProps: searchProps } = useLandmark(
-    { role: "search", "aria-label": "Search companies" },
+    { role: "search", "aria-label": "Mobile search companies" },
     searchRef
   );
 

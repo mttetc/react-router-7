@@ -35,11 +35,11 @@ export function FilterForm({ isInDrawer = false }: FilterFormProps) {
 
   // Use React Aria landmarks for proper accessibility
   const { landmarkProps: complementaryProps } = useLandmark(
-    { role: "complementary", "aria-label": "Company filters" },
+    { role: "complementary", "aria-label": "Desktop company filters" },
     complementaryRef
   );
   const { landmarkProps: searchProps } = useLandmark(
-    { role: "search", "aria-label": "Search companies" },
+    { role: "search", "aria-label": "Desktop search companies" },
     searchRef
   );
   // Group elements don't need landmark props, just ARIA attributes

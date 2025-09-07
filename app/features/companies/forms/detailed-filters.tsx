@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQueryState } from "nuqs";
 import {
   Box,
@@ -11,7 +11,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FaChevronDown, FaChevronUp, FaCog } from "react-icons/fa";
-import { ClientOnly } from "@/components/ui/client-only";
 import { SelectField } from "./select-field";
 import { SliderField } from "./slider-field";
 import { FundingSliderField } from "./funding-slider-field";
@@ -60,15 +59,25 @@ export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
   );
 
   // Check if any advanced filters are active
-  const hasActiveAdvancedFilters = !!(
-    growthStage ||
-    customerFocus ||
-    fundingType ||
-    minRank ||
-    maxRank ||
-    minFunding ||
-    maxFunding
-  );
+  const hasActiveAdvancedFilters = useMemo(() => {
+    return !!(
+      growthStage ||
+      customerFocus ||
+      fundingType ||
+      minRank ||
+      maxRank ||
+      minFunding ||
+      maxFunding
+    );
+  }, [
+    growthStage,
+    customerFocus,
+    fundingType,
+    minRank,
+    maxRank,
+    minFunding,
+    maxFunding,
+  ]);
 
   return (
     <Box>
@@ -147,32 +156,19 @@ export function DetailedFilters({ defaultOpen = false }: DetailedFiltersProps) {
                   <SliderField
                     name="rankRange"
                     label="Rank Range"
-                    min={1}
-                    max={5000}
+                    min={FILTER_RANGES.rank.min}
+                    max={FILTER_RANGES.rank.max}
+                    step={1}
                     minName="minRank"
                     maxName="maxRank"
-                    minDefaultValue={1}
-                    maxDefaultValue={5000}
+                    minDefaultValue={FILTER_RANGES.rank.min}
+                    maxDefaultValue={FILTER_RANGES.rank.max}
+                    formatValue={(value: number) =>
+                      `#${value.toLocaleString()}`
+                    }
                   />
 
-                  <ClientOnly
-                    fallback={
-                      <SliderField
-                        name="fundingRange"
-                        label="Funding Amount (USD)"
-                        min={0}
-                        max={100000000}
-                        step={100000}
-                        minName="minFunding"
-                        maxName="maxFunding"
-                        minDefaultValue={0}
-                        maxDefaultValue={100000000}
-                        currency="USD"
-                      />
-                    }
-                  >
-                    <FundingSliderField />
-                  </ClientOnly>
+                  <FundingSliderField />
                 </Stack>
               </Box>
             </Stack>

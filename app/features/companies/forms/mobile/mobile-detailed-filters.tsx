@@ -10,8 +10,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FaChevronDown, FaChevronUp, FaCog } from "react-icons/fa";
-// import { useSyncArrayState } from "@/hooks/use-sync-state";
-import type { FilterState } from "@/lib/companies-client";
+import type { FilterState } from "@/types/schemas";
 import { MobileSelectField } from "./mobile-select-field";
 import { MobileSliderField } from "./mobile-slider-field";
 import { MobileFundingSliderField } from "./mobile-funding-slider-field";
@@ -53,13 +52,16 @@ export function MobileDetailedFilters({
     filters.maxFunding
   );
 
-  const updateFilter = (key: keyof FilterState, value: any) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    if (onFiltersChange) {
-      onFiltersChange(newFilters);
-    }
-  };
+  const updateFilter = useCallback(
+    (key: keyof FilterState, value: any) => {
+      const newFilters = { ...filters, [key]: value };
+      setFilters(newFilters);
+      if (onFiltersChange) {
+        onFiltersChange(newFilters);
+      }
+    },
+    [filters, onFiltersChange]
+  );
 
   return (
     <Box>

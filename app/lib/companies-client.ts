@@ -96,6 +96,5 @@ export const companiesCacheUtils = {
   },
 };
 
-// Legacy types for backward compatibility - moved to @/types/filters
-// These are kept here temporarily for backward compatibility
-export type { FilterState, PaginationState } from "@/types/filters";
+// Types moved to @/types/schemas for better organization
+export type { FilterState, PaginationState } from "@/types/schemas";
