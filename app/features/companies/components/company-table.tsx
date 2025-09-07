@@ -1,10 +1,11 @@
 import { For, ScrollArea, Table } from "@chakra-ui/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useQueryState } from "nuqs";
 import { filtersSearchParams } from "@/lib/search-params";
 import type { Company } from "@/features/companies/types/schemas";
 import { TABLE_COLUMNS } from "../utils/table-utils";
 import { SortableHeader } from "./sortable-header";
-import { CompanyRow } from "./table-company-row";
+import { AnimatedTableRow } from "./animated-table-row";
 import { TableEmptyState } from "./table-empty-state";
 import { TableLoadingState } from "./table-loading-state";
 
@@ -126,16 +127,18 @@ export const CompanyTable = ({
         >
           {renderTableHeader()}
           <Table.Body>
-            <For each={companies}>
-              {(company, index) => (
-                <CompanyRow
-                  key={company.id}
-                  company={company}
-                  position={index + 1}
-                  currentPage={currentPage}
-                />
-              )}
-            </For>
+            <AnimatePresence>
+              <For each={companies}>
+                {(company, index) => (
+                  <AnimatedTableRow
+                    key={company.id}
+                    company={company}
+                    position={index + 1}
+                    currentPage={currentPage}
+                  />
+                )}
+              </For>
+            </AnimatePresence>
           </Table.Body>
         </Table.Root>
       </ScrollArea.Viewport>

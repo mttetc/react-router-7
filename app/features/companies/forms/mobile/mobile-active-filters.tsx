@@ -1,6 +1,6 @@
 import { Box, Button, HStack, Text, Wrap, For, Tag } from "@chakra-ui/react";
 import { FaTimes } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { FilterState } from "@/features/companies/api/companies-client";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { convertCurrency, getCurrencySymbol } from "@/stores/currency-utils";
@@ -10,108 +10,161 @@ interface MobileActiveFiltersProps {
   onFiltersChange?: (filters: Partial<FilterState>) => void;
 }
 
+interface ActiveFilter {
+  key: string;
+  label: string;
+  color: string;
+}
+
+const STAGE_LABELS: Record<string, string> = {
+  early: "🌱 Early",
+  seed: "🌿 Seed",
+  growing: "🌳 Growing",
+  late: "🏢 Late",
+  exit: "🚀 Exit",
+};
+
+const FOCUS_LABELS: Record<string, string> = {
+  b2b: "🏢 B2B",
+  b2c: "👥 B2C",
+  b2b_b2c: "🔄 B2B & B2C",
+  b2c_b2b: "🔄 B2C & B2B",
+};
+
+function createGrowthStageFilter(growthStage: string): ActiveFilter {
+  return {
+    key: "growthStage",
+    label: `Stage: ${STAGE_LABELS[growthStage] || growthStage}`,
+    color: "green",
+  };
+}
+
+function createCustomerFocusFilter(customerFocus: string): ActiveFilter {
+  return {
+    key: "customerFocus",
+    label: `Focus: ${FOCUS_LABELS[customerFocus] || customerFocus}`,
+    color: "blue",
+  };
+}
+
+function createFundingTypeFilter(fundingType: string): ActiveFilter {
+  return {
+    key: "fundingType",
+    label: `Funding: ${fundingType}`,
+    color: "purple",
+  };
+}
+
+function createRankRangeFilter(
+  minRank: number | null,
+  maxRank: number | null
+): ActiveFilter {
+  const min = minRank || 1;
+  const max = maxRank || 5000;
+  return {
+    key: "rankRange",
+    label: `Rank: ${min}-${max}`,
+    color: "yellow",
+  };
+}
+
+function createFundingRangeFilter(
+  minFunding: number | null,
+  maxFunding: number | null,
+  currentCurrency: string
+): ActiveFilter {
+  const min = minFunding || 0;
+  const max = maxFunding || 100000000;
+  const convertedMin = convertCurrency(min, currentCurrency);
+  const convertedMax = convertCurrency(max, currentCurrency);
+  const symbol = getCurrencySymbol(currentCurrency);
+
+  return {
+    key: "fundingRange",
+    label: `Funding: ${symbol}${convertedMin.toLocaleString()}-${symbol}${convertedMax.toLocaleString()}`,
+    color: "orange",
+  };
+}
+
 export function MobileActiveFilters({
   initialFilters,
   onFiltersChange,
 }: MobileActiveFiltersProps) {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   // Update local state when initialFilters change (from parent)
   useEffect(() => {
     setFilters(initialFilters);
   }, [initialFilters]);
 
-  const currentCurrency = useCurrencyStore((state) => state.selectedCurrency);
+  // Generate active filter tags using functional approach
+  const activeFilters = useMemo((): ActiveFilter[] => {
+    const filtersList: ActiveFilter[] = [];
 
-  // Generate active filter tags (excluding search)
-  const activeFilters = [];
+    if (filters.growthStage) {
+      filtersList.push(createGrowthStageFilter(filters.growthStage));
+    }
 
-  if (filters.growthStage) {
-    const stageLabels: Record<string, string> = {
-      early: "🌱 Early",
-      seed: "🌿 Seed",
-      growing: "🌳 Growing",
-      late: "🏢 Late",
-      exit: "🚀 Exit",
-    };
-    activeFilters.push({
-      key: "growthStage",
-      label: `Stage: ${
-        stageLabels[filters.growthStage] || filters.growthStage
-      }`,
-      color: "green",
-    });
-  }
+    if (filters.customerFocus) {
+      filtersList.push(createCustomerFocusFilter(filters.customerFocus));
+    }
 
-  if (filters.customerFocus) {
-    const focusLabels: Record<string, string> = {
-      b2b: "🏢 B2B",
-      b2c: "👥 B2C",
-      b2b_b2c: "🔄 B2B & B2C",
-      b2c_b2b: "🔄 B2C & B2B",
-    };
-    activeFilters.push({
-      key: "customerFocus",
-      label: `Focus: ${
-        focusLabels[filters.customerFocus] || filters.customerFocus
-      }`,
-      color: "blue",
-    });
-  }
+    if (filters.fundingType) {
+      filtersList.push(createFundingTypeFilter(filters.fundingType));
+    }
 
-  if (filters.fundingType) {
-    activeFilters.push({
-      key: "fundingType",
-      label: `Funding: ${filters.fundingType}`,
-      color: "purple",
-    });
-  }
+    if (filters.minRank || filters.maxRank) {
+      filtersList.push(createRankRangeFilter(filters.minRank, filters.maxRank));
+    }
 
-  if (filters.minRank || filters.maxRank) {
-    const minRank = filters.minRank || 1;
-    const maxRank = filters.maxRank || 5000;
-    activeFilters.push({
-      key: "rankRange",
-      label: `Rank: ${minRank}-${maxRank}`,
-      color: "yellow",
-    });
-  }
+    if (filters.minFunding || filters.maxFunding) {
+      filtersList.push(
+        createFundingRangeFilter(
+          filters.minFunding,
+          filters.maxFunding,
+          currentCurrency
+        )
+      );
+    }
 
-  if (filters.minFunding || filters.maxFunding) {
-    const minFunding = filters.minFunding || 0;
-    const maxFunding = filters.maxFunding || 100000000;
-    const convertedMin = convertCurrency(minFunding, currentCurrency);
-    const convertedMax = convertCurrency(maxFunding, currentCurrency);
-    const symbol = getCurrencySymbol(currentCurrency);
-
-    activeFilters.push({
-      key: "fundingRange",
-      label: `Funding: ${symbol}${convertedMin.toLocaleString()}-${symbol}${convertedMax.toLocaleString()}`,
-      color: "orange",
-    });
-  }
+    return filtersList;
+  }, [filters, currentCurrency]);
 
   const removeFilter = (key: string) => {
     const newFilters = { ...filters };
 
-    if (key === "rankRange") {
-      newFilters.minRank = null;
-      newFilters.maxRank = null;
-    } else if (key === "fundingRange") {
-      newFilters.minFunding = null;
-      newFilters.maxFunding = null;
-    } else {
-      (newFilters as any)[key] = "";
+    switch (key) {
+      case "rankRange":
+        newFilters.minRank = null;
+        newFilters.maxRank = null;
+        break;
+      case "fundingRange":
+        newFilters.minFunding = null;
+        newFilters.maxFunding = null;
+        break;
+      case "growthStage":
+        newFilters.growthStage = "";
+        break;
+      case "customerFocus":
+        newFilters.customerFocus = "";
+        break;
+      case "fundingType":
+        newFilters.fundingType = "";
+        break;
+      default:
+        // Handle any other filter keys safely
+        if (key in newFilters) {
+          (newFilters as Record<string, unknown>)[key] = "";
+        }
     }
 
     setFilters(newFilters);
-    if (onFiltersChange) {
-      onFiltersChange(newFilters);
-    }
+    onFiltersChange?.(newFilters);
   };
 
   const clearAllFilters = () => {
-    const clearedFilters = {
+    const clearedFilters: FilterState = {
       ...filters, // Keep current filters
       growthStage: "",
       customerFocus: "",
@@ -120,12 +173,9 @@ export function MobileActiveFilters({
       maxRank: null,
       minFunding: null,
       maxFunding: null,
-      page: 1, // Reset to first page
     };
     setFilters(clearedFilters);
-    if (onFiltersChange) {
-      onFiltersChange(clearedFilters);
-    }
+    onFiltersChange?.(clearedFilters);
   };
 
   if (activeFilters.length === 0) {

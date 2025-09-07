@@ -113,26 +113,26 @@ export function MobileFundingSliderField({
           </Box>
         </HStack>
 
-        <Box width="100%" px={2}>
-          <Slider.Root
-            value={range}
-            onValueChange={(details) =>
-              handleRangeChange(details.value as [number, number])
-            }
-            min={0}
-            max={Math.max(displayMaxValue, 100000000)}
-            step={Math.max(100000, Math.floor(displayMaxValue / 1000))}
-            minStepsBetweenThumbs={1}
-          >
-            <Slider.Control>
-              <Slider.Track>
-                <Slider.Range />
-              </Slider.Track>
-              <Slider.Thumb index={0} />
-              <Slider.Thumb index={1} />
-            </Slider.Control>
-          </Slider.Root>
-        </Box>
+        <Slider.Root
+          value={range}
+          onValueChange={(details) =>
+            handleRangeChange(details.value as [number, number])
+          }
+          min={0}
+          colorPalette="purple"
+          max={Math.max(displayMaxValue, 100000000)}
+          step={Math.max(100000, Math.floor(displayMaxValue / 1000))}
+          minStepsBetweenThumbs={1}
+          w="100%"
+        >
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Range />
+            </Slider.Track>
+            <Slider.Thumb index={0} />
+            <Slider.Thumb index={1} />
+          </Slider.Control>
+        </Slider.Root>
 
         <HStack justify="space-between" width="100%" px={2}>
           <Text fontSize="xs" color="gray.500">

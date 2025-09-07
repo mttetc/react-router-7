@@ -100,26 +100,26 @@ export function MobileSliderField({
           </Box>
         </HStack>
 
-        <Box width="100%" px={2}>
-          <Slider.Root
-            value={range}
-            onValueChange={(details) =>
-              handleRangeChange(details.value as [number, number])
-            }
-            min={min}
-            max={max}
-            step={step}
-            minStepsBetweenThumbs={1}
-          >
-            <Slider.Control>
-              <Slider.Track>
-                <Slider.Range />
-              </Slider.Track>
-              <Slider.Thumb index={0} />
-              <Slider.Thumb index={1} />
-            </Slider.Control>
-          </Slider.Root>
-        </Box>
+        <Slider.Root
+          value={range}
+          onValueChange={(details) =>
+            handleRangeChange(details.value as [number, number])
+          }
+          min={min}
+          max={max}
+          step={step}
+          minStepsBetweenThumbs={1}
+          colorPalette="purple"
+          w="100%"
+        >
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Range />
+            </Slider.Track>
+            <Slider.Thumb index={0} />
+            <Slider.Thumb index={1} />
+          </Slider.Control>
+        </Slider.Root>
       </VStack>
     </VStack>
   );

@@ -6,6 +6,7 @@ import {
   Presence,
   Tag,
   Text,
+  VStack,
   Wrap,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
@@ -151,10 +152,24 @@ export function ActiveFilters({
       flexWrap="wrap"
       gap={2}
     >
-      <HStack align="center" flexWrap="wrap" gap={1} flex={1}>
-        <Text fontSize="xs" fontWeight="medium" color="gray.600">
-          Active:
-        </Text>
+      <VStack align="start" flexWrap="wrap" gap={1} flex={1}>
+        <HStack justify="space-between" gap={1} flex={1} w="100%">
+          <Text fontSize="xs" fontWeight="medium" color="gray.600">
+            Active:
+          </Text>
+          {!hideClearAll && (
+            <Button
+              size="xs"
+              variant="plain"
+              colorPalette="purple"
+              onClick={onResetAll}
+              flexShrink={0}
+              _hover={{ textDecoration: "underline" }}
+            >
+              Clear all
+            </Button>
+          )}
+        </HStack>
 
         <Wrap gap={1}>
           <For each={activeFilters}>
@@ -234,20 +249,7 @@ export function ActiveFilters({
             )}
           </For>
         </Wrap>
-      </HStack>
-
-      {!hideClearAll && (
-        <Button
-          size="xs"
-          variant="plain"
-          colorPalette="purple"
-          onClick={onResetAll}
-          flexShrink={0}
-          _hover={{ textDecoration: "underline" }}
-        >
-          Clear all
-        </Button>
-      )}
+      </VStack>
     </HStack>
   );
 }
