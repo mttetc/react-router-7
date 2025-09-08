@@ -5,28 +5,17 @@ import type {
 } from "@/features/companies/types/schemas";
 
 // Client-side API functions for companies data
+// Makes HTTP requests to the API route for dynamic filtering
 
 export async function getCompaniesClient(
   params: Partial<CompaniesQueryParams> = {}
 ): Promise<PaginatedResult<Company>> {
   const searchParams = new URLSearchParams();
 
-  // Map server field names to URL parameter names (camelCase)
-  const paramMapping: Record<string, string> = {
-    growth_stage: "growthStage",
-    customer_focus: "customerFocus",
-    last_funding_type: "fundingType",
-    min_rank: "minRank",
-    max_rank: "maxRank",
-    min_funding: "minFunding",
-    max_funding: "maxFunding",
-  };
-
-  // Build URL search parameters
+  // Build URL search parameters (camelCase format)
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
-      const urlParamName = paramMapping[key] || key;
-      searchParams.set(urlParamName, String(value));
+      searchParams.set(key, String(value));
     }
   });
 
@@ -35,7 +24,12 @@ export async function getCompaniesClient(
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      `HTTP error! status: ${response.status}, details: ${JSON.stringify(
+        errorData
+      )}`
+    );
   }
 
   return response.json();
@@ -84,6 +78,3 @@ export const companiesCacheUtils = {
     queryClient.removeQueries({ queryKey: companiesKeys.all });
   },
 };
-
-// Types moved to @/types/schemas for better organization
-export type { FilterState, PaginationState } from "@/features/companies/types/schemas";

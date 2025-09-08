@@ -33,7 +33,7 @@ export function useCompaniesData(
   const query = useQuery({
     queryKey,
     queryFn: () => getCompaniesClient(params),
-    // Use keepPreviousData to avoid flickering during search transitions
+    // Use placeholderData to allow refetching when params change
     placeholderData: (previousData) => {
       // For initial load, use the server-side rendered data
       if (!previousData && initialData) {
@@ -42,12 +42,13 @@ export function useCompaniesData(
       // For subsequent queries, keep the previous data to avoid flickering
       return previousData;
     },
-    gcTime: 1000 * 60 * 10, // 10 minutes
+    // Enable refetching for dynamic filtering
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
+    gcTime: 1000 * 60 * 10, // 10 minutes
     retry: (failureCount, error) => {
-      // Don't retry on 4xx errors
-      if (error instanceof Error && error.message.includes("4")) {
+      // Don't retry on validation errors
+      if (error instanceof Error && error.message.includes("Invalid")) {
         return false;
       }
       return failureCount < 2;
