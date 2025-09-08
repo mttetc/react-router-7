@@ -9,7 +9,6 @@ import { QuickFilters } from "./quick-filters";
 import { ActiveFilters } from "./active-filters";
 import { ClientOnly } from "@/components/ui/client-only";
 import { DetailedFilters } from "./detailed-filters";
-import { MobileFilterForm } from "./mobile/mobile-filter-form";
 import {
   createFilterRemovalHandler,
   createFilterResetHandler,
@@ -17,16 +16,7 @@ import {
   createFilterSetterWithPageReset,
 } from "../utils/filter-form-utils";
 
-interface FilterFormProps {
-  isInDrawer?: boolean;
-}
-
-export function FilterForm({ isInDrawer = false }: FilterFormProps) {
-  // If in drawer mode, use the mobile filter form with sync state
-  if (isInDrawer) {
-    return <MobileFilterForm />;
-  }
-
+export function FilterForm() {
   const complementaryRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const quickFiltersRef = useRef<HTMLDivElement>(null);
@@ -145,19 +135,15 @@ export function FilterForm({ isInDrawer = false }: FilterFormProps) {
     <Box
       ref={complementaryRef}
       {...complementaryProps}
-      {...(isInDrawer
-        ? {}
-        : {
-            bg: "white",
-            borderRadius: "lg",
-            shadow: "sm",
-            border: "1px solid",
-            borderColor: "gray.200",
-            p: 4,
-            h: "fit-content",
-            maxH: "100%",
-            overflow: "hidden",
-          })}
+      bg="white"
+      borderRadius="lg"
+      shadow="sm"
+      border="1px solid"
+      borderColor="gray.200"
+      p={4}
+      h="fit-content"
+      maxH="100%"
+      overflow="hidden"
     >
       <VStack gap={6} align="stretch">
         <Box ref={searchRef} {...searchProps}>
@@ -174,7 +160,6 @@ export function FilterForm({ isInDrawer = false }: FilterFormProps) {
               filters={filters}
               onRemoveFilter={removeFilter}
               onResetAll={resetFilters}
-              hideClearAll={isInDrawer}
             />
           </Box>
         </ClientOnly>
