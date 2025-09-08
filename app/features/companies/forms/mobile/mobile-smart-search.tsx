@@ -3,7 +3,7 @@ import { Input, HStack, Text, Badge, VStack, For } from "@chakra-ui/react";
 import { FaSearch, FaMagic } from "react-icons/fa";
 import { useTextField } from "@react-aria/textfield";
 import { useFocusRing } from "@react-aria/focus";
-import type { FilterState } from "@/features/companies/api/companies-client";
+import type { FilterState } from "@/features/companies/types/schemas";
 import { useCurrencyStore } from "@/stores/currency.store";
 import {
   parseSmartSearch,

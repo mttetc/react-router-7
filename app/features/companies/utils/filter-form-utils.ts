@@ -5,7 +5,7 @@
 import type {
   FilterState,
   PaginationState,
-} from "@/features/companies/api/companies-client";
+} from "@/features/companies/types/schemas";
 
 /**
  * Create filter removal handler

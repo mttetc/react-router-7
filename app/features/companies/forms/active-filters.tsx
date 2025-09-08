@@ -12,7 +12,7 @@ import {
 import { useMemo } from "react";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { convertCurrency } from "@/stores/currency-utils";
-import type { FilterState } from "@/features/companies/api/companies-client";
+import type { FilterState } from "@/features/companies/types/schemas";
 import { getFilterColor } from "./filter-colors";
 
 interface ActiveFiltersProps {

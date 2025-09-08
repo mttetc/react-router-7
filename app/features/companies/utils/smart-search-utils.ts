@@ -2,7 +2,7 @@
  * Smart search parsing utilities
  */
 
-import type { FilterState } from "@/features/companies/api/companies-client";
+import type { FilterState } from "@/features/companies/types/schemas";
 import { convertToUSD } from "@/stores/currency-utils";
 
 export interface ParsedFilter {
@@ -36,6 +36,7 @@ export const SEARCH_PATTERNS = [
   // Funding patterns - supports $1M, 5M+, etc. with currency conversion
   // Negative lookbehind to avoid matching B2B, B2C patterns
   {
+    // eslint-disable-next-line no-useless-escape
     pattern: /(?<![a-zA-Z])\$?(\d+(?:\.\d+)?)\s*([kmb])[\+\-]?/gi,
     type: "funding",
     extract: (match: RegExpMatchArray) => {
@@ -115,7 +116,7 @@ export function parseSmartSearch(
       }
 
       switch (type) {
-        case "funding":
+        case "funding": {
           // Convert user currency to USD since backend data is in USD
           const usdAmount = convertToUSD(value, currentCurrency);
 
@@ -137,6 +138,7 @@ export function parseSmartSearch(
             });
           }
           break;
+        }
 
         case "growthStage":
           filters.growthStage = value.toLowerCase();

@@ -14,7 +14,7 @@ import { FaUndo } from "react-icons/fa";
 import { MobileFilterForm } from "../forms/mobile/mobile-filter-form";
 import { useQueryStates } from "nuqs";
 import { filtersSearchParams } from "@/lib/search-params";
-import type { FilterState } from "@/features/companies/api/companies-client";
+import type { FilterState } from "../types/schemas";
 
 interface MobileFilterDrawerProps {
   isOpen: boolean;
@@ -67,7 +67,7 @@ export function MobileFilterDrawer({
     }
   };
 
-  const handleClearAllFilters = () => {
+  const handleClearAllFilters = async () => {
     const clearedFilters = {
       search: "",
       growthStage: "",
@@ -77,12 +77,24 @@ export function MobileFilterDrawer({
       maxRank: null,
       minFunding: null,
       maxFunding: null,
+      sortBy: "rank",
+      sortOrder: "asc",
       page: 1,
     };
 
-    // Set the cleared filters as pending and apply them
-    setPendingFilters(clearedFilters);
-    handleApplyFilters();
+    // Clear pending filters first
+    setPendingFilters({});
+
+    // Apply cleared filters directly
+    setIsApplying(true);
+    try {
+      await setFilters(clearedFilters);
+      // Small delay to show loading state
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    } finally {
+      setIsApplying(false);
+      onClose();
+    }
   };
 
   return (

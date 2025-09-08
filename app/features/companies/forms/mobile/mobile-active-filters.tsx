@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Text, Wrap, For, Tag } from "@chakra-ui/react";
 import { FaTimes } from "react-icons/fa";
 import { useState, useEffect, useMemo } from "react";
-import type { FilterState } from "@/features/companies/api/companies-client";
+import type { FilterState } from "@/features/companies/types/schemas";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { convertCurrency, getCurrencySymbol } from "@/stores/currency-utils";
 

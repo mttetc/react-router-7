@@ -1,5 +1,5 @@
 import { ClientOnly } from "@/components/ui/client-only";
-import type { FilterState } from "@/features/companies/api/companies-client";
+import type { FilterState } from "@/features/companies/types/schemas";
 import { filtersSearchParams } from "@/lib/search-params";
 import { convertCurrency } from "@/stores/currency-utils";
 import { useCurrencyStore } from "@/stores/currency.store";

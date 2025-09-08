@@ -1,4 +1,4 @@
-import type { FilterState } from "@/features/companies/api/companies-client";
+import type { FilterState } from "@/features/companies/types/schemas";
 import { filtersSearchParams } from "@/lib/search-params";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { Badge, For, HStack, Input, Text, VStack } from "@chakra-ui/react";

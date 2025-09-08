@@ -1,6 +1,6 @@
 import { Button, Wrap, FormatNumber, For } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import type { FilterState } from "@/features/companies/api/companies-client";
+import type { FilterState } from "@/features/companies/types/schemas";
 import { useCurrencyStore } from "@/stores/currency.store";
 import { convertCurrency } from "@/stores/currency-utils";
 
