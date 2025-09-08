@@ -40,13 +40,7 @@ interface LoaderData {
   companiesData: PaginatedResult<Company>;
 }
 
-export function meta() {
-  return [
-    { title: "Specter lite - Companies" },
-    { name: "description", content: "Browse and filter companies" },
-  ];
-}
-
+// eslint-disable-next-line react-refresh/only-export-components
 export async function loader({
   request,
 }: LoaderFunctionArgs): Promise<LoaderData> {

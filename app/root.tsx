@@ -118,97 +118,99 @@ Common causes:
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto max-w-4xl">
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h1 className="text-2xl font-bold text-red-800 mb-4">{message}</h1>
+    <Provider>
+      <main className="pt-16 p-4 container mx-auto max-w-4xl">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+          <h1 className="text-2xl font-bold text-red-800 mb-4">{message}</h1>
 
-        <div className="space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold text-red-700 mb-2">
-              Error Details:
-            </h2>
-            <p className="text-red-600 bg-red-100 p-3 rounded border-l-4 border-red-400">
-              {details}
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold text-red-700 mb-2">
-              Error Type:
-            </h2>
-            <span className="inline-block bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-              {errorType}
-            </span>
-          </div>
-
-          {additionalInfo && (
+          <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold text-red-700 mb-2">
-                Troubleshooting:
+                Error Details:
               </h2>
-              <pre className="text-sm text-red-600 bg-red-100 p-3 rounded border-l-4 border-red-400 whitespace-pre-wrap">
-                {additionalInfo}
-              </pre>
+              <p className="text-red-600 bg-red-100 p-3 rounded border-l-4 border-red-400">
+                {details}
+              </p>
             </div>
-          )}
 
-          {stack && (
             <div>
               <h2 className="text-lg font-semibold text-red-700 mb-2">
-                Stack Trace:
+                Error Type:
               </h2>
-              <pre className="text-xs text-red-600 bg-red-100 p-3 rounded border-l-4 border-red-400 overflow-x-auto">
-                <code>{stack}</code>
-              </pre>
+              <span className="inline-block bg-red-200 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                {errorType}
+              </span>
             </div>
-          )}
 
-          {componentStack && (
-            <div>
-              <h2 className="text-lg font-semibold text-red-700 mb-2">
-                Component Stack:
-              </h2>
-              <pre className="text-xs text-red-600 bg-red-100 p-3 rounded border-l-4 border-red-400 overflow-x-auto">
-                <code>{componentStack}</code>
-              </pre>
+            {additionalInfo && (
+              <div>
+                <h2 className="text-lg font-semibold text-red-700 mb-2">
+                  Troubleshooting:
+                </h2>
+                <pre className="text-sm text-red-600 bg-red-100 p-3 rounded border-l-4 border-red-400 whitespace-pre-wrap">
+                  {additionalInfo}
+                </pre>
+              </div>
+            )}
+
+            {stack && (
+              <div>
+                <h2 className="text-lg font-semibold text-red-700 mb-2">
+                  Stack Trace:
+                </h2>
+                <pre className="text-xs text-red-600 bg-red-100 p-3 rounded border-l-4 border-red-400 overflow-x-auto">
+                  <code>{stack}</code>
+                </pre>
+              </div>
+            )}
+
+            {componentStack && (
+              <div>
+                <h2 className="text-lg font-semibold text-red-700 mb-2">
+                  Component Stack:
+                </h2>
+                <pre className="text-xs text-red-600 bg-red-100 p-3 rounded border-l-4 border-red-400 overflow-x-auto">
+                  <code>{componentStack}</code>
+                </pre>
+              </div>
+            )}
+
+            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">
+                Debug Information:
+              </h3>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>
+                  • Environment:{" "}
+                  {import.meta.env.DEV ? "Development" : "Production"}
+                </li>
+                <li>• Timestamp: {new Date().toISOString()}</li>
+                <li>
+                  • User Agent:{" "}
+                  {typeof navigator !== "undefined"
+                    ? navigator.userAgent
+                    : "Server-side"}
+                </li>
+                <li>
+                  • URL:{" "}
+                  {typeof window !== "undefined"
+                    ? window.location.href
+                    : "Server-side"}
+                </li>
+              </ul>
             </div>
-          )}
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
-            <h3 className="text-lg font-semibold text-blue-800 mb-2">
-              Debug Information:
-            </h3>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>
-                • Environment:{" "}
-                {import.meta.env.DEV ? "Development" : "Production"}
-              </li>
-              <li>• Timestamp: {new Date().toISOString()}</li>
-              <li>
-                • User Agent:{" "}
-                {typeof navigator !== "undefined"
-                  ? navigator.userAgent
-                  : "Server-side"}
-              </li>
-              <li>
-                • URL:{" "}
-                {typeof window !== "undefined"
-                  ? window.location.href
-                  : "Server-side"}
-              </li>
-            </ul>
-          </div>
-
-          <div className="mt-4">
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
-            >
-              Reload Page
-            </button>
+            <div className="mt-4">
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+              >
+                Reload Page
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </Provider>
   );
 }
