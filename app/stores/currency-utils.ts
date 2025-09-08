@@ -155,6 +155,7 @@ export function convertCurrency(
 ): number {
   const rate = EXCHANGE_RATES[targetCurrency];
   if (!rate) {
+    // eslint-disable-next-line no-console
     console.warn(`Exchange rate not found for currency: ${targetCurrency}`);
     return amountUSD; // Return original amount if rate not found
   }
@@ -167,6 +168,7 @@ export function convertCurrency(
 export function convertToUSD(amount: number, fromCurrency: string): number {
   const rate = EXCHANGE_RATES[fromCurrency];
   if (!rate) {
+    // eslint-disable-next-line no-console
     console.warn(`Exchange rate not found for currency: ${fromCurrency}`);
     return amount; // Return original amount if rate not found
   }
@@ -316,6 +318,6 @@ export function getCurrencySymbol(currencyCode: string): string {
     NPR: "Rs",
     ISK: "kr",
   };
-  
+
   return currencySymbols[currencyCode] || currencyCode;
 }

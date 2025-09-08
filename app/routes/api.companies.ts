@@ -16,6 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     return Response.json(companiesData);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("API Error:", error);
 
     // Return appropriate error response

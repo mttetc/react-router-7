@@ -2,36 +2,39 @@ import {
   Box,
   Container,
   Grid,
+  HStack,
   Presence,
   ScrollArea,
+  Spinner,
   Text,
   useScrollArea,
-  Spinner,
-  HStack,
 } from "@chakra-ui/react";
 
-import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData, useNavigation } from "react-router";
 import { useCallback, useState } from "react";
+import {
+  useLoaderData,
+  useNavigation,
+  type LoaderFunctionArgs,
+} from "react-router";
 
-import { useQueryStates } from "nuqs";
-import { CompanyTable } from "@/features/companies/components/company-table";
-import { Header } from "@/features/companies/components/header";
-import { MobileLayout } from "@/features/companies/components/mobile-layout";
-import { MobileFilterDrawer } from "@/features/companies/components/mobile-filter-drawer";
-import { Pagination } from "@/features/companies/components/pagination";
-import { FilterForm } from "@/features/companies/forms/filter-form";
-import { useCompaniesData } from "@/features/companies/hooks/use-companies-data";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
-import { filtersSearchParams } from "@/lib/search-params";
 import {
   getCompaniesServer,
   parseCompaniesParamsFromURL,
 } from "@/features/companies/api/companies-server";
+import { CompanyTable } from "@/features/companies/components/company-table";
+import { Header } from "@/features/companies/components/header";
+import { MobileFilterDrawer } from "@/features/companies/components/mobile-filter-drawer";
+import { MobileLayout } from "@/features/companies/components/mobile-layout";
+import { Pagination } from "@/features/companies/components/pagination";
+import { FilterForm } from "@/features/companies/forms/filter-form";
+import { useCompaniesData } from "@/features/companies/hooks/use-companies-data";
 import type {
   Company,
   PaginatedResult,
 } from "@/features/companies/types/schemas";
+import { filtersSearchParams } from "@/lib/search-params";
+import { useQueryStates } from "nuqs";
 
 interface LoaderData {
   companiesData: PaginatedResult<Company>;

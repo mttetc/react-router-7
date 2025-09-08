@@ -7,15 +7,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import type { Route } from "./+types/home";
 import { Link } from "react-router";
-
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "Specter lite" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
-}
 
 export default function Home() {
   return (

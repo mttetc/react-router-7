@@ -40,9 +40,12 @@ export class ErrorBoundary extends Component<Props, State> {
     // Log to external service in production
     if (import.meta.env.PROD) {
       // TODO: Send to error tracking service (Sentry, etc.)
+      // eslint-disable-next-line no-console
       console.error("🚨 Production Error:", error, errorInfo);
     } else {
+      // eslint-disable-next-line no-console
       console.error("🚨 Error Boundary caught an error:", error, errorInfo);
+      // eslint-disable-next-line no-console
       console.error("🔍 Component Stack:", errorInfo.componentStack);
     }
   }

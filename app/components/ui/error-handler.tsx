@@ -10,6 +10,7 @@ export function GlobalErrorHandler() {
       if (import.meta.env.PROD) {
         // TODO: Send to error tracking service (Sentry, etc.)
       } else {
+        // eslint-disable-next-line no-console
         console.error("🚨 Unhandled promise rejection:", event.reason);
       }
     };
@@ -20,6 +21,7 @@ export function GlobalErrorHandler() {
       if (import.meta.env.PROD) {
         // TODO: Send to error tracking service (Sentry, etc.)
       } else {
+        // eslint-disable-next-line no-console
         console.error("🚨 Global error:", event.error || event.message);
       }
     };

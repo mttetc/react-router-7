@@ -1,11 +1,11 @@
-import { For, ScrollArea, Table } from "@chakra-ui/react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useQueryState } from "nuqs";
-import { filtersSearchParams } from "@/lib/search-params";
 import type { Company } from "@/features/companies/types/schemas";
+import { filtersSearchParams } from "@/lib/search-params";
+import { For, ScrollArea, Table } from "@chakra-ui/react";
+import { AnimatePresence } from "framer-motion";
+import { useQueryState } from "nuqs";
 import { TABLE_COLUMNS } from "../utils/table-utils";
-import { SortableHeader } from "./sortable-header";
 import { AnimatedTableRow } from "./animated-table-row";
+import { SortableHeader } from "./sortable-header";
 import { TableEmptyState } from "./table-empty-state";
 import { TableLoadingState } from "./table-loading-state";
 

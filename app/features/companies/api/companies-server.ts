@@ -134,6 +134,7 @@ export async function getCompaniesServer(
   const validatedData = transformedData.map((company) => {
     const companyValidation = CompanySchema.safeParse(company);
     if (!companyValidation.success) {
+      // eslint-disable-next-line no-console
       console.error(`Invalid company data:`, companyValidation.error.issues);
       throw new Error(`Invalid company data for company ${company.id}`);
     }
@@ -152,6 +153,7 @@ export async function getCompaniesServer(
   const responseValidation =
     PaginatedResultSchema(CompanySchema).safeParse(result);
   if (!responseValidation.success) {
+    // eslint-disable-next-line no-console
     console.error(
       `Invalid response structure:`,
       responseValidation.error.issues
@@ -219,6 +221,7 @@ export function parseCompaniesParamsFromURL(
   // Validate the parsed parameters
   const validationResult = CompaniesQueryParamsSchema.safeParse(rawParams);
   if (!validationResult.success) {
+    // eslint-disable-next-line no-console
     console.error(`Invalid URL parameters:`, validationResult.error.issues);
     // Return safe defaults instead of throwing to prevent crashes
     return {
