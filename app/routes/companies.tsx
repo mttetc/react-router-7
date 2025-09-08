@@ -40,6 +40,21 @@ interface LoaderData {
   companiesData: PaginatedResult<Company>;
 }
 
+/**
+ * Page loader for the companies route
+ * This loader runs on the server during SSR and provides initial data to the page component.
+ * It's different from the API loader in api.companies.ts which is used for client-side data fetching.
+ *
+ * The page loader:
+ * - Runs during server-side rendering
+ * - Provides initial data to useLoaderData()
+ * - Enables faster page loads with pre-rendered content
+ *
+ * The API loader (api.companies.ts):
+ * - Handles client-side AJAX requests
+ * - Used by React Query for data refetching
+ * - Returns JSON responses for API calls
+ */
 // eslint-disable-next-line react-refresh/only-export-components
 export async function loader({
   request,

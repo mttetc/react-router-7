@@ -6,7 +6,19 @@ import type { LoaderFunctionArgs } from "react-router";
 
 /**
  * API endpoint for fetching companies data
- * Accepts query parameters for filtering, pagination, and sorting
+ * This loader handles client-side AJAX requests and is used by React Query for data refetching.
+ * It's different from the page loader in companies.tsx which runs during SSR.
+ *
+ * The API loader:
+ * - Handles client-side AJAX requests
+ * - Used by React Query for data refetching when filters change
+ * - Returns JSON responses for API calls
+ * - Includes error handling with proper HTTP status codes
+ *
+ * The page loader (companies.tsx):
+ * - Runs during server-side rendering
+ * - Provides initial data to useLoaderData()
+ * - Enables faster page loads with pre-rendered content
  */
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
